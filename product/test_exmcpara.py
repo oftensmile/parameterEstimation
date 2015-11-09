@@ -4,10 +4,11 @@
 ##############################################################
 import numpy as np
 from scipy import linalg
-np.random.seed(0)
+import matplotlib.pyplot as plt
 ####################### set parameters ########################
 """" Generate sampring by one MC-step for different beta """
 """ Can I use sampe Theta-Matrix for differnet replicas ? """
+np.random.seed(0)
 def calc_steady_prob(index_spin, x = [], theta = [[]]):
     a =  -0.01 * (  x[index_spin] * np.tensordot(x, theta[index_spin, :], axes = ([0],[0])) -  theta[index_spin, index_spin] * x[index_spin] )
     return np.exp(a)
@@ -49,26 +50,26 @@ def sum_of_xi_xj_over_num_sample(x_mc_sequence = []):
 
 ####################################   M A I N   ########################################
 if __name__ == "__main__":
-    num_spin, num_replica = 8, 3 # nuber of spin variable and replica
+    num_spin, num_replica = 8, 10 # nuber of spin variable and replica
     beta_min, beta_max = 0.001, 0.01 # inverse temp of min, max
     d_beta = float(beta_max- beta_min) / num_replica
     exchange_interval = 3 # number of mc-steps between exchangings of replica index
     sampling_interval = 9
-    num_sample, num_sample_est = 5000, 100 # number of sampling from true, estimated  prob
+    num_sample, num_sample_est = 3000, 100 # number of sampling from true, estimated  prob
 
-    #theta = np.arange(1, num_spin + 1)
-    #theta = np.tensordot(theta[:, np.newaxis], theta[: , np.newaxis], axes = ([1],[1]))
-    #np.fill_diagonal(theta, 0)
-    #theta *= 0.01
-    theta = [[0,1,0,0,0,0,0,1],
-             [1,0,1,0,0,0,0,0],
-             [0,1,0,1,0,0,0,0],
-             [0,0,1,0,1,0,0,0],
-             [0,0,0,1,0,1,0,0],
-             [0,0,0,0,1,0,1,0],
-             [0,0,0,0,0,1,0,1],
-             [1,0,0,0,0,0,1,0]]
-    theta = np.array(theta)
+    theta = np.arange(1, num_spin + 1)
+    theta = np.tensordot(theta[:, np.newaxis], theta[: , np.newaxis], axes = ([1],[1]))
+    np.fill_diagonal(theta, 0)
+    theta *= 0.01
+    #theta = [[0,1,0,0,0,0,0,1],
+            # [1,0,1,0,0,0,0,0],
+            # [0,1,0,1,0,0,0,0],
+            # [0,0,1,0,1,0,0,0],
+            # [0,0,0,1,0,1,0,0],
+            #[0,0,0,0,1,0,1,0],
+            #[0,0,0,0,0,1,0,1],
+            #[1,0,0,0,0,0,1,0]]
+    #theta = np.array(theta)
     theta_est = np.random.rand(num_spin,num_spin)    # create same size of matrix
     x =  2 * np.array(np.random.random_integers(0,1,num_spin) - 0.5)
     X , X_est = np.concatenate(([x],[x]), axis=0), np.concatenate(([x],[x]), axis=0)
@@ -98,6 +99,7 @@ if __name__ == "__main__":
     #print("final\nmean_xxT=\n",mean_xxT)
     
     # estimation of theta mat
+    data = np.zeros(epoc_theta)
     for epoc in range(epoc_theta):
         # reset
         x =  2 * np.array(np.random.random_integers(0,1,num_spin) - 0.5)
@@ -131,6 +133,11 @@ if __name__ == "__main__":
             theta_est = theta_est - ypc * (-1) * ( mean_xxT - mean_xxT_est ) # (-1) correspond to (- beta ) 
             #print("\nmaean_xxT \n= ", mean_xxT," maean_xxT_est \n= ", mean_xxT_est)
             #print("theta \n= ", theta," theta_est \n= ", theta_est)
-        print( (np.absolute( theta - theta_est ).sum() ))
+        data[epoc] = np.absolute( theta - theta_est ).sum()
+        print(data[epoc])
+    plt.plot(data)
+    plt.ylabel('Error Function', fontsize='20')
+    plt.xlabel('theta update-step', fontsize='20')
+    plt.show()
     # maybe above process created estimated theta-matrix 
 

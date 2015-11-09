@@ -93,10 +93,7 @@ if __name__ == "__main__":
             x_L_beta = np.array( X[num_replica-1, :] )  #it must be done for all replicas
             mean_xxT = mean_xxT + np.tensordot(x_L_beta[:,np.newaxis], x_L_beta[:,np.newaxis], axes = ([1],[1]))
             index_spin = (t) % num_spin
-            #print("X = \n",X)
-            #print("mean_xxT=\n", mean_xxT)
         mean_xxT = ( 1.0 / num_sample) * mean_xxT
-    #print("final\nmean_xxT=\n",mean_xxT)
     
     # estimation of theta mat
     data = np.zeros(epoc_theta)
@@ -109,31 +106,22 @@ if __name__ == "__main__":
                 
         # sampling from estimated probability
         mean_xxT_est = np.zeros((num_spin, num_spin))
-        #print("mean_xxT_est = \n", mean_xxT_est)
         for t in range(num_sample_est):
             if(t % sampling_interval == 0):
                 index_spin = 0
                 index_spin = (t) % num_spin
                 X_est = gen_sample_from_gibbus(index_spin, num_spin, num_replica, beta_min,d_beta, X_est, theta_est)
-                #print("X_est = \n", X_est)
                 if(t % exchange_interval == 0):
                     index_replica =  np.random.randint(0, num_replica - 1 ) 
                     beta = beta_min + d_beta * index_replica
                     X_est = replica_exchange(index_spin, index_replica, beta, d_beta, X_est)
                 x_L_beta = np.array( X_est[num_replica-1, :]  ) 
-                #print("x_L_beta = \n",x_L_beta)
                 A = np.tensordot(x_L_beta[:,np.newaxis], x_L_beta[:,np.newaxis], axes = ([1],[1]))
                 mean_xxT_est = mean_xxT_est + A #np.tensordot(x_L_beta[:,np.newaxis], x_L_beta[:,np.newaxis], axes = ([1],[1]))
-                #print("A = \n", A)
-                #print("mean_xxT_est = \n", mean_xxT_est)
             mean_xxT_est = ( 1.0 / num_sample_est) * mean_xxT_est
-            #print("mean_xxT_est = \n", mean_xxT_est)
-            #update of tehta-mat by SGD
-            #print("num_sample_est=", num_sample_est, " in roop mean_xxT_est = \n", mean_xxT_est)
             theta_est = theta_est - ypc * (-1) * ( mean_xxT - mean_xxT_est ) # (-1) correspond to (- beta ) 
-            #print("\nmaean_xxT \n= ", mean_xxT," maean_xxT_est \n= ", mean_xxT_est)
-            #print("theta \n= ", theta," theta_est \n= ", theta_est)
         data[epoc] = np.absolute( theta - theta_est ).sum()
+        print("theta_est = \n", theta_est)
         print(data[epoc])
     plt.plot(data)
     plt.ylabel('Error Function', fontsize='20')
