@@ -44,7 +44,7 @@ def mcmc_replica_exchange(mu, size_simulation, size_replica, frequency_exchange)
     #適当に間を切って定常分布"族"生成
     #mu=3, REPLICA=5なので0.75grid
     equilibrium_distributions = [generate_equilibrium_distribution(var) for var in np.linspace(0,mu,num=size_replica)]
-    print("ed = \n",equilibrium_distributions)
+    #print("ed = \n",equilibrium_distributions)
     #シミュレーション    
     for i in range(size_simulation):
         #通常のMCMCシミュレーション（メトロポリス法）

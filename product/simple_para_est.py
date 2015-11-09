@@ -5,11 +5,12 @@
 ##############################################################
 import numpy as np
 from scipy import linalg
-np.random.seed(0)
+import matplotlib.pyplot as plt
 ################### set of prob parameters ###################
+np.random.seed(0)
 n = 8  # number of Ising variables
-T = 800 # number of epoc for theta
-N = 10000 # number of smples, comes form true Prob
+T = 300 # number of epoc for theta
+N = 1000 # number of smples, comes form true Prob
 N_est = 100 # number of smples, comes form estimated Prob
 ypc = 1 # descent ratio
 cord = 0 # changiable spin variable when gibbus sampling time step
@@ -19,8 +20,8 @@ theta = np.arange(1,n+1)
 theta = np.tensordot(theta[:, np.newaxis], theta[: , np.newaxis], axes = ([1],[1]))
 np.fill_diagonal(theta, 0)
 print("theta = \n", theta)
-"""theta_est =  n * np.random.rand(n,n)    # create same size of matrix
-theta =[[0,1,0,0,0,0,0,1],
+theta_est =  n * np.random.rand(n,n)    # create same size of matrix
+"""theta =[[0,1,0,0,0,0,0,1],
         [1,0,1,0,0,0,0,0],
         [0,1,0,1,0,0,0,0],
         [0,0,1,0,1,0,0,0],
@@ -76,11 +77,17 @@ def get_del_l_del_theta_mat(N, X = [] , theta = [[]], del_l_del_theta = [[]]):
 ############################ MAIN ###############################
 del_l_del_theta = get_del_l_del_theta_mat(N, X,theta, del_l_del_theta)
 # 以下では1sampleでdel_l_del_theta_matを求めて、thetaを更新してを繰り返す。
+data = np.zeros(T)
 for t in range(T):
     # update theta using Graduant Descent
     theta_est = theta_est -  ypc * ( del_l_del_theta - del_l_del_theta_est )
     #theta_est = theta_est -  ypc * ( - del_l_del_theta_est )
     # sampling using t-th theta
     del_l_del_theta_est = get_del_l_del_theta_mat(N_est, X_est, theta_est, del_l_del_theta_est)
-    print( (np.absolute( theta - theta_est ).sum() ))
+    data[t] = np.absolute( theta - theta_est ).sum()
+    print(data[t])
 print("theta_est = \n", theta_est)
+plt.plot(data)
+plt.ylabel('Error Function',fontsize='20')
+plt.xlabel('theta update-step', fontsize='20')
+plt.show()
