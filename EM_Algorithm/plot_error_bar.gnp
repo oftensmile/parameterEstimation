@@ -1,0 +1,5 @@
+set title 'Estimation of Mu' 
+set title font 'Helvetica, 20'
+set xlabel "Class name"
+set ylabel "Mu"
+plot 'error_bar.dat' using 1:2:3 w yerrorbars , 'mu_est.dat' title 'estimate of mu' using 1:2

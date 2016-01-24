@@ -8,9 +8,9 @@ from scipy import linalg
 np.random.seed(0)
 ################### set of prob parameters ###################
 n = 8  # number of Ising variables
-T = 200 # number of epoc for theta
-N = 1000 # number of smples, comes form true Prob
-N_est = 100 # number of smples, comes form estimated Prob
+T = 100 # number of epoc for theta
+N = 200 # number of smples, comes form true Prob
+N_est = 50 # number of smples, comes form estimated Prob
 ypc = 0.1 # descent ratio
 # set symmetric theta matrix
 #theta = np.arange(1,n+1)
@@ -45,8 +45,6 @@ print("x_est = \n", X_est)
 # this func obtain one set of (x1,...,xn), which is distribute Boltzman waight
 # t_wait_sample : waiting time to get sample, each time step is correspond to the update step on Gibbus sampling
 def gen_a_gibbus_sample(t_wait_sample,X = [], theta=[[]]):
-    # local minimamu が沢山ある分布なので、最初の状態でどれを選ぶかに大きく依存してしまう
-    # Gibbus samplingはもちろん部分列を取り出さなければならない
     # sampling方法の修正、順番に分布関数を変化させていくが、samplingはランダムに部分列を取り出すことにする。
     # -> 変化可能な変数の選択をランダムにしてlocal minima にはまらないようにしよう
     for i in range(t_wait_sample * n):# 20 = 収束するまでの更新回数

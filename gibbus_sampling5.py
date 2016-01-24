@@ -20,7 +20,8 @@ ypc = 1 # descent ratio
 theta_est =  np.random.rand(n,n)    # create same size of matrix
 np.fill_diagonal(theta_est, 0)
 theta_tr = np.transpose(theta_est)
-theta_est = theta_est + theta_tr 
+theta_est = theta_est + theta_tr
+np.fill_diagonal(theta_est, 0)
 theta =[[0,1,0,0,0,0,0,1],
         [1,0,1,0,0,0,0,0],
         [0,1,0,1,0,0,0,0],
@@ -73,7 +74,7 @@ del_l_del_theta = get_del_l_del_theta_mat(N, X,theta)
 # 以下では1sampleでdel_l_del_theta_matを求めて、thetaを更新してを繰り返す。
 data = np.zeros(T)
 for t in range(T):
-    ypc = 1.0 /( (t+1)**0.1)
+    ypc = 1.0 /np.log(t + 2)
     # update theta using Graduant Descent
     #theta_est = theta_est -  ypc * ( - del_l_del_theta_est )
     # sampling using t-th theta
