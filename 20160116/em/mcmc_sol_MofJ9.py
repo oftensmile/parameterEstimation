@@ -51,6 +51,18 @@ def mcmc_sampling_given_h(mt,h,x=[],tu=[]):
             else:
                 x[i]=-1
     return x
+def mcmc_sampling_given_hJ(mt,h,J,x=[],tu=[]):
+    l=len(x)
+    for t in range(mt):
+        for i in range(l):
+            valu = J*( x[(l+i-1)%l]+x[(i+1)%l] ) +h*tau[i]
+            r=np.exp(-valu)/(np.exp(valu)+ np.exp(-valu))
+            R=np.random.uniform(0,1)
+            if(R<=r):
+                x[0]=1
+            else:
+                x[0]=-1
+    return x    
 
 def calcPhi(x=[[]]):
     m,ns=0, len(x[0])
@@ -76,9 +88,9 @@ z=regres_from_mcmc(k,nJ,Jmax,ns)
 J,h=0.2,0.1
 for q in range(Q):
     x0=np.ones(d)
-    x0=mcmc_sampling_given_h(1000,h,x0,tau)
+    x0=mcmc_sampling_given_hJ(1000,h,J,x0,tau)
     for l in range(ns):
-        x0=mcmc_sampling_given_h(3,h,x0,tau)
+        x0=mcmc_sampling_given_hJ(3,h,J,x0,tau)
         if (l==0):
             x=x0
         else:
@@ -88,6 +100,6 @@ for q in range(Q):
     s=calc_xtau(tau,x)
     #M-step
     h=np.arctanh(s)
-    J=root(phi_eq,0.1,(m,z))
-    J0=np.asscalar(J.x)
-    print(q," ", s," ",h," ",J0)
+    tempJ=root(phi_eq,0.1,(m,z))
+    J=np.asscalar(tempJ.x)
+    print(q," ", s," ",h," ",J)
