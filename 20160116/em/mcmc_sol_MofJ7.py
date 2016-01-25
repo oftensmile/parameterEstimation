@@ -50,8 +50,27 @@ def mcmc_sampling(mt,J,x=[]):
                 x[i]=-1
         #print(np.log(f(J,x)[0]/J),"#=f")
     return x
+#####Find inverse map by using linear regression method####)
+# At first, learning shape of function
+def regres_from_mcmc(k,nJ,Jmax,ns):#nJ=sample num
+    dJ=Jmax/nJ
+    J,PhiofJ=np.zeros(nJ),np.zeros(nJ)
+    for j in range(nJ):
+        x=np.ones(d)
+        x=mcmc_sampling(500,dJ*j,x)
+        m=0
+        for t in range(ns):
+            x=mcmc_sampling(3,dJ*j,x)
+            m+=f(dJ*j,x)[1]
+        m/=ns
+        J[j],PhiofJ[j]=dJ*j,m
+    z=np.polyfit(J,PhiofJ,k)
+    return z
+def root_phi(J,m,z=[]):
+    p=np.poly1d(z)  # this may cannot use for root() function
+    return p(J)-m
 ########## mcmc newto method ##########
-def mcmc_newton(J):
+def mcmc_newton(J,z=[]):
     mt,ns,sd=1000, 200,3 # mc-time(until equilibrium), #sample, sampling distance 
     #
     def genMCMC(x=[]):
@@ -78,12 +97,7 @@ def mcmc_newton(J):
         b/=d
         h=b-c
         return h
-    
-    
-    
-    
-    
-    def root_J(J,c,x=[[]]):
+    def calcPhi(J,x=[[]]):
         a=[0,0]
         #size=len(x[0])
         for i in range(ns):
@@ -91,15 +105,21 @@ def mcmc_newton(J):
             a[0]+=b[0]
             a[1]+=b[1]
         m=a[1]/a[0]
-        m=m-c#surch for zero point ot 'm-a0 '
         return m
+   
     x0=np.ones(d)# Initialize
     x=genMCMC(x0)# Generate mcmc-samples
-    h0=root(root_h,0.1(10,x))
-    J0=root(root_J,0.1,(10,x))
-    return J0##################main##################
+    h0=root(root_h,0.1,(10,np.ones(d),x))#[1,..,1] is damaged sample
+    m=calcPhi(J,x)
+    J0=root(root_phi,0.1,(m,z))
+    return J0
+##################main##################
 J0=1.0#initial guess
 ns=100
+#Learnign phi function
+k,nJ,Jmax=20,100,10
+z=regres_from_mcmc(k,nJ,Jmax,ns)
+
 for q in range(50):
     m=0
     x=np.ones(d)#initial state
@@ -109,7 +129,7 @@ for q in range(50):
         m+=f(J0,x)[1]
     m/=ns
     #print("m=",m)
-    J0=mcmc_newton(m)
+    J0=mcmc_newton(m,z)
     J0=np.asscalar(J0.x)
     print(J0,"#=J0")
 #print(J0)
@@ -125,7 +145,4 @@ for q in range(50):
 #plt.subplot(122)
 #plt.imshow(y)
 #plt.show()
-
-
-
 
