@@ -24,18 +24,13 @@ def mcmc_sampling(J,x=[[]]):
     return x
 
 ##############main##############
-print(x0)
 plt.subplot(131)
 plt.imshow(x0,interpolation='none')
-
 x=mcmc_sampling(1/d,x0)
-print(x)
 plt.subplot(132)
 plt.imshow(x,interpolation='none')
-
 x1=np.random.randint(1,size=(d,d))
 x1=mcmc_sampling(0/d,x1)
-print(x1)
 plt.subplot(133)
 plt.imshow(x1,interpolation='none')
 plt.show()

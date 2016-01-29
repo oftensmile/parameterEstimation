@@ -82,7 +82,11 @@ def calc_xtau(tau=[],x=[[]]):
 ##############main###############
 k,nJ,Jmax,ns=30,100,10,300
 Q=100
-tau=[-1 if i%3==0 else 1 for i in range(d)]#[-1,1,1-1,,...,1]
+#tau=[-1 if i%3==0 else 1 for i in range(d)]#[-1,1,1-1,,...,1]
+tau=np.oens(d)
+Jtrue=1.1
+tau=mcmc_sampling_given_J(2000,Jtrue,tau)
+
 # find Phi of J
 z=regres_from_mcmc(k,nJ,Jmax,ns)
 J,h=0.2,0.1
