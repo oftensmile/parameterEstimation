@@ -2,7 +2,7 @@ import numpy as np
 from scipy import linalg 
 import matplotlib.pyplot as plt
 np.random.seed(0)
-d,T,N,heatN,J=8,800,1000,20,1
+d,T,N,heatN,J=8,1500,1000,20,1
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
     for t in range(t_wait):
@@ -32,11 +32,15 @@ dl_sample=sum_xixj(N,theta)
 theta_est=0.1*np.random.rand(d,d)
 theta_est=0.5*(theta_est + theta_est.T)
 loss=np.zeros(T)
+dl1=np.zeros((d,d))
 for l in range(d):theta_est[l][l]=0
 for k in range(T):
     lr=0.3/np.log(k+2.0)
     dl_model=sum_xixj(heatN,theta_est)
-    theta_est=theta_est-lr*(dl_sample - dl_model)
+    for i in range(d):
+        for j in range(d):
+            dl1[i][j]=theta_est[i][j]/(np.abs(theta_est[i][j])+0.0000000001)
+    theta_est=theta_est-lr*(dl_sample - dl_model +0.01*dl1)#+ l*np.sign(theta_est))
     loss[k]=np.absolute(theta-theta_est).sum()
 
 result=[gen_mcmc(1000,np.ones(d),theta_est)]

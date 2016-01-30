@@ -2,7 +2,7 @@ import numpy as np
 from scipy import linalg 
 import matplotlib.pyplot as plt
 np.random.seed(0)
-d,T,N,heatN,J=8,800,1000,20,1
+d,T,N,heatN,J=8,900,1000,20,1
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
     for t in range(t_wait):
@@ -22,35 +22,45 @@ def sum_xixj(n_sample,theta=[[]]):
     y=gen_mcmc(500,y,theta)
     for n in range(n_sample):
         y=gen_mcmc(3,y,theta)
-        xixj=xixj+np.tensordot(y,y,axes=([0][0]))/n_sample
+        xixj=xixj+np.tensordot(y,y,axes=([0][0]))
     for l in range(d):xixj[l][l]=0
-    return xixj
+    return xixj/n_sample
 
 #################### MAIN #########################
 dl_sample=sum_xixj(N,theta)
 # initial theta
-theta_est=0.1*np.random.rand(d,d)
+theta_est=np.random.rand(d,d)
 theta_est=0.5*(theta_est + theta_est.T)
-loss=np.zeros(T)
+loss,delta=np.zeros(T),np.zeros(T)
 for l in range(d):theta_est[l][l]=0
+#using AdaGrad
+r,a,epc=0,2,0.001
 for k in range(T):
-    lr=0.3/np.log(k+2.0)
     dl_model=sum_xixj(heatN,theta_est)
-    theta_est=theta_est-lr*(dl_sample - dl_model)
+    r+=np.sum(dl_model*dl_model)
+    lr=a/(np.sqrt(r)+epc)
+    grad=dl_sample-dl_model
+    theta_est=theta_est-lr*grad
     loss[k]=np.absolute(theta-theta_est).sum()
-
+    delta[k]=np.absolute(grad).sum()
 result=[gen_mcmc(1000,np.ones(d),theta_est)]
-print("theta_est=",theta_est)
-plt.subplot(221)
+plt.subplot(321)
 plt.imshow(theta)
+plt.colorbar()
 plt.title('true theta')
-plt.subplot(222)
+plt.subplot(322)
 plt.imshow(theta_est)
+plt.colorbar()
 plt.title('estimated theta ')
-plt.subplot(223)
+plt.subplot(323)
+plt.plot(loss)
+plt.title('loss fuction')
+plt.subplot(324)
+plt.plot(delta)
+plt.title('grad')
+plt.subplot(325)
 plt.imshow(result)
 plt.title('generated config')
-plt.subplot(224)
-plt.plot(loss)
-plt.title('loss function')
 plt.show()
+
+
