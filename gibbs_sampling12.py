@@ -2,7 +2,7 @@ import numpy as np
 from scipy import linalg 
 import matplotlib.pyplot as plt
 np.random.seed(0)
-d,T,N,heatN,J=8,900,1000,20,1
+d,T,N,heatN,J=8,2000,10000,20,1
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
     for t in range(t_wait):
@@ -41,7 +41,7 @@ for k in range(T):
     lr=a/(np.sqrt(r)+epc)
     grad=dl_sample-dl_model
     theta_est=theta_est-lr*grad
-    loss[k]=np.absolute(theta-theta_est).sum()
+    loss[k]=np.sqrt((np.matrix(theta-theta_est)**2).sum())
     delta[k]=np.absolute(grad).sum()
 result=[gen_mcmc(1000,np.ones(d),theta_est)]
 plt.subplot(321)
