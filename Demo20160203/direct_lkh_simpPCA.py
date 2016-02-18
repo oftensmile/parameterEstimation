@@ -6,8 +6,8 @@ from scipy import linalg
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 np.set_printoptions(precision=3)
 np.random.seed(0)
-d,T,N,heatN,J=3,1000,1000,20,1
-h,lam=10.0,0.1
+d,T,N,heatN,J=4,1000,1000,20,1
+h,lam=1.0**2,0.1
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
     for t in range(t_wait):
@@ -45,6 +45,7 @@ def gen_theta(t_wait,samp_theta=[[]],X=[[]]):
                         samp_theta[i][j]=samp_theta[i][j]-dtheta
                         samp_theta[j][i]=samp_theta[j][i]-dtheta
     return samp_theta
+
 
 def kernel_regres(x,target):
     xx=np.dot(np.matrix(x),np.matrix(x).T)
@@ -89,24 +90,109 @@ ax=Axes3D(fig)
 ax.scatter3D(np.ravel(stack_theta[:,1]),np.ravel(stack_theta[:,2]),np.ravel(stack_theta[:,3]),c=np.array(stack_x1x2))
 plt.show()
 
-H=np.matrix(np.ones((n_sample,n_sample)))
-cov_theta=np.matrix(np.dot(stack_theta,stack_theta.T))
-theta2=np.matrix(np.diagonal(cov_theta))
-theta2=np.matlib.repmat(theta2,n_sample,1)+np.matlib.repmat(theta2.T,1,n_sample)
-hh=2.0
-K=np.matrix(np.exp(-(theta2-2*cov_theta)/hh))
-K=K - H*K - K*H + H*K*H
-la,v=linalg.eig(K)
+H=np.matrix(np.eye(d**2)-np.ones((d**2,d**2)))
+cov_theta=np.matrix(np.dot(stack_theta.T,stack_theta))
+cov_theta=np.dot(np.dot(H,cov_theta),H)
+#cov_theta=np.dot(stack_theta.T,stack_theta)
+#print(np.shape(stack_theta[:,1])) = (5,)
+#alpha=kernel_regres(stack_theta,stack_x1x2)
+la,v=linalg.eig(cov_theta)
 idx=la.argsort()[::-1]
 l1,l2,l3=la[idx[0]],la[idx[1]],la[idx[2]]
 v1,v2,v3=v[:,idx[0]],v[:,idx[1]],v[:,idx[2]]
 Tpca=np.vstack((np.vstack((v1,v2)),v3))
-projected=np.dot(np.matrix(Tpca),np.matrix(K))
+projected=np.dot(np.matrix(Tpca),np.matrix(stack_theta).T)
 base1,base2,base3=np.real(projected[0]),np.real(projected[1]),np.real(projected[2])   
-#plt.scatter(np.ravel(base1),np.ravel(base2),c=stack_x1x2)
-fig=plt.figure(1)
+fig=plt.figure()
 ax=Axes3D(fig)
 ax.scatter3D(np.ravel(base1),np.ravel(base2),np.ravel(base3),c=np.real(stack_x1x2))
 p=ax.scatter(np.ravel(base1),np.ravel(base2),np.ravel(base3),c=np.real(stack_x1x2))
 fig.colorbar(p)
 plt.show()
+
+
+
+#max1,min1=np.max(base1),np.min(base1)
+#max2,min2=np.max(base2),np.min(base2)
+#Nmesh=100
+#axis1=np.linspace(min1,max1,Nmesh)
+#axis2=np.linspace(min2,max2,Nmesh)
+#Z=np.zeros((Nmesh,Nmesh))
+#for l1 in range(Nmesh):
+#    for l2 in range(Nmesh):
+#        Z[l1][l2]=np.dot(alpha.T,k_of_x(n_sample,[axis1[l1],axis2[l2]],pbase))
+
+#print("np.shape(Tpca_covtheta)",np.shape(pbase))
+#print("shape Z[0][0]",np.shape(Z[0][0]))
+#print("Z shape =",np.shape(Z))
+#print("Z[0][0]=",Z[0][0])
+#fig=plt.figure()
+#ax=Axes3D(fig)
+#ax.plot_wireframe(axis1,axis2,Z)
+#ax.scatter3D(np.ravel(base1),np.ravel(base2),np.ravel(stack_x1x2))
+
+#alpha=kernel_regres(stack_theta,stack_x1x2)
+#chack t[1,2]=t[d+2-1]element only 
+#tmax,tmin=np.max(stack_x1x2),np.min(stack_x1x2)
+#theta_line=np.linspace(tmin,tmax,100)
+#for l in range(len(theta_line)):
+#    if l==0:
+#        k=k_of_x(theta_line[l],stack_theta[:,d+2-1])
+#    else:
+#        k=np.vstack((k,k_of_x(theta_line[l],stack_theta[:,d+2-1])))
+#
+#Y=np.dot(np.matrix(k),np.matrix(alpha))
+#
+#p1,=plt.plot(stack_theta[:,(d+2-1)%(d**2)],stack_x1x2,'o')
+#p2,=plt.plot(theta_line,Y,'-')
+#plt.legend([p1,p2],['theta(1,2)','target(theta)'])
+#plt.show()
+
+
+
+
+
+
+#plt.subplot(131)
+#plt.imshow(dl_sample)
+#plt.colorbar()
+#plt.title('gram_matrix')
+#plt.subplot(132)
+#plt.imshow(samp_theta)
+#plt.colorbar()
+#plt.title('samp_theta')
+#plt.subplot(133)
+#plt.imshow(phi)
+#plt.colorbar()
+#plt.title('gram_matrix(samp_theta)')
+#plt.show()
+
+
+#for l in range(d):theta_est[l][l]=0
+#using AdaGrad
+#r,a,epc=0,2,0.001
+#for k in range(T):
+#    dl_model=sum_xixj(heatN,theta_est)
+#    r+=np.sum(dl_model*dl_model)
+#    lr=a/(np.sqrt(r)+epc)
+#    theta_est=theta_est-lr*(dl_sample - dl_model)
+#    loss[k]=np.absolute(theta-theta_est).sum()
+
+#result=[gen_mcmc(1000,np.ones(d),theta_est)]
+#plt.subplot(221)
+#plt.imshow(theta)
+#plt.colorbar()
+#plt.title('true theta')
+#plt.subplot(222)
+#plt.imshow(theta_est)
+#plt.colorbar()
+#plt.title('estimated theta ')
+#plt.subplot(223)
+#plt.imshow(result)
+#plt.title('generated config')
+#plt.subplot(224)
+#plt.plot(loss)
+#plt.title('loss function')
+#plt.show()
+
+
