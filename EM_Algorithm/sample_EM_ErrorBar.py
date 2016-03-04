@@ -55,3 +55,4 @@ width = 0.7 * (bins[1]-bins[0])
 center = (bins[:-1]+ bins[1:])/2
 plt.bar(center,hist/(2*num_sample/num_bin),align='center',width=width)
 plt.show()
+

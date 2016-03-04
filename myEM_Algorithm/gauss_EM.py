@@ -2,8 +2,8 @@ import numpy  as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 np.random.seed(0)
-num_sample, num_class, iteration = 10000, 3, 300
-mu,sigma = 4 * np.arange(num_class), np.ones(num_class)
+num_sample, num_class, iteration = 10000, 5, 600
+mu,sigma =  np.arange(num_class), 0.2*np.ones(num_class)
 alpha = np.random.rand(num_class)
 alpha = alpha / np.sum(alpha)
 class_sample=np.zeros(num_class)
@@ -21,6 +21,7 @@ p = np.zeros((total_sample,num_class), dtype=np.float)
 ganma=np.zeros((total_sample,num_class),dtype=np.float)
 num_each_sample_est = np.zeros(num_class)
 x2=x*x
+epc=0.00001
 for t in range(iteration):
     #E-step
     for k1 in range(num_class):
@@ -28,7 +29,9 @@ for t in range(iteration):
         mu_est_vec=mu_est[k1]*np.ones(len(x))
         p[:,k1] = alpha_est[k1] * np.exp( -(x2 -2.0*mu_est[k1]*x+mu_est[k1]**2) * 1.0/(2.0*sigma_est[k1]**2))/(np.sqrt(2.0*np.pi)*sigma_est[k1])
     for n in range(total_sample):
-        ganma[n,:]=p[n,:]/np.sum(p[n,:])
+        sum_p_of_n=np.sum(p[n,:])
+        if(epc<=sum_p_of_n):ganma[n,:]=p[n,:]/sum_p_of_n
+        else: ganma[n,:]=np.zeros((1,num_class),dtype=np.float)
     #M-step
     for k2 in range(num_class):
         num_each_sample_est[k2] = int(np.sum( ganma[:,k2])) # this is correspond to sums up all of gannma_k by x
