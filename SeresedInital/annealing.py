@@ -3,8 +3,8 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import time 
 np.random.seed(0)
-d,T,N,heatN,J=16,1000,1000,20,1
-burn_t_long=10000
+d,T,N,heatN,J=16,300,1000,20,1
+burn_t_long=100
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
     for t in range(t_wait):
@@ -23,7 +23,7 @@ def sum_xixj(n_sample,theta=[[]]):
     y=np.ones(d)
     y=gen_mcmc(burn_t_long,y,theta)
     for n in range(n_sample):
-        y=gen_mcmc(10,y,theta)
+        y=gen_mcmc(1,y,theta)
         xixj=xixj+np.tensordot(y,y,axes=([0][0]))/n_sample
     for l in range(d):xixj[l][l]=0
     return xixj
@@ -50,7 +50,7 @@ for k in range(T):
     delta[k]=np.absolute(grad).sum()
 time_en=time.time()
 result=[gen_mcmc(1000,np.ones(d),theta_est)]
-
+print("#working time = ",time_en-time_st)
 #print("theta_est=",theta_est)
 plt.subplot(321)
 plt.imshow(theta)
