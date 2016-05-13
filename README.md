@@ -1,5 +1,2 @@
-Test of theGitHub Desktop
-
-There are a few tips for GitHub Desktop
-1).
+This projects intend to estimate/infere the set of parameters.
 
