@@ -3,7 +3,7 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import time
 np.random.seed(0)
-d,T,N,heatN,J=16,500,1000,20,1
+d,T,N,heatN,J=16,300,1000,20,1
 burn_t_long, burn_t_short = 1000, 100
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 def gen_mcmc(t_wait, x=[],theta=[[]]):
