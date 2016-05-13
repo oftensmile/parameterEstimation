@@ -1,0 +1,3 @@
+This cord is based on simple Stochastic Gradient Desent method with annealing.
+
+I put the previous prob p(theta(t-1))'s equilibrium as an initial state of current prob p(theta(t)) at each mcmc step.
