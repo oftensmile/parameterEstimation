@@ -9,11 +9,11 @@ np.random.seed(0)
 J = 0.1
 #parameter ( MCMC )
 t_burn_emp, t_burn_model = 1000, 10#10000, 100
-t_interval = 10
+t_interval = 3
 #parameter ( System )
-d, N_sample = 3, 100#124, 1000
+d, N_sample = 4, 10#124, 1000
 #parameter ( MPF+GD )
-eps = 0.01
+eps = 0.1
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 theta=np.array(theta)
 theta_model = np.arange(d*d)
@@ -68,7 +68,7 @@ for t in range(10):
     print("just chack of the one update of theta \n grad_K=\n",grad_K) 
     theta_model=theta_model+eps*grad_K
 print("theta_model = \n", theta_model)
-print("theta = \n " , theta)
+
 #output equilibrium state data
 """
 FILE = "sample.csv"
