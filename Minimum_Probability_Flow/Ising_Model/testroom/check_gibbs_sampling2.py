@@ -16,26 +16,25 @@ n_T=100
 dT=T_max/n_T 
 
 #parameter ( MCMC )
-t_burn_emp, t_burn_model = 10000, 10#10000, 100
-t_interval = 100
+t_burn_emp, t_burn_model = 1000, 10#10000, 100
+t_interval = 10
 #parameter ( System )
-d, N_sample = 10, 256#124, 1000
+d, N_sample = 8, 256#124, 1000
 #parameter ( MPF+GD )
 #eps = 0.01
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
 theta=np.array(theta)
-print("theta=\n", theta)
 #theta_model = np.arange(d*d)
 #theta_model = np.reshape(theta_model,(d,d))#np.ones((d,d))
 def gen_mcmc(J,x=[] ):
     for i in range(d):
-        valu=J*(np.dot(theta[i,:],x)-x[i]*theta[i][i])
-        r=np.exp(-valu)/(np.exp(-valu)+np.exp(valu))
+        #Metropolice
+        E_diff=-2.0*J*x[i]*( x[(i+d-1)%d]+x[(i+1)%d])
+        r=np.exp(-E_diff)
         R=np.random.uniform(0,1)
+        #r=np.exp(-valu)/(np.exp(-valu)+np.exp(valu))
         if(R<=r):
-            x[i]=1
-        else:
-            x[i]=-1
+            x[i]=x[i]*(-1)
         return x
 
 def calc_E(J,X=[[]]):
@@ -78,6 +77,7 @@ for nt in range(n_T):
     E_mean = calc_E(J,X_sample)
     M_mean = calc_M(X_sample)
     print(Jinv,"",M_mean,"",E_mean)
+    if(nt==0):print ("#len(X_sample)=",len(X_sample))
 
 """
 FILE = "sample.csv"
