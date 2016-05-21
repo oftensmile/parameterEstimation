@@ -1,6 +1,6 @@
 #2016/05/19
 ##############
-#   H = -J*sum(xixj), J in R^1
+#   H = J*sum(xixj), J in R^1
 ##############
 import numpy as np
 import time 
@@ -19,23 +19,29 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,5024 #124, 1000
+d, N_sample = 32,5024 #124, 1000
 #parameter ( MPF+GD )
 #eps = 0.01
-#theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
-#theta=np.array(theta)
+theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
+theta=np.array(theta)
 #theta_model = np.arange(d*d)
 #theta_model = np.reshape(theta_model,(d,d))#np.ones((d,d))
 def gen_mcmc(J,x=[] ):
     for i in range(d):
-        #Metropolice
-        E_diff=-(-1)*2.0*J*x[i]*( x[(i+d-1)%d]+x[(i+1)%d])#positive sign
-        r=np.exp(-E_diff)
+        #Heat Bath
+        diff_E=2.0*J*x[i]*(x[(i+d-1)%d]+x[(i+1)%d])#E_new-E_old
+        r=1.0/(1+np.exp(diff_E)) 
         R=np.random.uniform(0,1)
-        #r=np.exp(-valu)/(np.exp(-valu)+np.exp(valu))
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
+def calc_H(J,x=[]):
+    e=0.0
+    size=len(x)
+    for i in range(size):
+        e+=x[i]*x[(i+1)%size]
+    e*=-J
+    return e
 
 def calc_E(J,X=[[]]):
     n_bach=len(X)
@@ -58,6 +64,27 @@ def calc_M(X=[[]]):
         M+=np.sum(xn)/d
     M/=n_bach
     return M
+def calc_heat_capacity(J,X=[[]]):
+    n_bach=len(X)
+    c1,c2=0.0,0.0
+    for n in range(n_bach):
+        xn=X[n]
+        e_over_J=0.0
+        for i in range(d):
+            e_over_J+=xn[i]*xn[(i+1)%d]
+        c2+=(e_over_J/d)**2
+        c1+=e_over_J/d
+    c=(1.0/n_bach)*(c2-c1**2)
+    return c
+def calc_twopint_corre(X=[[]]):
+    c1,c2=0.0,0.0
+    n_bach=len(X)
+    for n in range(n_bach):
+        xn=X[n]
+        c1+=(xn[0]*x[1])
+        c2+=(xn[0]*x[1])**2
+    c=(1.0/n_bach)*(c2-c1**2)
+    return c
 
 ########    MAIN    ########
 #Generate sample
@@ -70,9 +97,7 @@ for nt in range(n_T):
     Jinv=T_max -dT*nt
     J=1.0/Jinv
     for t_burn in range(t_burn_emp):
-        x = np.copy(gen_mcmc(J,x))
-    #x = np.ones(d)
-    #BURN-IN 
+        x=np.copy(gen_mcmc(J,x))
     #SAMPLING
     for n in range(N_sample):
         for t in range(t_interval):
@@ -81,4 +106,6 @@ for nt in range(n_T):
         elif(n>0):X_sample=np.vstack((X_sample,x))
     E_mean = calc_E(J,X_sample)
     M_mean = calc_M(X_sample)
-    print(Jinv,"",np.abs(M_mean),"",np.abs(E_mean*Jinv))
+    #c_mean = calc_heat_capacity(J,X_sample)
+    c2_mean=calc_twopint_corre(X_sample)
+    print(Jinv,"",np.abs(M_mean),"",np.abs(E_mean*Jinv),"",c2_mean)
