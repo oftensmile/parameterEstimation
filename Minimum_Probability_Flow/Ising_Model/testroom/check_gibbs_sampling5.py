@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import csv
 np.random.seed(0)
 #parameter ( Model )
-T_max=2.0
+T_max=1.2
 #Temperature Dependance
 #= J^-1=kT/J=T/Tc, Tc=J/k=1
 n_T=100
@@ -19,7 +19,7 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 8,1024 #124, 1000
+d, N_sample = 32,1024 #124, 1000
 #parameter ( MPF+GD )
 #eps = 0.01
 theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
