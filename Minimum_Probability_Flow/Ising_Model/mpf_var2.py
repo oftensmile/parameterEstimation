@@ -48,9 +48,7 @@ for t in range(100):
     for i in range(N_sample):
         xi=np.copy(X_sample[i,:])
         x_outer=np.outer(xi,xi)
-
         xi_theta_1=np.dot(np.ones(d), np.dot(theta_model,xi))
-        a = np.reshape(xi,(d,1))*xi_theta_1 - np.reshape(np.array(np.diag(theta_model)),(d,1))
         a = np.reshape(xi,(d,1))*xi_theta_1 - np.reshape(np.array(np.diag(theta_model)),(d,1))
         exp_a = np.exp ( a*(1.0/d))
         A = np.matlib.repmat(exp_a,1,d) + np.matlib.repmat(exp_a.T,d,1)
@@ -75,4 +73,3 @@ c=csv.writer(f)
 c.writerows(X_sample)
 f.close()
 """
-
