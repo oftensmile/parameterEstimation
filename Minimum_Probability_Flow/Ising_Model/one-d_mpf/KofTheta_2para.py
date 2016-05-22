@@ -33,43 +33,10 @@ def gen_mcmc(J,x=[] ):
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
-"""
-def calc_E(J,X=[[]]):
-    n_bach=len(X)
-    E=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        e=0.0
-        for i in range(d):
-            e+=xn[i]*xn[(i+1)%d]
-        e*=J*(1.0/d)
-        E+=e
-    E/=n_bach
-    return E
-"""
-"""
-def calc_M(X=[[]]):
-    n_bach=len(X)
-    M=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        M+=np.sum(xn)/d
-    M/=n_bach
-    return M
-"""
-"""
-def calc_C(X=[[]]):
-    n_bach = len(X)
-    corre_mean=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        corre=0.0
-        for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
-        corre_mean+=corre
-    corre_mean/=n_bach
-    return corre_mean
-"""
+
+
+
+
 ########    MAIN    ########
 #Generate sample-dist
 J=1.1 # =theta_sample
@@ -84,24 +51,26 @@ for n in range(N_sample):
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-theta_model=-2.0   #Initial Guess
-print("#gd-step, abs-grad_likelihood, theta-error")
-for t_gd in range(t_gd_max):
+#theta_model=4.0   #Initial Guess
+theta_slice=200
+theta_min,theta_max=-2,2
+dtheta=(theta_max-theta_min)*(1.0/theta_slice)
+print("#theta, KofTheta")
+for t in range(theta_slice):
     #calc gradK of theta
-    gradK=0.0
+    theta_model=theta_min+t*dtheta
+    KofTheta=0.0
     n_bach=len(X_sample)
     for nin in range(n_bach):
         x_nin=X_sample[nin]
-        gradK_nin=0.0
+        KofTheta_nin=0.0
         #hamming distance = 1
         for hd in range(d):
             diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_E_nin=diff_delE_nin*theta_model
-            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
-        gradK+=gradK_nin
-    gradK*=(1.0/n_bach)
-    theta_model=np.copy(theta_model) - lr * gradK
-    theta_diff=abs(theta_model-J)
-    print(t_gd,np.abs(gradK),theta_diff)
+            KofTheta_nin+=np.exp(0.5*diff_E_nin)
+        KofTheta+=KofTheta_nin
+    KofTheta*=(1.0/n_bach)
+    print(theta_model,KofTheta)
 print("#theta_true=",J,"theta_estimated=",theta_model)
 
