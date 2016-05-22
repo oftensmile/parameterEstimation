@@ -48,7 +48,7 @@ for n in range(N_sample):
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-theta_model1,theta_model2=2.0, 2.0  #Initial Guess
+theta_model1,theta_model2=3.0, 2.0  #Initial Guess
 print("#gd-step, abs-grad_likelihood, theta-error")
 for t_gd in range(t_gd_max):
     #calc gradK of theta
