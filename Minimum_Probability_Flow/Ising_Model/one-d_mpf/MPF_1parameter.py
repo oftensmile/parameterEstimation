@@ -16,10 +16,10 @@ n_T=100
 dT=T_max/n_T 
 
 #parameter ( MCMC )
-t_burn_emp, t_burn_model = 100, 10#10000, 100
+t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,1000 #124, 1000
+d, N_sample = 32,10000 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
