@@ -19,7 +19,7 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,1000 #124, 1000
+d, N_sample = 32,10000 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
@@ -89,7 +89,7 @@ for n in range(N_sample):
 corre_sample_mean=calc_C(X_sample) 
 #Generate model-dist
 xi = np.array(np.sign(np.random.uniform(-1,1,d)))
-theta_model=1.5   #Initial Guess
+theta_model=2.0   #Initial Guess
 #Burn-in
 #for t_burn in range(t_burn_model*10):
 #    xi=np.copy(gen_mcmc(theta_model,xi))
