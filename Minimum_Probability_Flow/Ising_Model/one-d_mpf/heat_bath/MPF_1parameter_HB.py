@@ -19,7 +19,7 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 32,1000 #124, 1000
+d, N_sample = 32,100 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
@@ -33,43 +33,7 @@ def gen_mcmc(J,x=[] ):
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
-"""
-def calc_E(J,X=[[]]):
-    n_bach=len(X)
-    E=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        e=0.0
-        for i in range(d):
-            e+=xn[i]*xn[(i+1)%d]
-        e*=J*(1.0/d)
-        E+=e
-    E/=n_bach
-    return E
-"""
-"""
-def calc_M(X=[[]]):
-    n_bach=len(X)
-    M=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        M+=np.sum(xn)/d
-    M/=n_bach
-    return M
-"""
-"""
-def calc_C(X=[[]]):
-    n_bach = len(X)
-    corre_mean=0.0
-    for n in range(n_bach):
-        xn=X[n]
-        corre=0.0
-        for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
-        corre_mean+=corre
-    corre_mean/=n_bach
-    return corre_mean
-"""
+
 ########    MAIN    ########
 #Generate sample-dist
 J=1.1 # =theta_sample
@@ -97,7 +61,8 @@ for t_gd in range(t_gd_max):
         for hd in range(d):
             diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_E_nin=diff_delE_nin*theta_model
-            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+            T_hdn=1.0/(np.exp(-diff_E_nin)+1.0)
+            gradK_nin+=diff_delE_nin*T_hdn**2
         gradK+=gradK_nin
     gradK*=(1.0/n_bach)
     theta_model=np.copy(theta_model) - lr * gradK
