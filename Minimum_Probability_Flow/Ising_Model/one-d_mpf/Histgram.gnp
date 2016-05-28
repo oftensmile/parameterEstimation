@@ -1,0 +1,7 @@
+unset xrange
+unset yrange
+set title "distribution of estimated parameter"
+set ylabel 'hist(parameter)'
+set xlabel 'parameter'
+filter(x,y)=int(x/y)*y
+plot "./data/Jknife_1para.dat" u (filter($1,0.001)):(1) smooth frequency with boxes title "hist(parameter)"
