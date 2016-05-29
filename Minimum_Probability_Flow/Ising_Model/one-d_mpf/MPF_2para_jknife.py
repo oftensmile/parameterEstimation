@@ -19,11 +19,7 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-<<<<<<< HEAD
-d, N_sample = 16,1000 #124, 1000
-=======
 d, N_sample = 64,1000 #124, 1000
->>>>>>> refs/remotes/origin/master
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
@@ -40,11 +36,7 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-<<<<<<< HEAD
-J1,J2=1.5,1.0 # =theta_sample
-=======
 J1,J2=1.2,0.0 # =theta_sample
->>>>>>> refs/remotes/origin/master
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 for t_burn in range(t_burn_emp):
@@ -56,13 +48,8 @@ for n in range(N_sample):
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-<<<<<<< HEAD
-theta_model1,theta_model2=2.0, 1.0  #Initial Guess
-print("#gd-step, abs-grad_likelihood, theta-error")
-=======
 theta_model1,theta_model2=3.0, 2.0  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
->>>>>>> refs/remotes/origin/master
 for t_gd in range(t_gd_max):
     gradK1,gradK2=0.0,0.0
     n_bach=len(X_sample)
