@@ -19,11 +19,11 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 32,100 #124, 1000
+d, N_sample = 64,1000 #124, 1000
 #parameter ( MPF+GD )
-lr,eps =0.1, 1.0e-100
-#n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=600 
+lr,eps =0.01, 1.0e-100
+n_mfa = 100 #Number of the sample for Mean Field Aproximation.
+t_gd_max=400 
 def gen_mcmc(J1,J2,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -48,7 +48,6 @@ for n in range(N_sample):
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-#MPF
 theta_model1,theta_model2=3.0, 2.0  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
@@ -56,10 +55,12 @@ for t_gd in range(t_gd_max):
     n_bach=len(X_sample)
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
+        #print("#xnine=",x_nin,"theta_model1=",theta_model1,"theta_model2",theta_model2)
         gradK1_nin,gradK2_nin=0.0,0.0
         for hd in range(d):
             diff_delE1_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_delE2_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-2)%d]+x_nin[(hd+2)%d])
+            #print("diff_delE1_nin=",diff_delE1_nin," diff_delE2_nin=",diff_delE2_nin,"theta_model1=",theta_model1,"theta_model2",theta_model2)
             diff_E1_nin=diff_delE1_nin*theta_model1
             diff_E2_nin=diff_delE2_nin*theta_model2
             diff_E_nin=diff_E1_nin+diff_E2_nin
