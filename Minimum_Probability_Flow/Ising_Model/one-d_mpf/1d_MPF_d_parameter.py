@@ -23,17 +23,16 @@ d, N_sample = 16,200 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=800 
-def gen_mcmc(J=[],x=[] ):
+def gen_mcmc(J=[],x=[]):
     for i in range(d):
         #Heat Bath
         diff_E=2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i-1)%d]*x[(i+d-1)%d])
         #r=1.0/(1+np.exp(diff_E)) 
         r=np.exp(-diff_E) 
-        
         R=np.random.uniform(0,1)
-        if(R<=r):
-            x[i]=x[i]*(-1)
-    return x
+        if(R<=r):x[i]=x[i]*(-1)
+        #elif(R>r):x[i]=x[i]
+    return  x
 
 #######    MAIN    ########
 #Generate sample-dist
@@ -51,7 +50,7 @@ for n in range(N_sample):
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
 theta_model=np.random.uniform(3,4,d)    #Initial guess
-init_theta=np.copy(theta_model)
+nit_theta=np.copy(theta_model)
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK=np.zeros(d)
@@ -62,17 +61,16 @@ for t_gd in range(t_gd_max):
         #calc gradK_nin_one_by_one
         for l in range(d):
             diff_del_l_nin=-1.0*x_nin[l]*x_nin[(l+1)%d]
-            gradK_nin[l]=diff_del_l_nin*np.exp(diff_del_l_nin*theta_model[l])
+           gradK_nin[l]=2.0*diff_del_l_nin*np.exp(diff_del_l_nin*theta_model[l])
         gradK=np.copy(gradK)+gradK_nin*(1.0/n_bach)
-    #theta_model=theta_model-lr*gradK
-    theta_model=theta_model-lr*(gradK+0.1*theta_model)
+    theta_model=theta_model-lr*gradK
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,error_func)
-#Plot
 bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
 plt.bar(bins+bar_width,theta_model,color="red",width=bar_width,label="estimated",align="center")
-plt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="initial",align="center")
+lt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="inital",align="center")
+plt.bar(bins+3*bar_width,gradK*100,color="gray",width=bar_width,label="gradK",align="center")
 plt.legend()
 plt.show()

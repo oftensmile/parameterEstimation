@@ -23,7 +23,7 @@ d, N_sample = 64,1000 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=200 
+t_gd_max=50 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -46,21 +46,41 @@ for n in range(N_sample):
         x = np.copy(gen_mcmc(J,x))
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-
-theta_model=2.0   #Initial Guess
-print("#gd-step, abs-grad_likelihood, theta-error")
-n_set_of_Jknife=100
+#Jack Knife
+n_removed_subset=100
 n_sample_tot = len(X_sample)
-n_removed_subset=int(n_sample_tot/n_set_of_Jknife)
+n_set_of_Jknife=int(n_sample_tot/n_removed_subset)
+theta_vec=0.0
 for ns in range(n_set_of_Jknife):
-    #Jack Knife method
-    n_bach=n_sample_tot-n_removed_subset
     idx_subset_strt,idx_subset_last=ns*n_removed_subset, (ns+1)*n_removed_subset
     set_front=np.arange(0,idx_subset_strt)
     set_back=np.arange(idx_subset_last,n_sample_tot)
     set_Jknife=np.append(set_front,set_back)
+    n_bach=len(set_Jknife)
+    theta_model=2.0 #Initial Guess
+    for t in range(t_gd_max):
+        gradK=0.0
+        for nin in set_Jknife:
+            x_nin=X_sample[nin]
+            gradK_nin=0.0
+            #hamming distance = 1
+            for hd in range(d):
+                diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
+                diff_E_nin=diff_delE_nin*theta_model
+                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+            gradK+=gradK_nin
+        gradK*=(1.0/n_bach)
+    theta_model=np.copy(theta_model) - lr * gradK
+    theta_diff=abs(theta_model-J)
+    if(ns==0):theta_vec=theta_model
+    elif(ns>=1):theta_vec=np.append(np.copy(theta_vec),theta_model)
+    print(theta_model,"#=theta_est, theta_true=",J)
+#Simple calc
+n_bach=len(X_sample)
+for t_gd in range(t_gd_max):
+    #calc gradK of theta
     gradK=0.0
-    for nin in set_Jknife:
+    for nin in range(n_bach):
         x_nin=X_sample[nin]
         gradK_nin=0.0
         #hamming distance = 1
@@ -72,5 +92,11 @@ for ns in range(n_set_of_Jknife):
     gradK*=(1.0/n_bach)
     theta_model=np.copy(theta_model) - lr * gradK
     theta_diff=abs(theta_model-J)
-    print(theta_model,"#=theta_est, theta_true=",J)
-    
+print("#theta_true=",J,"theta_estimated=",theta_model)
+
+plt.hist(theta_vec,bins=10)
+plt.title("Hist(J), Jack Knife")
+plt.xlabel("J")
+plt.ylabel("Hist(J)")
+filename="hist_of_J4.png"
+plt.savefig(filename)
