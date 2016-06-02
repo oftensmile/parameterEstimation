@@ -16,18 +16,17 @@ n_T=100
 dT=T_max/n_T 
 
 #parameter ( MCMC )
-t_burn_emp, t_burn_model = 1000, 10#10000, 100
+#t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-
-d, N_sample = 16,400 #124, 1000
+d, N_sample = 64,1300 #124, 1000
 N_remove=300
 #parameter ( MPF+GD )
-lr,eps =0.01, 1.0e-100
-n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=10 
+lr,eps =0.1, 1.0e-100
+#n_mfa = 100 #Number of the sample for Mean Field Aproximation.
+t_gd_max=40 
 #parameter (Jack Knife)
-n_remove_size=5
+n_remove_size=10
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -62,25 +61,21 @@ for t_gd in range(t_gd_max):
         for hd in range(d):
             diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_E_nin=diff_delE_nin*theta_model
-            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
         gradK+=gradK_nin
     gradK*=(1.0/n_bach)
     theta_model=np.copy(theta_model) - lr * gradK
     theta_diff=abs(theta_model-J)
 print(theta_model,"#=theta_model_simple, theta_true=",J)
-
 #Jack Knife
 n_bach=len(X_sample)
 n_jknife=int(n_bach/n_remove_size)
-fw1=open("ns1.dat","w")
-fw_last=open("ns_last.dat","w")
-for ns_u in range(n_jknife):
-    ns=n_jknife - ns_u -1
+for ns in range(n_jknife):
     idx_strt,idx_last=ns*n_remove_size, (ns+1)*n_remove_size
     removed_set=np.copy(X_sample[0:idx_strt])
-    rempved_sat=np.vstack((removed_set, np.copy(X_sample[idx_last:n_bach])))
+    removed_set=np.vstack((removed_set, np.copy(X_sample[idx_last:n_bach])))
     theta_model=2.5
-    print(t_gd_max)
+    fw=open("ns"+str(ns)+".dat","w")
     for t_gd in range(t_gd_max):
         #calc gradK of theta
         gradK=0.0
@@ -90,25 +85,19 @@ for ns_u in range(n_jknife):
             for hd in range(d):
                 diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d]) 
                 diff_E_nin=diff_delE_nin*theta_model
-                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
             gradK+=gradK_nin
         gradK*=(1.0/n_bach)
         theta_model=theta_model - lr * gradK
-        if(ns==0): 
-            fw1.write(str(theta_model)+"\n")
-        elif(ns==n_jknife-1):
-            fw_last.write(str(theta_model)+"\n")
+        fw.write(str(theta_model)+"\n")
+    fw.close()
     print(theta_model,"#=theta_model, ns=",ns,"t_gd=",t_gd,"theta_true=",J)
-    #if(ns==0):theta_vec=theta_model
-    #elif(ns>0):theta_vec=np.append(theta_vec,theta_model)
-    if(ns==n_jknife-1):theta_vec=theta_model
-    elif(ns<n_jknife):theta_vec=np.append(theta_vec,theta_model)
-fw1.close()
-fw_last.close()
-
+    if(ns==0):theta_vec=theta_model
+    elif(ns>0):theta_vec=np.append(theta_vec,theta_model)
 plt.hist(theta_vec,bins=10)
 plt.title("Hist(J), Jack Knife")
 plt.xlabel("J")
 plt.ylabel("Hist(J)")
 filename="hist_of_J4.png"
 plt.savefig(filename)
+

@@ -7,7 +7,7 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
-np.random.seed(0)
+np.random.seed(1)
 #parameter ( Model )
 T_max=1.2
 #Temperature Dependance
@@ -17,7 +17,7 @@ dT=T_max/n_T
 
 #parameter ( MCMC )
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
-t_interval = 40
+t_interval = 60
 #parameter ( System )
 d, N_sample = 64,1300 #124, 1000
 N_remove = 300

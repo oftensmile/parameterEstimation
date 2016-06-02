@@ -19,10 +19,11 @@ dT=T_max/n_T
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,200 #124, 1000
+d, N_sample = 16,300 #124, 1000
+N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=800 
+t_gd_max=80 
 def gen_mcmc(J=[],x=[]):
     for i in range(d):
         #Heat Bath
@@ -39,17 +40,15 @@ J_max,J_min=2.0,0.0
 J_vec=np.random.uniform(J_min,J_max,d)
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
-for t_burn in range(t_burn_emp):
-    x=np.copy(gen_mcmc(J_vec,x))
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_vec,x))
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+    if(n==N_remove):X_sample = np.copy(x)
+    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
 theta_model=np.random.uniform(3,4,d)    #Initial guess
-nit_theta=np.copy(theta_model)
+init_theta=np.copy(theta_model)
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK=np.zeros(d)
@@ -69,7 +68,7 @@ bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
 plt.bar(bins+bar_width,theta_model,color="red",width=bar_width,label="estimated",align="center")
-lt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="inital",align="center")
+plt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="inital",align="center")
 plt.bar(bins+3*bar_width,gradK*100,color="gray",width=bar_width,label="gradK",align="center")
 plt.legend()
 plt.show()
