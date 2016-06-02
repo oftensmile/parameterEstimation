@@ -7,7 +7,7 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
-np.random.seed(1)
+np.random.seed(0)
 #parameter ( Model )
 T_max=1.2
 #Temperature Dependance
@@ -17,13 +17,17 @@ dT=T_max/n_T
 
 #parameter ( MCMC )
 t_burn_emp, t_burn_model = 1000, 10#10000, 100
-t_interval = 10
+t_interval = 40
 #parameter ( System )
-d, N_sample = 16,100 #124, 1000
+
+d, N_sample = 16,400 #124, 1000
+N_remove=300
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=15 
+t_gd_max=10 
+#parameter (Jack Knife)
+n_remove_size=5
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -38,46 +42,16 @@ def gen_mcmc(J,x=[] ):
 J=1.2 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
-for t_burn in range(t_burn_emp):
-    x=np.copy(gen_mcmc(J,x))
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J,x))
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-#Jack Knife
-n_removed_subset=10
-n_sample_tot = len(X_sample)
-n_set_of_Jknife=int(n_sample_tot/n_removed_subset)
-theta_vec=0.0
-for ns in range(n_set_of_Jknife):
-    idx_subset_strt,idx_subset_last=ns*n_removed_subset, (ns+1)*n_removed_subset
-    set_front=np.arange(0,idx_subset_strt)
-    set_back=np.arange(idx_subset_last,n_sample_tot)
-    set_Jknife=np.append(set_front,set_back)
-    n_bach=len(set_Jknife)
-    theta_model=2.0 #Initial Guess
-    for t in range(t_gd_max):
-        gradK=0.0
-        for nin in set_Jknife:
-            x_nin=X_sample[nin]
-            gradK_nin=0.0
-            #hamming distance = 1
-            for hd in range(d):
-                diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
-                diff_E_nin=diff_delE_nin*theta_model
-                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
-            gradK+=gradK_nin
-        gradK*=(1.0/n_bach)
-    theta_model=np.copy(theta_model) - lr * gradK
-    #theta_diff=abs(theta_model-J)
-    if(ns==0):theta_vec=theta_model
-    elif(ns>=1):theta_vec=np.append(np.copy(theta_vec),theta_model)
-    print(theta_model,"#=theta_est, theta_true=",J)
+    if(n==N_remove):X_sample = np.copy(x)
+    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 
 #Simple calc
 n_bach=len(X_sample)
+theta_model=3.0
 for t_gd in range(t_gd_max):
     #calc gradK of theta
     gradK=0.0
@@ -93,7 +67,44 @@ for t_gd in range(t_gd_max):
     gradK*=(1.0/n_bach)
     theta_model=np.copy(theta_model) - lr * gradK
     theta_diff=abs(theta_model-J)
-print("#theta_true=",J,"theta_estimated=",theta_model)
+print(theta_model,"#=theta_model_simple, theta_true=",J)
+
+#Jack Knife
+n_bach=len(X_sample)
+n_jknife=int(n_bach/n_remove_size)
+fw1=open("ns1.dat","w")
+fw_last=open("ns_last.dat","w")
+for ns_u in range(n_jknife):
+    ns=n_jknife - ns_u -1
+    idx_strt,idx_last=ns*n_remove_size, (ns+1)*n_remove_size
+    removed_set=np.copy(X_sample[0:idx_strt])
+    rempved_sat=np.vstack((removed_set, np.copy(X_sample[idx_last:n_bach])))
+    theta_model=2.5
+    print(t_gd_max)
+    for t_gd in range(t_gd_max):
+        #calc gradK of theta
+        gradK=0.0
+        for samp in removed_set:
+            x_nin=samp
+            gradK_nin=0.0
+            for hd in range(d):
+                diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d]) 
+                diff_E_nin=diff_delE_nin*theta_model
+                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+            gradK+=gradK_nin
+        gradK*=(1.0/n_bach)
+        theta_model=theta_model - lr * gradK
+        if(ns==0): 
+            fw1.write(str(theta_model)+"\n")
+        elif(ns==n_jknife-1):
+            fw_last.write(str(theta_model)+"\n")
+    print(theta_model,"#=theta_model, ns=",ns,"t_gd=",t_gd,"theta_true=",J)
+    #if(ns==0):theta_vec=theta_model
+    #elif(ns>0):theta_vec=np.append(theta_vec,theta_model)
+    if(ns==n_jknife-1):theta_vec=theta_model
+    elif(ns<n_jknife):theta_vec=np.append(theta_vec,theta_model)
+fw1.close()
+fw_last.close()
 
 plt.hist(theta_vec,bins=10)
 plt.title("Hist(J), Jack Knife")
