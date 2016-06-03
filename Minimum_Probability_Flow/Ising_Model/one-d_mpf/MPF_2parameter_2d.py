@@ -45,7 +45,9 @@ x = np.array(np.sign(x))
 #SAMPLIN
 
 n_J=100
-for j1 in range(
+J_max,J_min=2.0, -2.0
+dJ=(J_max-J_min)/n_J
+for j in range(n_J):
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J1,J2,x))
@@ -62,7 +64,6 @@ for n in range(n_bach):
     sum_magnet=np.sum(x_nin)/(len(x_nin))
     mean_magnet+=sum_magnet/n_bach
 print("magnetization=",mean_magnet)
-
 
 
 """
