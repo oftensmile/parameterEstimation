@@ -44,8 +44,8 @@ x = np.array(np.sign(x))
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_vec,x))
-    if(n==N_remove):X_sample = np.copy(x)
-    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+        if(n==N_remove):X_sample = np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
 theta_model=np.random.uniform(3,4,d)    #Initial guess
 init_theta=np.copy(theta_model)

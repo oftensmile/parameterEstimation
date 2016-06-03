@@ -16,13 +16,12 @@ n_T=100
 dT=T_max/n_T 
 
 #parameter ( MCMC )
-t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 32,100 #124, 1000
+d, N_sample = 32,300 #124, 1000
+N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-#n_mfa = 100 #Number of the sample for Mean Field Aproximation.
 t_gd_max=600 
 def gen_mcmc(J1,J2,x=[] ):
     for i in range(d):
@@ -39,14 +38,12 @@ def gen_mcmc(J1,J2,x=[] ):
 J1,J2=1.2,0.0 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
-for t_burn in range(t_burn_emp):
-    x=np.copy(gen_mcmc(J1,J2,x))
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J1,J2,x))
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+        if(n==N_remove):X_sample = np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 
 #MPF
 theta_model1,theta_model2=3.0, 2.0  #Initial Guess

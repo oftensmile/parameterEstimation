@@ -22,7 +22,7 @@ t_interval = 10
 d, N_sample = 16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
-lr,eps =1, 1.0e-100
+lr,eps =0.1, 1.0e-100
 t_gd_max=170 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
@@ -46,8 +46,8 @@ x = np.array(np.sign(x))
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_vec,x))
-    if(n==N_remove):X_sample = np.copy(x)
-    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+        if(n==N_remove):X_sample = np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)

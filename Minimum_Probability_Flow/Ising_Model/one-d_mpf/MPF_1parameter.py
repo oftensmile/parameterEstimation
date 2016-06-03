@@ -19,7 +19,7 @@ dT=T_max/n_T
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 64,1300 #124, 1000
+d, N_sample = 16,800 #124, 1000
 N_remove = 300
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
@@ -30,6 +30,7 @@ def gen_mcmc(J,x=[] ):
         #Heat Bath
         diff_E=2.0*J*x[i]*(x[(i+d-1)%d]+x[(i+1)%d])#E_new-E_old
         r=1.0/(1+np.exp(diff_E)) 
+        #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
         if(R<=r):
             x[i]=x[i]*(-1)
@@ -44,8 +45,10 @@ x = np.array(np.sign(x))
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J,x))
-    if(n==N_remove):X_sample = np.copy(x)
-    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+        if(n==N_remove):
+            X_sample = np.copy(x)
+        elif(n>N_remove):
+            X_sample=np.vstack((X_sample,np.copy(x)))
 
 n_bach=len(X_sample)
 theta_model=2.0   #Initial Guess
@@ -54,6 +57,7 @@ for t_gd in range(t_gd_max):
     #calc gradK of theta
     gradK=0.0
     for sample in X_sample:
+        #x_nin=np.reshep(np.copy(sample),(d,d)
         x_nin=np.copy(sample)
         gradK_nin=0.0
         #hamming distance = 1
