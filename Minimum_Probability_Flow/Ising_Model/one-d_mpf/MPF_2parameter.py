@@ -8,17 +8,10 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
 np.random.seed(0)
-#parameter ( Model )
-T_max=1.2
-#Temperature Dependance
-#= J^-1=kT/J=T/Tc, Tc=J/k=1
-n_T=100
-dT=T_max/n_T 
-
 #parameter ( MCMC )
 t_interval = 10
 #parameter ( System )
-d, N_sample = 32,300 #124, 1000
+d, N_sample = 16,400 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -35,7 +28,7 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J1,J2=1.2,0.0 # =theta_sample
+J1,J2=3.0,1.0 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING
@@ -44,7 +37,6 @@ for n in range(N_sample):
         x = np.copy(gen_mcmc(J1,J2,x))
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-
 #MPF
 theta_model1,theta_model2=3.0, 2.0  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
@@ -66,7 +58,6 @@ for t_gd in range(t_gd_max):
     gradK2+=gradK2_nin/n_bach
     theta_model1=theta_model1 - lr * gradK1
     theta_model2=theta_model2 - lr * gradK2
-    #print("theta_model1=",theta_model1,"gradK1=",gradK1,"theta_model2=",gradK2)
     theta_diff1=abs(theta_model1-J1)
     theta_diff2=abs(theta_model2-J2)
     print(t_gd,np.abs(gradK1),np.abs(gradK2),theta_diff1,theta_diff2)
