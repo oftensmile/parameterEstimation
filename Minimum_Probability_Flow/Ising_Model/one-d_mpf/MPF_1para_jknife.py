@@ -44,8 +44,8 @@ for t_burn in range(t_burn_emp):
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J,x))
-        if(n==0):X_sample = np.copy(x)
-        elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+    if(n==0):X_sample = np.copy(x)
+    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 #Jack Knife
 n_removed_subset=10
 n_sample_tot = len(X_sample)

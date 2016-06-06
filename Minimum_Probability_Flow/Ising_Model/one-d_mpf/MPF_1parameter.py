@@ -19,8 +19,8 @@ dT=T_max/n_T
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 16,800 #124, 1000
-N_remove = 300
+d, N_sample = 32,600 #124, 1000
+N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 #n_mfa = 100 #Number of the sample for Mean Field Aproximation.
@@ -29,8 +29,8 @@ def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
         diff_E=2.0*J*x[i]*(x[(i+d-1)%d]+x[(i+1)%d])#E_new-E_old
-        r=1.0/(1+np.exp(diff_E)) 
-        #r=np.exp(-diff_E) 
+        #r=1.0/(1+np.exp(diff_E)) 
+        r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
         if(R<=r):
             x[i]=x[i]*(-1)
