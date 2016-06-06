@@ -16,8 +16,8 @@ n_T=100
 dT=T_max/n_T 
 
 #parameter ( MCMC )
-t_burn_emp, t_burn_model = 100, 10#10000, 100
-t_interval = 10
+#t_burn_emp, t_burn_model = 100, 10#10000, 100
+t_interval = 20
 #parameter ( System )
 d, N_sample = 16,300 #124, 1000
 N_remove = 100
@@ -46,8 +46,8 @@ x = np.array(np.sign(x))
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_vec,x))
-        if(n==N_remove):X_sample = np.copy(x)
-        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+    if(n==N_remove):X_sample = np.copy(x)
+    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)

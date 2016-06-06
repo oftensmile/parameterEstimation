@@ -8,26 +8,16 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
 np.random.seed(0)
-#parameter ( Model )
-T_max=1.2
-#Temperature Dependance
-#= J^-1=kT/J=T/Tc, Tc=J/k=1
-n_T=100
-dT=T_max/n_T 
-
 #parameter ( MCMC )
 t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
-d, N_sample = 4,1000 #124, 1000
+d, N_sample = 16,20 #124, 1000
+N_remove=10
 #parameter ( MPF+GD )
-lr,eps =0.1, 0.0001
-n_mfa = 2 #Number of the sample for Mean Field Aproximation.
-t_gd_max=8000 
-#theta=[[1 if i==(j+1+d)%d or i==(j-1+d)%d else 0 for i in range(d)] for j in range(d)]
-#theta=np.array(theta)
-#theta_model = np.arange(d*d)
-#theta_model = np.reshape(theta_model,(d,d))#np.ones((d,d))
+lr,eps =0.1, 1.0e-100
+n_mfa = 40 #Number of the sample for Mean Field Aproximation.
+t_gd_max=300 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -74,7 +64,7 @@ def calc_C(X=[[]]):
 
 ########    MAIN    ########
 #Generate sample-dist
-J=1.1 # =theta_sample
+J=2.0 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 for t_burn in range(t_burn_emp):
@@ -89,10 +79,7 @@ for n in range(N_sample):
 corre_sample_mean=calc_C(X_sample) 
 #Generate model-dist
 xi = np.array(np.sign(np.random.uniform(-1,1,d)))
-theta_model=1.5   #Initial Guess
-#Burn-in
-#for t_burn in range(t_burn_model*10):
-#    xi=np.copy(gen_mcmc(theta_model,xi))
+theta_model=2.0   #Initial Guess
 print("#gd-step, abs-grad_likelihood, theta-error")
 for t_gd in range(t_gd_max):
     for t_burn in range(t_burn_model*10):
@@ -105,6 +92,7 @@ for t_gd in range(t_gd_max):
     corre_model_mean=calc_C(Xi_model)
     grad_likelihood=-corre_sample_mean+corre_model_mean
     theta_model=np.copy(theta_model)-lr*grad_likelihood
+    #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
     theta_diff = np.abs(theta_model-J)
     print(t_gd,np.abs(grad_likelihood),theta_diff)
 print("#theta_true=",J,"theta_estimated=",theta_model)

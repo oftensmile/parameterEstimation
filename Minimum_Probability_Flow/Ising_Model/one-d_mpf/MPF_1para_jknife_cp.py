@@ -45,8 +45,8 @@ x = np.array(np.sign(x))
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J,x))
-        if(n==N_remove):X_sample = np.copy(x)
-        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+    if(n==N_remove):X_sample = np.copy(x)
+    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 
 #Simple calc
 n_bach=len(X_sample)

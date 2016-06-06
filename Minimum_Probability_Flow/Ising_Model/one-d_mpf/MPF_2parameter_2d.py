@@ -47,12 +47,13 @@ x = np.array(np.sign(x))
 n_J=100
 J_max,J_min=2.0, -2.0
 dJ=(J_max-J_min)/n_J
-for j in range(n_J):
 for n in range(N_sample):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J1,J2,x))
-        if(n==N_remove):X_sample = np.reshape(np.copy(x),len(x)*len(x.T))
-        elif(n>N_remove):X_sample=np.vstack((X_sample,np.reshape(np.copy(x),len(x)*len(x.T))))
+    if(n==N_remove):
+        X_sample = np.reshape(np.copy(x),len(x)*len(x.T))
+    elif(n>N_remove):
+        X_sample=np.vstack((X_sample,np.reshape(np.copy(x),len(x)*len(x.T))))
 n_bach=len(X_sample)
 theta_model1,theta_model2=1.5,1.5   #Initial Guess
 print("X_sample=\n",X_sample)
