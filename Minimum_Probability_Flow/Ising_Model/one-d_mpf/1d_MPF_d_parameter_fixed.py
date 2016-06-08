@@ -12,11 +12,11 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 16,300 #124, 1000
+d, N_sample = 10,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=300 
+t_gd_max=100 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
