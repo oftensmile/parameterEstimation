@@ -20,7 +20,7 @@ def gen_mcmc(J1,J2,x=[] ):
     for ix in range(d_x):
         for iy in range(d_y):
             #Heat Bath
-            diff_E=-2.0*x[ix+iy*d_x]*( J1*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x]) + J2* (x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)]) )#E_new-E_old
+            diff_E=-2.0*x[ix+iy*d_x]*( J1*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x+iy*d_x]) + J2* (x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)]) )#E_new-E_old
             r=1.0/(1+np.exp(diff_E)) 
             R=np.random.uniform(0,1)
             if(R<=r):
@@ -29,7 +29,7 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J1,J2=1.0,1.0 # =theta_sample
+J1,J2=1.0,2.0 # =theta_sample
 x = np.random.uniform(-1,1,d_x*d_y)
 x = np.array(np.sign(x))
 #SAMPLING
@@ -39,7 +39,7 @@ for n in range(N_sample):
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
-theta_model1,theta_model2=3.0, 2.0  #Initial Guess
+theta_model1,theta_model2=0.1, 0.1  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK1,gradK2=0.0,0.0
@@ -50,8 +50,8 @@ for t_gd in range(t_gd_max):
         for ix in range(d_x):
             for iy in range(d_y):
                 #diff_E=E(x_new)-E(x_old)
-                diff_delE1_nin=x_nin[ix+iy*d_x]*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x])
-                diff_delE2_nin=x_nin[ix+iy*d_x]*(x[((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)])
+                diff_delE1_nin=x_nin[ix+iy*d_x]*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x+iy*d_x])
+                diff_delE2_nin=x_nin[ix+iy*d_x]*(x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)])
                 diff_E1_nin=diff_delE1_nin*theta_model1
                 diff_E2_nin=diff_delE2_nin*theta_model2
                 diff_E_nin=diff_E1_nin+diff_E2_nin

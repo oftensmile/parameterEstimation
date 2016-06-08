@@ -65,8 +65,7 @@ for t_gd in range(t_gd_max):
             diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_E_nin=diff_delE_nin*theta_model
             gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
-        gradK+=gradK_nin
-    gradK*=(1.0/n_bach)
+        gradK+=gradK_nin/n_bach
     theta_model=np.copy(theta_model) - lr * gradK
     theta_diff=abs(theta_model-J)
     print(t_gd,np.abs(gradK),theta_diff)
