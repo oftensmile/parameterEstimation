@@ -43,6 +43,7 @@ theta_model1,theta_model2=1.5, 1.5  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK1,gradK2=0.0,0.0
+    e_bar1,e_bar2=0.0,0.0
     n_bach=len(X_sample)
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
@@ -63,5 +64,19 @@ for t_gd in range(t_gd_max):
     theta_model2=theta_model2 - lr * gradK2
     theta_diff1=abs(theta_model1-J1)
     theta_diff2=abs(theta_model2-J2)
-    print(t_gd,np.abs(gradK1),np.abs(gradK2),theta_diff1,theta_diff2)
+    #Error Bar
+    for nin in range(n_bach):
+        e_bar1_nin,e_bar2_nin=0.0,0.0
+        for ix in range(d_x):
+            for iy in range(d_y):
+                diff_delE1_nin=x_nin[ix+iy*d_x]*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x+iy*d_x])
+                diff_delE2_nin=x_nin[ix+iy*d_x]*(x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)])
+                diff_E1_nin=diff_delE1_nin*theta_model1
+                diff_E2_nin=diff_delE2_nin*theta_model2
+                diff_E_nin=diff_E1_nin+diff_E2_nin
+                e_bar1_nin+=(diff_delE1_nin**2)*np.exp(diff_E_nin)/(d_x*d_y)
+                e_bar2_nin+=(diff_delE2_nin**2)*np.exp(diff_E_nin)/(d_x*d_y)
+        e_bar1+=e_bar1_nin/n_bach
+        e_bar2+=e_bar2_nin/n_bach
+    print(t_gd,np.abs(gradK1),np.abs(gradK2),theta_diff1,theta_diff2,np.sqrt(e_bar1),np.sqrt(e_bar2))
 print("#theta1,theta2 (true)=",J1,J2,"theta1,theta2 _estimated=",theta_model1,theta_model2)
