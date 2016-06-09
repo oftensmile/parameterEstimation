@@ -38,7 +38,7 @@ for n in range(N_sample):
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
-theta_model1,theta_model2=3.0, 2.0  #Initial Guess
+theta_model1,theta_model2=0.3, 0.2  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK1,gradK2=0.0,0.0

@@ -11,7 +11,7 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 4,4,140 #124, 1000
+d_x,d_y, N_sample =4,4,70 #124, 1000
 N_remove=40
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -29,7 +29,7 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J1,J2=2.0,1.0 # =theta_sample
+J1,J2=1.0,1.0 # =theta_sample
 x = np.random.uniform(-1,1,d_x*d_y)
 x = np.array(np.sign(x))
 #SAMPLING
@@ -39,7 +39,7 @@ for n in range(N_sample):
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
-theta_model1,theta_model2=1.5, 1.5  #Initial Guess
+theta_model1,theta_model2=0.3, 0.2  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK1,gradK2=0.0,0.0
