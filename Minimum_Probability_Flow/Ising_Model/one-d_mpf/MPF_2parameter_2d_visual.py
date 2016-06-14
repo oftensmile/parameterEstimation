@@ -7,20 +7,26 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
+import scipy.misc
 np.random.seed(0)
+lena=scipy.misc.lena()
+print("shape of image =",lena.shape)
+width_lena=len(lena)
+height_lena=len(lena[1])
+
 #parameter ( MCMC )
 t_interval = 10
 #parameter ( System )
-d_x,d_y, N_sample =16,16,110 #124, 1000
+d_x,d_y, N_sample =width_lena,height_lena,110 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
-def gen_mcmc(J1,J2,x=[] ):
+def gen_mcmc(J1x=[] ):
     for ix in range(d_x):
         for iy in range(d_y):
             #Heat Bath
-            diff_E=-2.0*x[ix+iy*d_x]*( J1*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x+iy*d_x]) + J2* (x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)]) )#E_new-E_old
+            diff_E=-2.0*x[ix+iy*d_x]*( J1*(x[(ix+d_x-1)%d_x+iy*d_x]+x[(ix+1)%d_x+iy*d_x]) + J1* (x[ix+d_x*((iy+d_y-1)%d_y)]+x[ix+d_x*((iy+1)%d_y)]) )#E_new-E_old
             r=1.0/(1+np.exp(diff_E)) 
             R=np.random.uniform(0,1)
             if(R<=r):
@@ -29,13 +35,14 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J1,J2=0.01,0.01 # =theta_sample
+#J1,J2=0.01,0.01 # =theta_sample
+J1=0.01
 x = np.random.uniform(-1,1,d_x*d_y)
 x = np.array(np.sign(x))
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
-        x = np.copy(gen_mcmc(J1,J2,x))
+        x = np.copy(gen_mcmc(J1,x))+np.reshape(lena,d_x*d_y)
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
@@ -43,6 +50,8 @@ x_init = X_sample[0]
 x_last= X_sample[N_sample-1-N_remove]
 mat_init_x=np.reshape(x_init,(d_x,d_y))
 mat_last_x=np.reshape(x_last,(d_x,d_y))
+
+"""
 theta_model1,theta_model2=0.3, 0.2  #Initial Guess
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
@@ -69,23 +78,28 @@ for t_gd in range(t_gd_max):
     theta_diff2=abs(theta_model2-J2)
     print(t_gd,np.abs(gradK1),np.abs(gradK2),theta_diff1,theta_diff2)
 print("#theta1,theta2 (true)=",J1,J2,"theta1,theta2 _estimated=",theta_model1,theta_model2)
+"""
 
 
 
 
-
-
-
-
+noize=np.random.randn(width_lena,height_lena)*30
+damegede=lena+noize
 
 
 #Plot of the 
 plt.figure()
-plt.subplot(211)
+plt.subplot(221)
 plt.imshow(mat_init_x,cmap="gray",interpolation='nearest')
-plt.title("Image in selected Region")
-plt.subplot(212)
+plt.title("Image init")
+plt.subplot(222)
 plt.imshow(mat_last_x,cmap="gray",interpolation='nearest')
-plt.title("Rearrange by hand")
+plt.title("Image last")
+plt.subplot(223)
+plt.imshow(lena,cmap="gray",interpolation='nearest')
+plt.title("Lena")
+plt.subplot(224)
+plt.imshow(damegede,cmap="gray",interpolation='nearest')
+plt.title("dameged Lena")
 plt.show()
 
