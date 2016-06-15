@@ -22,6 +22,7 @@ d_x,d_y, N_sample =width_lena,height_lena,10 #124, 1000
 #parameter ( MPF+GD )
 lr,eps =1, 1.0e-100
 t_gd_max=3
+J=0.001
 def main():
     x = np.random.uniform(-1,1,d_x*d_y)
     x = np.array(np.sign(x))
@@ -87,7 +88,6 @@ def main():
 
 #Generate sample-dist
 #J1,J2=0.01,0.01 # =theta_sample
-J=0.001
 if __name__ == '__main__':
     main()
     
