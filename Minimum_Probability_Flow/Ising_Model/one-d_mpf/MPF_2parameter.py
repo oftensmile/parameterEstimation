@@ -11,12 +11,12 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d, N_sample = 16,240 #124, 1000
+d, N_sample = 16,200 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
-def gen_mcmc(J1,J2,x=[] ):
+def gen_mcmc(J1,J2,x=[]):
     for i in range(d):
         #Heat Bath
         diff_E=-2.0*x[i]*( J1*(x[(i+d-1)%d]+x[(i+1)%d]) + J2* (x[(i+d-2)%d]+x[(i+2)%d]) )#E_new-E_old
@@ -28,7 +28,7 @@ def gen_mcmc(J1,J2,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J1,J2=10.0,1.0 # =theta_sample
+J1,J2=1.0,10.0 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING
@@ -53,10 +53,10 @@ for t_gd in range(t_gd_max):
             diff_E1_nin=diff_delE1_nin*theta_model1
             diff_E2_nin=diff_delE2_nin*theta_model2
             diff_E_nin=diff_E1_nin+diff_E2_nin
-            #gradK1_nin+=diff_delE1_nin*np.exp(diff_E_nin)/d
-            #gradK2_nin+=diff_delE2_nin*np.exp(diff_E_nin)/d
-            gradK1_nin+=diff_delE1_nin*np.exp(0.1*diff_E_nin)/d
-            gradK2_nin+=diff_delE2_nin*np.exp(0.1*diff_E_nin)/d
+            gradK1_nin+=diff_delE1_nin*np.exp(diff_E_nin)/d
+            gradK2_nin+=diff_delE2_nin*np.exp(diff_E_nin)/d
+            #gradK1_nin+=diff_delE1_nin*np.exp(0.1*diff_E_nin)/d
+            #gradK2_nin+=diff_delE2_nin*np.exp(0.1*diff_E_nin)/d
         gradK1+=gradK1_nin/n_bach
         gradK2+=gradK2_nin/n_bach
     theta_model1=theta_model1 - lr * gradK1

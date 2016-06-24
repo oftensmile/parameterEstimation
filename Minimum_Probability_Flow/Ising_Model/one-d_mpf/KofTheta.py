@@ -33,10 +33,6 @@ def gen_mcmc(J,x=[] ):
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
-
-
-
-
 ########    MAIN    ########
 #Generate sample-dist
 J=1.1 # =theta_sample

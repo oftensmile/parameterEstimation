@@ -19,18 +19,18 @@ dT=T_max/n_T
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 32,600 #124, 1000
+d, N_sample = 16,200 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 #n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=40 
+t_gd_max=440 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
         diff_E=2.0*J*x[i]*(x[(i+d-1)%d]+x[(i+1)%d])#E_new-E_old
-        #r=1.0/(1+np.exp(diff_E)) 
-        r=np.exp(-diff_E) 
+        r=1.0/(1+np.exp(diff_E)) 
+        #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
         if(R<=r):
             x[i]=x[i]*(-1)
@@ -64,10 +64,9 @@ for t_gd in range(t_gd_max):
         for hd in range(d):
             diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
             diff_E_nin=diff_delE_nin*theta_model
-            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)
+            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
         gradK+=gradK_nin/n_bach
     theta_model=np.copy(theta_model) - lr * gradK
     theta_diff=abs(theta_model-J)
     print(t_gd,np.abs(gradK),theta_diff)
 print("#theta_true=",J,"theta_estimated=",theta_model)
-

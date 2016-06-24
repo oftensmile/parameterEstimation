@@ -10,11 +10,11 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 4,4,240 #124, 1000
+d_x,d_y, N_sample = 4,4,140 #124, 1000
 N_remove=40
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=200 
+t_gd_max=100 
 def gen_mcmc(x=[],J=[[]] ):
     for ix in range(d_x):
         for iy in range(d_y):
@@ -30,7 +30,7 @@ def gen_mcmc(x=[],J=[[]] ):
 #######    MAIN    ########
 #Generate sample-dis
 def main():
-    J = np.random.uniform(0,2,d_x*d_y)
+    J = np.random.uniform(0,0.1,d_x*d_y)
     J= np.vstack((J,np.random.uniform(0,2,d_x*d_y)))    #J1=[],J2=[]
     x = np.random.uniform(-1,1,d_x*d_y)
     x = np.array(np.sign(x))
@@ -72,7 +72,6 @@ def main():
                     gradK2_nin[ix+iy*d_x]+=diff_delE2_m_nin*np.exp(diff_E_nin)#/(d_x*d_y)
             gradK1=gradK1+gradK1_nin/n_bach
             gradK2=gradK2+gradK2_nin/n_bach
-            #print("#gradK1[0]=",gradK1[0], "gradK2=",gradK2[0])
         
         theta_model[0]=theta_model[0] - lr * gradK1
         theta_model[1]=theta_model[1] - lr * gradK2

@@ -41,6 +41,7 @@ for n in range(N_sample):
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
+#In this case I applied 
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)
 print("#diff_E diff_E1_nin diff_E2_nin")
@@ -54,9 +55,10 @@ for t_gd in range(t_gd_max):
             xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
             xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
             xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
-            gradK_nin[l]= xl_xl_plu_1*np.exp( xl_xl_plu_1*theta_model[l] ) *(1.0/d)
-            gradK_nin[l]*= ( np.exp(xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
+            gradK_nin[l]= xl_xl_plu_1*np.exp( 0.5*xl_xl_plu_1*theta_model[l] ) /d
+            gradK_nin[l]*= ( np.exp(0.5*xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(0.5*xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
             gradK[l]+=gradK_nin[l]/n_bach
+    
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(gradK)
     error_func=np.sum(np.abs(theta_model-J_vec))/d
