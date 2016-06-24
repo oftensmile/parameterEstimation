@@ -24,7 +24,7 @@ N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
 #n_mfa = 100 #Number of the sample for Mean Field Aproximation.
-t_gd_max=440 
+t_gd_max=1040 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -38,7 +38,7 @@ def gen_mcmc(J,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J=-1.2 # =theta_sample
+J=-4.2 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING

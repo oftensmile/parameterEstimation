@@ -12,11 +12,11 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 10,300 #124, 1000
+d, N_sample = 32,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=400 
+t_gd_max=1400 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
@@ -30,7 +30,7 @@ def gen_mcmc(J=[],x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J_max,J_min=2.0,0.0
+J_max,J_min=1.0,0.0
 J_vec=np.random.uniform(J_min,J_max,d)
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))

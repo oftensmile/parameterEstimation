@@ -11,8 +11,8 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 5,5,240 #124, 1000
-N_remove=100
+d_x,d_y, N_sample = 4,4,240 #124, 1000
+N_remove=40
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
@@ -21,7 +21,7 @@ def gen_mcmc(x=[],J=[[]] ):
         for iy in range(d_y):
             #Heat Bath
             diff_E=-2.0*x[ix+iy*d_x]*( J[0][(ix+d_x-1)%d_x+iy*d_x]*x[(ix+d_x-1)%d_x+iy*d_x]+J[0][ix+iy*d_x]*x[(ix+1)%d_x+iy*d_x] 
-                    + J[1][ix+d_x*((iy+d_y-1)%d_y)]*x[ix+d_x*((iy+d_y-1)%d_y)]+J[1][ix+d_x*iy]*x[ix+d_x*((iy+1)%d_y)] )#E_new-E_old
+                    + J[1][ix+d_x*((iy+d_y-1)%d_y)]*(x[ix+d_x*((iy+d_y-1)%d_y)]+J[1][ix+d_x*iy]*x[ix+d_x*((iy+1)%d_y)]) )#E_new-E_old
             r=1.0/(1+np.exp(diff_E)) 
             R=np.random.uniform(0,1)
             if(R<=r):
