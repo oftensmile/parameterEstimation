@@ -11,7 +11,7 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 1,5,240 #124, 1000
+d_x,d_y, N_sample = 5,5,240 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
