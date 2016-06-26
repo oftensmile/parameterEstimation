@@ -20,8 +20,9 @@ def gen_mcmc(x=[],J=[[]] ):
     for ix in range(d_x):
         for iy in range(d_y):
             #Heat Bath
-            diff_E=-2.0*x[ix+iy*d_x]*( J[0][(ix+d_x-1)%d_x+iy*d_x]*x[(ix+d_x-1)%d_x+iy*d_x]+J[0][ix+iy*d_x]*x[(ix+1)%d_x+iy*d_x] 
-                    + J[1][ix+d_x*((iy+d_y-1)%d_y)]*x[ix+d_x*((iy+d_y-1)%d_y)]+J[1][ix+d_x*iy]*x[ix+d_x*((iy+1)%d_y)] )#E_new-E_old
+            diff_E=-2.0*x[ix+iy*d_x]*( 
+                    J[0][(ix+d_x-1)%d_x+iy*d_x]*x[(ix+d_x-1)%d_x+iy*d_x]+J[0][ix+iy*d_x]*x[(ix+1)%d_x+iy*d_x] + 
+                    J[1][ix+d_x*((iy+d_y-1)%d_y)]*x[ix+d_x*((iy+d_y-1)%d_y)]+J[1][ix+d_x*iy]*x[ix+d_x*((iy+1)%d_y)] )#E_new-E_old
             r=1.0/(1+np.exp(diff_E)) 
             R=np.random.uniform(0,1)
             if(R<=r):
