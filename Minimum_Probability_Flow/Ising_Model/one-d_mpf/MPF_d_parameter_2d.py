@@ -11,7 +11,7 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 5,5,240 #124, 1000
+d_x,d_y, N_sample = 1,5,240 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -50,7 +50,7 @@ print("size of theta_model[0] = ",np.shape(theta_model[0]))
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK1=np.zeros(d_x*d_y)
-    gradK2=np.zeros(d_y*d_y)
+    gradK2=np.zeros(d_x*d_y)
     n_bach=len(X_sample)
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
@@ -63,8 +63,8 @@ for t_gd in range(t_gd_max):
                 diff_delE1_m_nin=x_nin[ix+iy*d_x]*x_nin[(ix+d_x-1)%d_x+iy*d_x]
                 diff_delE2_p_nin=x_nin[ix+iy*d_x]*x_nin[ix+d_x*((iy+1)%d_y)] 
                 diff_delE2_m_nin=x_nin[ix+iy*d_x]*x_nin[ix+d_x*((iy+d_y-1)%d_y)] 
-                diff_E1_nin=J[0][(ix+1)%d_x+iy*d_x]*diff_delE1_p_nin+J[0][ix+iy*d_x]*diff_delE1_m_nin
-                diff_E2_nin=J[1][ix+d_x*((iy+1)%d_y)]*diff_delE2_p_nin+J[1][ix+iy*d_x]*diff_delE2_m_nin
+                diff_E1_nin=theta_model[0][(ix+1)%d_x+iy*d_x]*diff_delE1_p_nin+theta_model[0][ix+iy*d_x]*diff_delE1_m_nin
+                diff_E2_nin=theta_model[1][ix+d_x*((iy+1)%d_y)]*diff_delE2_p_nin+theta_model[1][ix+iy*d_x]*diff_delE2_m_nin
                 diff_E_nin=diff_E1_nin+diff_E2_nin
                 gradK1_nin[(ix+1)%d_x+iy*d_x]+=diff_delE1_p_nin*np.exp(diff_E_nin)#/(d_x*d_y)
                 gradK1_nin[ix+iy*d_x]+=diff_delE1_m_nin*np.exp(diff_E_nin)#/(d_x*d_y)
