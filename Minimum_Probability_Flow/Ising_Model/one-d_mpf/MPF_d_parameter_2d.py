@@ -11,7 +11,7 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 5,5,240 #124, 1000
+d_x,d_y, N_sample = 1,5,240 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -66,10 +66,10 @@ for t_gd in range(t_gd_max):
                 diff_E1_nin=theta_model[0][(ix+1)%d_x+iy*d_x]*diff_delE1_p_nin+theta_model[0][ix+iy*d_x]*diff_delE1_m_nin
                 diff_E2_nin=theta_model[1][ix+d_x*((iy+1)%d_y)]*diff_delE2_p_nin+theta_model[1][ix+iy*d_x]*diff_delE2_m_nin
                 diff_E_nin=diff_E1_nin+diff_E2_nin
-                gradK1_nin[(ix+1)%d_x+iy*d_x]+=diff_delE1_p_nin*np.exp(diff_E_nin)#/(d_x*d_y)
-                gradK1_nin[ix+iy*d_x]+=diff_delE1_m_nin*np.exp(diff_E_nin)#/(d_x*d_y)
-                gradK2_nin[ix+((iy+1)%d_y)*d_x]+=diff_delE2_p_nin*np.exp(diff_E_nin)#/(d_x*d_y)
-                gradK2_nin[ix+iy*d_x]+=diff_delE2_m_nin*np.exp(diff_E_nin)#/(d_x*d_y)
+                gradK1_nin[(ix+1)%d_x+iy*d_x]+=diff_delE1_p_nin*np.exp(diff_E_nin)/(d_x*d_y)
+                gradK1_nin[ix+iy*d_x]+=diff_delE1_m_nin*np.exp(diff_E_nin)/(d_x*d_y)
+                gradK2_nin[ix+((iy+1)%d_y)*d_x]+=diff_delE2_p_nin*np.exp(diff_E_nin)/(d_x*d_y)
+                gradK2_nin[ix+iy*d_x]+=diff_delE2_m_nin*np.exp(diff_E_nin)/(d_x*d_y)
         gradK1=gradK1+gradK1_nin/n_bach
         gradK2=gradK2+gradK2_nin/n_bach
         #print("#gradK1[0]=",gradK1[0], "gradK2=",gradK2[0])
