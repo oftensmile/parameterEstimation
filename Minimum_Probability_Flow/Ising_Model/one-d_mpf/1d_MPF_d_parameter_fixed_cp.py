@@ -20,7 +20,7 @@ t_gd_max=300
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
-        diff_E=-2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+        diff_E=2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         
@@ -55,8 +55,8 @@ for t_gd in range(t_gd_max):
             xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
             xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
             xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
-            gradK_nin[l]=  xl_xl_plu_1*np.exp( xl_xl_plu_1*theta_model[l] ) *(1.0/d)
-            gradK_nin[l]*= ( np.exp(xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
+            gradK_nin[l]=  xl_xl_plu_1*np.exp( - xl_xl_plu_1*theta_model[l] ) *(1.0/d)
+            gradK_nin[l]*= - ( np.exp( - xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp( xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
         gradK=np.copy(gradK)+gradK_nin*(1.0/n_bach)
     theta_model=theta_model-lr*gradK
     error_func=np.sum(np.abs(theta_model-J_vec))/d

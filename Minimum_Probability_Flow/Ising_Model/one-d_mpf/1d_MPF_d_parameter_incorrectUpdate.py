@@ -58,8 +58,8 @@ for t_gd in range(t_gd_max):
         gradK_nin=np.zeros(d)
         #calc gradK_nin_one_by_one
         for l in range(d):
-            diff_del_l_nin=-1.0*x_nin[l]*x_nin[(l+1)%d]
-            gradK_nin[l]=2.0*diff_del_l_nin*np.exp(diff_del_l_nin*theta_model[l])
+            diff_del_l_nin=1.0*x_nin[l]*x_nin[(l+1)%d]
+            gradK_nin[l]=-2.0*diff_del_l_nin*np.exp(-diff_del_l_nin*theta_model[l])
         gradK=np.copy(gradK)+gradK_nin*(1.0/n_bach)
     theta_model=theta_model-lr*gradK
     error_func=np.sum(np.abs(theta_model-J_vec))/d
