@@ -11,11 +11,11 @@ np.random.seed(0)
 #parameter ( MCMC )
 t_interval = 40
 #parameter ( System )
-d_x,d_y, N_sample = 5,1,200 #124, 1000
+d_x,d_y, N_sample = 5,5,200 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
-lr,eps =0.1, 1.0e-100
-t_gd_max=200 
+lr,eps =0.01, 1.0e-100
+t_gd_max=100 
 def gen_mcmc(x=[],J=[[]] ):
     for ix in range(d_x):
         for iy in range(d_y):
@@ -34,7 +34,8 @@ def gen_mcmc(x=[],J=[[]] ):
 
 #######    MAIN    ########
 #Generate sample-dis
-Jmin, Jmax=0.0,1.0
+#Jmin, Jmax=0.0,1.0
+Jmin, Jmax=-0.01,0.01
 J = np.random.uniform(Jmin,Jmax,d_x*d_y)
 J= np.vstack((J,np.random.uniform(0,2,d_x*d_y)))    #J1=[],J2=[]
 print("shape of J[0]=",np.shape(J[1]))
@@ -87,20 +88,20 @@ for t_gd in range(t_gd_max):
                 t1_x_ym=theta_model[0][ix+((iy+d_y-1)%d_y)*d_x]
                 gradK1_nin[ix+iy*d_x]+=-x_y_xp_y * (
                 np.exp(-(x_y_xp_y*t1_x_y + x_y_x_yp*t2_x_y + xm_y_x_y*t1_xm_y + x_y_x_ym*t2_x_ym)) +
-                np.exp(-(xp_y_xpp_y*t1_xp_y + xp_y_xp_yp*t2_xp_y + x_y_xp_y*t1_x_y + xp_y_xp_ym*t2_xp_ym)) )
-                #np.exp(-(xp_y_xpp_y*t1_xp_y + xp_y_xp_yp*t2_xp_y + x_y_xp_y*t1_x_y + xm_y_xm_yp*t2_xm_y)) )
+                np.exp(-(xp_y_xpp_y*t1_xp_y + xp_y_xp_yp*t2_xp_y + x_y_xp_y*t1_x_y + xp_y_xp_ym*t2_xp_ym)) )*(1.0/(d_x*d_y))
+                #np.exp(-(xp_y_xpp_y*t1_xp_y + xp_y_xp_yp*t2_xp_y + x_y_xp_y*t1_x_y + xm_y_xm_yp*t2_xm_y)) )*(1.0/(d_x*d_y))
 
                 gradK2_nin[ix+iy*d_x]+=-x_y_x_yp * (
                 np.exp(-(x_y_xp_y*t1_x_y + x_y_x_yp*t2_x_y + xm_y_x_y*t1_xm_y + x_y_x_ym*t2_x_ym)) +
-                np.exp(-(x_yp_xp_yp*t1_x_yp + x_yp_x_ypp*t2_x_yp + xm_yp_x_yp*t1_xm_yp + x_y_x_yp*t2_x_y)) )
-                #np.exp(-(x_yp_xp_yp*t1_x_yp + x_yp_x_ypp*t2_x_yp + x_ym_xp_ym*t1_x_ym + x_y_x_yp*t2_x_y)) )
+                np.exp(-(x_yp_xp_yp*t1_x_yp + x_yp_x_ypp*t2_x_yp + xm_yp_x_yp*t1_xm_yp + x_y_x_yp*t2_x_y)) )*(1.0/(d_x*d_y))
+                #np.exp(-(x_yp_xp_yp*t1_x_yp + x_yp_x_ypp*t2_x_yp + x_ym_xp_ym*t1_x_ym + x_y_x_yp*t2_x_y)) )*(1.0/(d_x*d_y))
         
         gradK1=gradK1+gradK1_nin/n_bach
         gradK2=gradK2+gradK2_nin/n_bach
     
     theta_model[0]=theta_model[0] - lr * gradK1
     theta_model[1]=theta_model[1] - lr * gradK2
-    theta_diff1=np.sum(abs(theta_model[0]-J[0]))/(d_x*d_y)
-    theta_diff2=np.sum(abs(theta_model[1]-J[1]))/(d_x*d_y)
+    theta_diff1=np.sum(abs(theta_model[0]-J[0]))#/(d_x*d_y)
+    theta_diff2=np.sum(abs(theta_model[1]-J[1]))#/(d_x*d_y)
     print(t_gd,np.sum(np.abs(gradK1)),np.sum(np.abs(gradK2)),theta_diff1,theta_diff2)
 #print("#theta1,theta2 (true)=",J1,J2,"theta1,theta2 _estimated=",theta_model1,theta_model2)
