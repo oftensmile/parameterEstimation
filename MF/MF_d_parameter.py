@@ -69,19 +69,25 @@ sinv=1.0/s
 Cinv=np.dot(V.T,np.dot(np.diag(sinv),U.T))
 
 J_hat=-Cinv
+error_mat=J_hat-J_mat
 error=np.sum(np.sum(np.abs(J_hat-J_mat)))/(d*d)
+
 print("error = ",error)
 time_f=time.time()
 dtime=time_f-time_i
 print("calc time =",dtime)
-
 #visualize
 plt.figure()
-plt.subplot(121)
+plt.subplot(131)
 plt.imshow(J_mat)
-plt.title("True J")
-plt.subplot(122)
-plt.imshow(J_hat)
-plt.title("Estimated J")
 plt.colorbar()
+plt.title("True J")
+plt.subplot(132)
+plt.imshow(J_hat)
+plt.colorbar()
+plt.title("Estimated J")
+plt.subplot(133)
+plt.imshow(error_mat)
+plt.colorbar()
+plt.title("J_hat-J_true")
 plt.show()
