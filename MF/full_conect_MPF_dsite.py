@@ -16,13 +16,14 @@ d, N_sample = 3,200 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1400 
+t_gd_max=200 
 def gen_mcmc(J=[[]],x=[] ):
     for i in range(d):
         diff_E=0
-        for j in range(i+1,d):
+        for j in range(d):
             #Heat Bath
-            diff_E+=2.0*2*x[i]*x[j]*(J[i][j]+J[j][i])#[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+            if(j!=i):
+                diff_E+=2.0*x[i]*x[j]*(J[i][j]+J[j][i])#[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
@@ -59,8 +60,8 @@ for t_gd in range(t_gd_max):
             for l in range(k+1,d):
                 t_k_vec=np.copy(theta_model[k])
                 t_l_vec=np.copy(theta_model[l])
-                x_dot_tkvec=np.dot(x_nin,t_k_vec)
-                x_dot_tlvec=np.dot(x_nin,t_l_vec)
+                x_dot_tkvec=np.dot(x_nin,t_k_vec)/d
+                x_dot_tlvec=np.dot(x_nin,t_l_vec)/d
                 elemnt_kl=-x_nin[k]*x_nin[l]*( np.exp(-x_nin[k]*2*x_dot_tkvec) + np.exp(-x_nin[k]*2*x_dot_tkvec) )
                 #print("elemnt_kl=",elemnt_kl)
                 gradK[k][l]+=elemnt_kl/n_bach
