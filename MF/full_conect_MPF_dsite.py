@@ -34,7 +34,9 @@ def gen_mcmc(J=[[]],x=[] ):
 #######    MAIN    ########
 #Generate sample-dist
 J_max,J_min=1.0,0.0
-J_mat=np.random.uniform(J_min,J_max,(d,d))
+J_men,J_var=0.04,0.0
+#J_mat=np.random.uniform(J_min,J_max,(d,d))
+J_mat=np.random.uniform(J_men,J_var,(d,d))
 J_mat=0.5*( np.copy(J_mat)+np.copy(J_mat.T) )
 for i in range(d):J_mat[i][i]=0
 x = np.random.uniform(0,1,d)

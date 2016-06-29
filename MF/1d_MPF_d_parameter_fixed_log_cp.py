@@ -16,11 +16,13 @@ d, N_sample = 32,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1400 
-def gen_mcmc(J=[],x=[] ):
+t_gd_max=2000 
+def gen_mcmc(J=[[]],x=[] ):
     for i in range(d):
-        #Heat Bath
-        diff_E=2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+        diff_E=0
+        for j in range(d):
+        #Heat Bat
+            diff_E+=2.0*x[i]*x[j]*(J[i][j]+J[j][i])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
@@ -30,15 +32,19 @@ def gen_mcmc(J=[],x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J_max,J_min=0.1,0.0
+J_max,J_min=0.01,0.0
 J_vec=np.random.uniform(J_min,J_max,d)
-#J_vec=np.random.normal(0,0.1,d)
+J_mat=np.zeros((d,d))
+for l in range(d):
+    J_mat[l][(l+1)%d]=J_vec[l]
+    J_mat[(l+1)%d][l]=J_vec[l]
+
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
-        x = np.copy(gen_mcmc(J_vec,x))
+        x = np.copy(gen_mcmc(J_mat,x))
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #MPF
@@ -65,17 +71,25 @@ for t_gd in range(t_gd_max):
     sum_of_gradK=np.sum(gradK)
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,sum_of_gradK,error_func)
+theta_model_mat=np.zeros((d,d))
+for l in range(d):
+    theta_model_mat[l][(l+1)%d]=theta_model[l]
+    theta_model_mat[(l+1)%d][l]=theta_model[l]
 #Plot
 time_f=time.time()
 dtime=time_f-time_i
 print("calc time =",dtime)
-bins=np.arange(1,d+1)
-bar_width=0.2
-plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
-plt.bar(bins+bar_width,theta_model,color="red",width=bar_width,label="estimated",align="center")
-plt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="initial",align="center")
-plt.bar(bins+3*bar_width,gradK*10,color="gray",width=bar_width,label="gradK",align="center")
-plt.legend()
-filename="test_output_fixed6.png"
-plt.savefig(filename)
+plt.figure()
+plt.subplot(131)
+plt.imshow(J_mat)
+plt.title("Jtrue")
+plt.colorbar()
+plt.subplot(132)
+plt.imshow(theta_model_mat)
+plt.title("Jest")
+plt.colorbar()
+plt.subplot(133)
+plt.imshow(J_mat-theta_model_mat)
+plt.title("Jtrue-Jest")
+plt.colorbar()
 plt.show()
