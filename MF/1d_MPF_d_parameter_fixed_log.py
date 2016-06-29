@@ -44,6 +44,7 @@ for n in range(N_sample):
 #In this case I applied 
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)
+time_i=time.time()
 print("#diff_E diff_E1_nin diff_E2_nin")
 for t_gd in range(t_gd_max):
     gradK=np.zeros(d)
@@ -63,6 +64,9 @@ for t_gd in range(t_gd_max):
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,sum_of_gradK,error_func)
 #Plot
+time_f=time.time()
+dtime=time_f-time_i
+print("calc time =",dtime)
 bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")

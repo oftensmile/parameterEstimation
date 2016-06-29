@@ -16,13 +16,14 @@ d, N_sample = 3,200 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1400 
+t_gd_max=200 
 def gen_mcmc(J=[[]],x=[] ):
     for i in range(d):
         diff_E=0
-        for j in range(i+1,d):
+        for j in range(d):
             #Heat Bath
-            diff_E+=2.0*2*x[i]*x[j]*(J[i][j]+J[j][i])#[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+            if(j!=i):
+                diff_E+=2.0*x[i]*x[j]*(J[i][j]+J[j][i])#[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)

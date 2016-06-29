@@ -38,7 +38,7 @@ def gen_mcmc(J,x=[] ):
 
 #######    MAIN    ########
 #Generate sample-dist
-J=-4.2 # =theta_sample
+J=1.0 # =theta_sample
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING
