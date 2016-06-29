@@ -12,7 +12,7 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 16,300 #124, 1000
+d, N_sample = 64,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -58,7 +58,6 @@ for t_gd in range(t_gd_max):
             gradK_nin[l]= -xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
             gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
             gradK[l]+=gradK_nin[l]/n_bach
-    
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(gradK)
     error_func=np.sum(np.abs(theta_model-J_vec))/d

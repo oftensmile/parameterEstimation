@@ -59,8 +59,8 @@ for t_gd in range(t_gd_max):
             for l in range(k+1,d):
                 t_k_vec=np.copy(theta_model[k])
                 t_l_vec=np.copy(theta_model[l])
-                x_dot_tkvec=np.dot(x_nin,t_k_vec)
-                x_dot_tlvec=np.dot(x_nin,t_l_vec)
+                x_dot_tkvec=np.dot(x_nin,t_k_vec)/d
+                x_dot_tlvec=np.dot(x_nin,t_l_vec)/d
                 elemnt_kl=-x_nin[k]*x_nin[l]*( np.exp(-x_nin[k]*2*x_dot_tkvec) + np.exp(-x_nin[k]*2*x_dot_tkvec) )
                 #print("elemnt_kl=",elemnt_kl)
                 gradK[k][l]+=elemnt_kl/n_bach
