@@ -1,6 +1,6 @@
 #2016/05/19
 ##############
-#   H = -J*sum(xixj), J in R^1
+#   H = -sum(J_ij * xixj) - sum(h_i*xi), J in R^1
 ##############
 import numpy as np
 import time 
@@ -59,8 +59,12 @@ for n in range(n_bach):
     xn=np.matrix(X_sample[n])
     XnXnt=XnXnt+np.tensordot(xn,xn,axes=([0],[0]))/n_bach
 mmt=np.tensordot(m,m,axes=([0],[0]))  
+for i in range(d):
+    print("#XnXnt=",XnXnt[i][i])
+
 C=XnXnt-mmt
 for l in range(d):
+    print(C[l][l])
     C[l][l]=0.0
 #Cinv=inv(C)
 #SVD type
