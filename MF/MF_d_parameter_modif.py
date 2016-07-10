@@ -13,7 +13,7 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 8,300 #124, 1000
+d, N_sample = 16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -46,9 +46,11 @@ for n in range(N_sample):
         x = np.copy(gen_mcmc(J_vec,x))
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-#MF
+######### MF ##########
 m=np.zeros(d)
 n_bach=len(X_sample)
+
+###### naive MF method ######
 for i in range(d):
     m[i]=np.sum(X_sample.T[i])/n_bach
 m=np.matrix(m)
@@ -60,7 +62,6 @@ for n in range(n_bach):
     XnXnt=XnXnt+np.tensordot(xn,xn,axes=([0],[0]))/n_bach
 mmt=np.tensordot(m,m,axes=([0],[0]))  
 C=XnXnt-mmt
-print("#C=",C)
 for l in range(d):
     C[l][l]=0.0
 #Cinv=inv(C)
@@ -69,7 +70,9 @@ U,s,V = np.linalg.svd(C, full_matrices=True)
 sinv=1.0/s
 Cinv=np.dot(V.T,np.dot(np.diag(sinv),U.T))
 
-J_hat=-Cinv
+#J_hat=-Cinv
+J_hat=np.eye(d)-Cinv
+
 error_mat=J_hat-J_mat
 error=np.sum(np.sum(np.abs(J_hat-J_mat)))/(d*d)
 
