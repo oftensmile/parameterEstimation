@@ -1,6 +1,8 @@
 import numpy as np
 import scipy as sp 
 import time
+import matplotlib.pyplot as plt
+from numpy.linalg import inv
 np.random.seed(0)
 
 d=8
@@ -21,13 +23,13 @@ def calc_m_MF_SCeq(epc_max,eps,m=[]):
         for i in range(len_m):
             m[i]=np.tanh(np.dot(J[i],temp_m))
             """
-            #Onsager Reaction Term
+            #Onsager Reacton Term (TAP)
             temp_mi=0.0
             for j in range(d):
                 temp_mi+=J[i][j]*(temp_m[j]-J[i][j]*(1-temp_m[j]**2)*temp_m[i])
-            """
             m[i]=np.tanh(temp_mi)
-    error=np.sum(np.abs(m-temp_m))
+            """
+        error=np.sum(np.abs(m-temp_m))
         #print(t,error)
         if(error<eps):
             break
@@ -52,6 +54,18 @@ def calc_c_MF_SCeq(epc_max,eps,m=[]):
             break 
     return c
 
+def calc_c_MF_Bethe_SCeq(m=[]):
+    c=np.zeros((d,d))
+    t=np.tanh(J)
+    print("t[1][2]-thanh(J[1][2])=",np.tanh(J[1][2])-t[1][2])
+    for i in range(d):
+        for j in range(i+1,d):
+            c[i][j]=1.0/(2*t[i][j])*(1+t[i][j]**2-np.sqrt((1.0-t[i][j]**2)**2-4.0*t[i][j]*(m[i]-t[i][j]*m[j])*(m[j]-t[i][j]*m[i])))
+            c[j][i]=c[i][j]
+    return c
+
+
+
 def gen_mcmc(x=[]):
     #Heat Bath
     for i in range(d):
@@ -63,6 +77,12 @@ def gen_mcmc(x=[]):
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
+
+def calc_cinv_MF_SCeq(m=[]):
+    cinv=-np.copy(J)
+    for i in range(d):
+        c[i][i]+=1.0/(1-m[i]**2)
+    return cinv
 
 
 if __name__ == '__main__':
@@ -87,12 +107,40 @@ if __name__ == '__main__':
     mmt=np.tensordot(m_mcmc_mat,m_mcmc_mat,axes=([0],[0]))
     for i in range(d):mmt[i][i]=0.0
     c_mcmc=XnXn-mmt
+    print("#mcmc_c=",c_mcmc)
     #calc c
     m=np.ones(d)
     m=calc_m_MF_SCeq(100,0.00001,m)
     print("#m=",m)
     c=np.ones((d,d))
     for i in range(d):c[i][i]=0
-    c=calc_c_MF_SCeq(100,0.00001,m)
-    print("#c=",c)
-    print("#mcmc_c=",c_mcmc)
+    #c=calc_c_MF_SCeq(100,0.00001,m)
+    #print("#c=",c)
+    #Bethe
+    #c=calc_c_MF_Bethe_SCeq(m)
+    #print("#c_bethe=",c)
+    
+    #linear Response
+    cinv=np.ones((d,d))
+    cinv=calc_cinv_MF_SCeq(m)
+    cinv=calc_cinv_MF_SCeq(m)
+    cinv_inv=inv(cinv)
+    print("#c_LR=",cinv_inv)
+
+    plt.figure()
+    plt.subplot(131)
+    plt.imshow(c_mcmc)
+    plt.colorbar()
+    plt.title("mcmc")
+    plt.subplot(132)
+    #plt.imshow(c)
+    plt.imshow(cinv_inv)
+    plt.colorbar()
+    #plt.title("MF+Bethe")
+    plt.title("Linear Response")
+    plt.subplot(133)
+    plt.imshow(c_mcmc-cinv_inv)
+    plt.colorbar()
+    plt.title("mcmc-approximaition")
+    plt.show()
+

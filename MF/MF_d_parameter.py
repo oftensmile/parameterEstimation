@@ -13,82 +13,125 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 8,300 #124, 1000
-N_remove = 100
+d, N_sample = 8,800 #124, 1000
+N_remove = 200
 #parameter ( MPF+GD )
-lr,eps =0.1, 1.0e-100
-t_gd_max=140 
-def gen_mcmc(J=[],x=[] ):
+
+J=np.random.choice([-1,1],(d,d))
+for i in range(d):
+    for j in range(i,d):
+        if(j==i):
+            J[i][i]=0.0
+        else:
+            J[j][i]=J[i][j]
+
+beta=1.0
+"""
+#def gen_mcmc(J=[],x=[]):
+#    for i in range(d):
+#        #Heat Bath
+#        diff_E=2.0*x[i]*(J[i]*x[(i+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+#        r=1.0/(1+np.exp(diff_E)) 
+#        #r=np.exp(-diff_E) 
+#        R=np.random.uniform(0,1)
+#        if(R<=r):
+#            x[i]=x[i]*(-1)
+#    return x
+"""
+
+def gen_mcmc(x=[]):
+    #Heat Bath
     for i in range(d):
-        #Heat Bath
-        diff_E=2.0*x[i]*(J[i]*x[(i+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+        diff_E=0.0
+        diff_E=beta*x[i]*(np.dot(J[i],x)+np.dot(J.T[i],x))
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
-
 #######    MAIN    ########
 #Generate sample-dist
-J_max,J_min=5,0.0
-J_vec=np.random.uniform(J_min,J_max,d)
-J_mat=np.zeros((d,d))
-for i in range(d):
-    J_mat[i][(i+1)%d]=J_vec[i]*0.5
-    J_mat[(i+1)%d][i]=J_vec[i]*0.5
+#J_max,J_min=5,0.0
+#J_vec=np.random.uniform(J_min,J_max,d)
+#J_mat=np.zeros((d,d))
+#for i in range(d):
+#    J_mat[i][(i+1)%d]=J_vec[i]*0.5
+#    J_mat[(i+1)%d][i]=J_vec[i]*0.5
 
-x = np.random.uniform(-1,1,d)
-x = np.array(np.sign(x))
+
+x = np.random.choice([-1,1],d)
 #SAMPLING
 for n in range(N_sample):
     for t in range(t_interval):
-        x = np.copy(gen_mcmc(J_vec,x))
+        x = np.copy(gen_mcmc(x))
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-#MF
+##########Calcuration of mean and variance###########
 m=np.zeros(d)
 n_bach=len(X_sample)
 for i in range(d):
     m[i]=np.sum(X_sample.T[i])/n_bach
-m=np.matrix(m)
-
-time_i=time.time()
+print(m)
 XnXnt=np.zeros((d,d))
 for n in range(n_bach):
     xn=np.matrix(X_sample[n])
     XnXnt=XnXnt+np.tensordot(xn,xn,axes=([0],[0]))/n_bach
-mmt=np.tensordot(m,m,axes=([0],[0]))  
+mmt=np.tensordot(np.matrix(m),np.matrix(m),axes=([0],[0]))  
+for i in range(d):XnXnt[i][i],mmt[i][i]=0.0,0.0
 C=XnXnt-mmt
-print("#C=",C)
-for l in range(d):
-    C[l][l]=0.0
+
+#########Calcuration of inverse values##########
+#for l in range(d):
+#    C[l][l]=0.0
 #Cinv=inv(C)
 #SVD type
 U,s,V = np.linalg.svd(C, full_matrices=True)
 sinv=1.0/s
 Cinv=np.dot(V.T,np.dot(np.diag(sinv),U.T))
 
-J_hat=-Cinv
-error_mat=J_hat-J_mat
-error=np.sum(np.sum(np.abs(J_hat-J_mat)))/(d*d)
+#########MFA#######
+J_MF=-Cinv
+#########MF+Onsager(TAP)##############
+J_TAP=np.zeros((d,d))
+for i in range(d):
+    for j in range(i,d):
+        print(i,j,"mi*mj=",m[i]*m[j],Cinv[i][j])
+        J_TAP[i][j] = (np.sqrt(1.0-8*m[i]*m[j]*Cinv[i][j])-1.0 ) / (4.0*m[i]*m[j])
+        J_TAP[j][i] = J_TAP[i][j]
+#normalization
+J_TAP_temp=np.copy(J_TAP)
+for i in range(d):
+    for j in range(i+1,d):
+        J_TAP[i][j]=J_TAP_temp[i][j]/np.sqrt(J_TAP_temp[j][j]*J_TAP_temp[i][i])
+        J_TAP[j][i]=J_TAP[i][j]
 
-print("error = ",error)
-time_f=time.time()
-dtime=time_f-time_i
-print("calc time =",dtime)
+error_MF=np.sum(np.sum(np.abs(J_MF-J)))/(d*d)
+error_TAP=np.sum(np.sum(np.abs(J_TAP-J)))/(d*d)
+
+print("error_MF = ",error_MF)
+print("error_TAP = ",error_TAP)
 #visualize
 plt.figure()
-plt.subplot(131)
-plt.imshow(J_mat)
+plt.subplot(231)
+plt.imshow(J)
 plt.colorbar()
-plt.title("True J")
-plt.subplot(132)
-plt.imshow(J_hat)
+plt.title("J")
+plt.subplot(232)
+plt.imshow(J_MF)
 plt.colorbar()
-plt.title("Estimated J")
-plt.subplot(133)
-plt.imshow(error_mat)
+plt.title("J_MF")
+plt.subplot(233)
+plt.imshow(J_TAP)
 plt.colorbar()
-plt.title("J_hat-J_true")
+plt.title("J_TAP")
+plt.subplot(235)
+plt.imshow(J_MF-J)
+plt.colorbar()
+plt.title("J_MF-J")
+plt.subplot(236)
+plt.imshow(J_TAP-J)
+plt.colorbar()
+plt.title("J_TAP-J")
+
 plt.show()
