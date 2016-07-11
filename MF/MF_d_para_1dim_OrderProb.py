@@ -4,8 +4,11 @@ import time
 np.random.seed(0)
 
 d=8
+beta=1.5
 J=np.random.choice([-1,1],(d,d))
 #J=np.random.choice([0,1],(d,d))
+N_sample,N_remove=300,20
+t_interval=20
 for i in range(d):
     for j in range(i+1,d):
         J[j][i]=J[i][j]
@@ -43,7 +46,34 @@ def calc_c_MF_SCeq(epc_max,eps,m=[]):
             break 
     return c
 
+def gen_mcmc(x=[]):
+    #Heat Bath
+    for i in range(d):
+        diff_E=0.0
+        diff_E=beta*x[i]*(np.dot(J[i],x)+np.dot(J[j],x))
+        r=1.0/(1+np.exp(diff_E)) 
+        #r=np.exp(-diff_E) 
+        R=np.random.uniform(0,1)
+        if(R<=r):
+            x[i]=x[i]*(-1)
+    return x
+
+
 if __name__ == '__main__':
+    x=np.ones(d)
+    for n in range(N_sample+N_remove):
+        for t in range(t_interval):
+            x=np.copy(gen_mcmc(x))
+        if(n==N_remove):X_sample=np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+    
+    m_mcmc=np.zeros(d)
+    len_sample=len(X_sample)
+    for i in range(d):
+        m_mcmc[i]=np.sum(X_sample.T[i])*(1.0/len_sample)
+    print("#m_mcmc=",m_mcmc)
+
+
     m=np.ones(d)
     calc_m_MF_SCeq(100,0.00001,m)
     print("#m=",m)
