@@ -9,11 +9,17 @@ t_interval=40
 t_GD=1000
 beta=1.0
 lr,eps=0.1,0.001
+"""
 J=np.random.choice([-1,1],(d,d))
 for i in range(d):
     for j in range(i,d):
-        if(j==i):J[i][i]==0
-        else:J[j][i]=J[i][j]
+        J[j][i]=J[i][j]
+for i in range(d):J[i][i]=0
+"""
+J=np.zeros((d,d))
+for i in range(d):
+    J[i][(i+1)%d]=1
+    J[i][(i-1+d)%d]=1
 
 def gen_mcmc(x=[],theta=[[]]):
     #Heat Bath
@@ -74,15 +80,15 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot(131)
-    plt.imshow(J)
+    plt.imshow(J, interpolation='nearest')
     plt.colorbar()
     plt.title("J")
     plt.subplot(132)
-    plt.imshow(J_BF)
+    plt.imshow(J_BF, interpolation='nearest')
     plt.colorbar()
     plt.title("J_BF")
     plt.subplot(133)
-    plt.imshow(J_BF-J)
+    plt.imshow(J_BF-J, interpolation='nearest')
     plt.colorbar()
     plt.title("J_BF-J")
     plt.show()
