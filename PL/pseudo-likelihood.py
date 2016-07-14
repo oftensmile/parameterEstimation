@@ -3,9 +3,9 @@ import sys
 import matplotlib.pyplot as plt
 np.random.seed(0)
 
-d,N_sample_model,N_sample_data,N_remove=8,100,800,100
+d,N_sample_model,N_sample_data,N_remove=8,100,200,100
 t_interval=40
-t_GD=1000
+t_GD=500
 beta=1.0
 lr,eps=0.1,0.001
 J=np.random.choice([-1,1],(d,d))
