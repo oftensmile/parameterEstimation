@@ -3,32 +3,31 @@ import sys
 import matplotlib.pyplot as plt
 np.random.seed(0)
 
-d,N_sample_model,N_sample_data,N_remove=128,100,1000,500
-t_interval=40
+d,N_sample_model,N_sample_data,N_remove=8,100,2000,1000
+t_interval=200
 t_GD=100
 beta=1.0
-lr,eps=0.1,0.001
+lr,eps=0.1,0.0001
 """
 J=np.random.choice([-1,1],(d,d))
 for i in range(d):
     for j in range(i,d):
         J[j][i]=J[i][j]
 for i in range(d):J[i][i]=0.0
-"""
 """ 
+
 J=np.zeros((d,d))
 for i in range(d):
     J[i][(i+1)%d]=1
     J[i][(i-1+d)%d]=1
 """
-
 ## TEST_DATA-> http://richardkwo.net/talks/InverseIsingSlides.pdf  ##
-J=np.random.randn(d,d)/(np.sqrt(d**2))#d**2=#parameter
+J=np.random.randn(d,d)*(1.0/d)
 for i in range(d):
     for j in range(i+1,d):
         J[j][i]=J[i][j]
 for i in range(d):J[i][i]=0.0
-
+"""
 def gen_mcmc(x=[],theta=[[]]):
     #Heat Bath
     for i in range(d):
@@ -63,33 +62,28 @@ if __name__ == '__main__':
     for i in range(d):J_PL[i][i]=0.0
         #Poseudo liklihood estimation
     len_sample_data=len(X_sample)
-    for i in range(d):
-        error_i_pre=1000
-        for t in range(t_GD):
-            grad_likelihood_i=np.zeros(d)
+
+
+    error_pre=1000
+    grad_likelihood=np.zeros((d,d))
+    for t in range(t_GD):
+        for i in range(d):
             for n in range(N_sample_data):
                 xn=np.copy(X_sample[n])
-                grad_likelihood_i=grad_likelihood_i + 2.0*xn*xn[i] / (1.0+np.exp(2.0*xn[i]*np.dot(J_PL[i],xn)))  /len_sample_data
-                #
-                #within=np.dot(J_PL[i],xn)
-                #xn*(np.exp(2.0*xn[i]*within)/)
-            #Added regularization term
-            J_PL[i]=J_PL[i]+lr*grad_likelihood_i #-0.01 * np.sign(J_PL[i])
-            ### This fulling zero is empirically necessary. ####
-            J_PL[i][i]=0
-            error_i=np.sum(np.abs(J_PL[i]-J[i]))/d
-            print(i,t,error_i)
-            ### Exit condition(Note ; This method can be used only witout stochastic process, which doesn't include mcmc calc.)
-            if(error_i<eps or error_i_pre<error_i):
-                break
-            error_i_pre=error_i
+                grad_likelihood[i]=grad_likelihood[i] + 2.0*xn*xn[i] / (1.0+np.exp(2.0*xn[i]*np.dot(J_PL[i],xn)))  /len_sample_data
+        #Added regularization term
+        J_PL=J_PL+lr*grad_likelihood -0.01 * np.sign(J_PL)
+        ### This fulling zero is empirically necessary. ####
+        for s in range(d):J_PL[s][s]=0.0
+        error=np.sum(np.sum(np.abs(J_PL-J)))/(d**2)
+        print(t,error)
+        ### Exit condition(Note ; This method can be used only witout stochastic process, which doesn't include mcmc calc.)
+        #if(error<eps or error_pre<error):
+        if(error<eps ):
+            break
+        error_pre=error
 
     for i in range(d):J_PL[i][i]=0
-    norm=np.sum(np.sum(J_PL))
-    #J_PL=J_PL*0.0024/(1200.0*0.0028)#*(1.0/norm)
-    J_PL=J_PL*(1.0/norm)*(24.0/0.06)
-    error_final=np.sum(np.sum(np.abs(J-J_PL/norm)))
-    print("#final error=",error_final)
     plt.figure()
     plt.subplot(141)
     plt.imshow(J ,interpolation='nearest')
