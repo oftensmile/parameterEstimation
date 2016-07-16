@@ -16,8 +16,8 @@ def accept(dim,J,x=[]):
 
 def simple_mcmc(dim,x=[]):
     J=np.ones(dim)
-    propose=np.copy(x)+x*np.random.choice([-2,0],dim)#bariance*np.random.randn(dim)
-    accept_ratio=accept(dim,J,propose)/accept(dim,J,x)#np.exp(-beta*(energy_func(propose)-energy_func(x)))
+    propose=np.copy(x)+x*np.random.choice([-2,0],dim)
+    accept_ratio=accept(dim,J,propose)/accept(dim,J,x)
     # Metropolice Hesting method
     u=np.random.uniform()
     if(accept_ratio>1.0):
@@ -51,8 +51,8 @@ def mpf(name,dim,n_sample,n_remove,t=[],x_tot=[[]]):
     return t
 if __name__ == '__main__':
     n_remove=100
-    for n_sample in [10,30,50,100,200]:
-        for dim in [4,8,16]:
+    for n_sample in [1000,3000]:
+        for dim in [4,8,16,32]:
             name="sample"+str(n_sample)+"-dim"+str(dim)+".dat"
             ##   SAMPLING PROCESS    ##
             x=np.random.choice([-1,1],dim)
