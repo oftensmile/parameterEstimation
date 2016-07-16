@@ -1,0 +1,2 @@
+file_list=system("ls sample*.dat")
+plot for [file_name in file_list] file_name title file_name 
