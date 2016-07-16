@@ -6,7 +6,7 @@ np.random.seed(0)
 dim=6
 beta=1.0
 bariance=0.1
-n_sample,n_remove=30,100
+n_sample,n_remove=100,100
 t_burnin=20
 epc_max=100
 
@@ -42,7 +42,6 @@ def mpf(t=[],x_tot=[[]]):
                 x_n_d[d]*=-1
                 prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim
         prob_flow/=len_sample
-        #print(prob_flow[0],prob_flow[1],prob_flow[2],prob_flow[3],prob_flow[4],prob_flow[5],"#prob_flow")
         t=t-0.1*prob_flow
         error_pre=error
         error=np.sum(np.abs(t-J))/dim
@@ -50,10 +49,8 @@ def mpf(t=[],x_tot=[[]]):
         if(error_pre<error):
             break    
     return t
-
-
 if __name__ == '__main__':
-    ##   SAMPLING PRCESS    ##
+    ##   SAMPLING PROCESS    ##
     x=np.random.choice([-1,1],dim)
     for s in range(n_sample+n_remove):
         for t in range(t_burnin):
