@@ -6,7 +6,7 @@ np.random.seed(0)
 dim=6
 beta=1.0
 bariance=0.1
-n_sample,n_remove=100,100
+n_sample,n_remove=10000,100
 t_burnin=20
 epc_max=3000
 
@@ -43,7 +43,10 @@ def mpf(t=[],x_tot=[[]]):
                 for d2 in range(dim):
                     if(d2!=d1):
                         x_n_d[d2]*=-1
-                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim**2)
+                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim)
+                    if(d2==d1):
+                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)#/(dim)
+                    
                     #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
         prob_flow/=len_sample
         t=t-0.1*prob_flow

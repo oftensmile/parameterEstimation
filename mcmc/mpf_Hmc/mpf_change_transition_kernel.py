@@ -37,14 +37,12 @@ def mpf(t=[],x_tot=[[]]):
         for n in range(len_sample):
             x_n=np.copy(x_tot[n])
             accept_of_x_n=accept(t,x_n)
-            for d1 in range(dim):
+            for d in range(dim):
                 x_n_d=np.copy(x_n)
-                x_n_d[d1]*=-1
-                for d2 in range(dim):
-                    if(d2!=d1):
-                        x_n_d[d2]*=-1
-                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim**2)
-                    #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
+                x_n_d[d]*=-1
+                #prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim**2)
+                prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim**2)#*np.exp(-beta*(1.0/(2+epc)**0.1-1.0/(1+epc)**0.1))
+            #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
         prob_flow/=len_sample
         t=t-0.1*prob_flow
         error_pre=error

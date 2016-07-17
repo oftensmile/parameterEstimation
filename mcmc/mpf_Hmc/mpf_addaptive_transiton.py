@@ -9,6 +9,7 @@ bariance=0.1
 n_sample,n_remove=100,100
 t_burnin=20
 epc_max=3000
+lr=0.01
 
 def accept(J,x=[]):
     function=0
@@ -31,27 +32,36 @@ def simple_mcmc(x=[]):
 def mpf(t=[],x_tot=[[]]):
     J=np.ones(dim)  #It is prepaiered of the check
     len_sample=len(x_tot)
-    error=100
-    for epc in range(epc_max):
-        prob_flow=np.zeros(dim)
-        for n in range(len_sample):
-            x_n=np.copy(x_tot[n])
-            accept_of_x_n=accept(t,x_n)
-            for d1 in range(dim):
-                x_n_d=np.copy(x_n)
-                x_n_d[d1]*=-1
-                for d2 in range(dim):
-                    if(d2!=d1):
-                        x_n_d[d2]*=-1
-                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/(dim**2)
-                    #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
-        prob_flow/=len_sample
-        t=t-0.1*prob_flow
-        error_pre=error
-        error=np.sum(np.abs(t-J))/dim
-        print(error)
-        if(error_pre<error):
-            break    
+    for k in [2]:
+        name="change-trans-len-"+str(2*k+1)+".dat"
+        f=open(name,"w")
+        nb=k
+        list_tras=np.arange(-nb,nb+1)
+        len_tras=2*nb+1
+        error=100
+        t=np.random.rand(dim)
+        for epc in range(epc_max):
+            prob_flow=np.zeros(dim)
+            for n in range(len_sample):
+                x_n=np.copy(x_tot[n])
+                accept_of_x_n=accept(t,x_n)
+                for d1 in range(dim):
+                    x_n_d1=np.copy(x_n)
+                    x_n_d1[d1]*=-1
+                    for d2 in list_tras:
+                        x_n_d=np.copy(x_n_d1)
+                        if(d2!=0):x_n_d[(d1+d2+dim)%dim]*=-1
+                        prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/((len_tras*dim)**2)
+                        #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
+            prob_flow/=len_sample
+            t=t-0.1*prob_flow
+            error_pre=error
+            error=np.sum(np.abs(t-J))/dim
+            f.write(str(error)+"\n")
+            #print(error)
+            if(error_pre<error):
+                f.close()
+                break    
     return t
 if __name__ == '__main__':
     ##   SAMPLING PROCESS    ##
