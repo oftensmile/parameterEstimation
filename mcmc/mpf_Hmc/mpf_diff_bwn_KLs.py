@@ -8,7 +8,7 @@ beta=1.0
 bariance=0.1
 n_sample,n_remove=1000,100
 t_burnin=20
-epc_max=100
+epc_max=1000
 
 def accept(J,x=[]):
     function=0
@@ -18,8 +18,8 @@ def accept(J,x=[]):
 
 def simple_mcmc(x=[]):
     J=np.ones(dim)
-    propose=np.copy(x)+x*np.random.choice([-2,0],dim)#bariance*np.random.randn(dim)
-    accept_ratio=accept(J,propose)/accept(J,x)#np.exp(-beta*(energy_func(propose)-energy_func(x)))
+    propose=np.copy(x)+x*np.random.choice([-2,0],dim)
+    accept_ratio=accept(J,propose)/accept(J,x)
     # Metropolice Hesting method
     u=np.random.uniform()
     if(accept_ratio>1.0):
@@ -40,7 +40,7 @@ def mpf(t=[],x_tot=[[]]):
             for d in range(dim):
                 x_n_d=np.copy(x_n)
                 x_n_d[d]*=-1
-                prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
+                prob_flow=prob_flow-((t-x_n_d)-(t-x_n))/dim**2*(accept(t,x_n_d)/accept_of_x_n)**(0.5)
         prob_flow/=len_sample
         t=t-0.1*prob_flow
         error_pre=error

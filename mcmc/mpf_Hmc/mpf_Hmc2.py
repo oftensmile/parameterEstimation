@@ -38,9 +38,8 @@ def mpf(t=[],x_tot=[[]]):
         for n in range(len_sample):
             x_n=np.copy(x_tot[n])
             accept_of_x_n=accept(t,x_n)
-            for d in range(4):
+            for d in range(dim):
                 
-                """
                 ##   Proposal Distribution   ##
                 prop_index=np.random.choice(list_of_index)
                 p_prop=np.zeros(dim)
@@ -52,7 +51,7 @@ def mpf(t=[],x_tot=[[]]):
                 u=np.random.uniform()
                 if(u<accept_ratio):
                     x_n_d=np.copy(x_n_prop)
-                    prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim
+                    prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
                 """
 
                 ##  Chck of normal mpf  ##
@@ -65,7 +64,8 @@ def mpf(t=[],x_tot=[[]]):
                 noise=np.zeros(dim)
                 noise[prop_index]+=np.random.randn()
                 #x_n_prop=x_n_prop+noise
-                prob_flow=prob_flow-(-x_n_prop+x_n)*(accept(t,x_n_prop)/accept_of_x_n)**(0.5)/5#+0.1*np.random.randn(dim)
+                prob_flow=prob_flow-(-x_n_prop+x_n)*(accept(t,x_n_prop)/accept_of_x_n)**(0.5)/(dim**2) #+0.1*np.random.randn(dim)
+                """
 
 
         prob_flow/=len_sample
@@ -73,8 +73,8 @@ def mpf(t=[],x_tot=[[]]):
         error_pre=error
         error=np.sum(np.abs(t-J))/dim
         print(error)
-        #if(error_pre<error):
-        #    break    
+        if(error_pre<error):
+            break    
     return t
 if __name__ == '__main__':
     ##   SAMPLING PROCESS    ##
