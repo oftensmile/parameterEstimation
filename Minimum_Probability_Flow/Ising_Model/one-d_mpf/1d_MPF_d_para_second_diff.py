@@ -16,7 +16,7 @@ d, N_sample = 8,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1400 
+t_gd_max=400 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
@@ -53,19 +53,38 @@ for t_gd in range(t_gd_max):
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
         gradK_nin=np.zeros(d)
-        for l in range(d):
+        x_nin_shift=np.copy(x_nin[1:d])
+        x_nin_shift=np.append(x_nin_shift,x_nin[0])
+        x_nin_x_shift=x_nin*x_nin_shift
+        E_nin=np.dot(x_nin_x_shift,theta_model)
+        for l1 in range(d):
+            x_nin_l=np.copy(x_nin)
+            x_nin_l[l1]*=-1
+            x_nin_l_shift=np.copy(x_nin_l[1:d])
+            x_nin_l_shift=np.append(x_nin_l_shift,x_nin_l[0])
+            x_nin_l_x_shift=x_nin_l*x_nin_l_shift
+            E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
+            diff_E=E_nin_l-E_nin
+            gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/d
+            
+            """
             xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
             xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
             xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
             gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
             gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
             gradK[l]+=gradK_nin[l]/n_bach
+            gradK=gradK+gradK_nin/n_bach
+            """
+        gradK=gradK+gradK_nin/n_bach
+    
+    
     theta_model=theta_model-lr*gradK
-    sum_of_gradK=np.sum(gradK)
+    sum_of_gradK=np.sum(np.sum(gradK))
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,sum_of_gradK,error_func)
-    if(error_prev<error_func):
-        break
+    #if(error_prev<error_func):
+    #    break
 
 #Plot
 bins=np.arange(1,d+1)
