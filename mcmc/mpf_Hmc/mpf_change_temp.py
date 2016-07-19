@@ -33,7 +33,8 @@ def mpf(t=[],x_tot=[[]]):
     len_sample=len(x_tot)
     error=100
     t=np.random.rand(dim)
-    for alpha in [0.1,0.5,1.0]:
+    #for alpha in [0.1,0.5,1.0]:
+    for alpha in [1.0]:
         name="temp-scaled"+str(alpha)+".dat"
         f=open(name,"w")
         for epc in range(epc_max):
