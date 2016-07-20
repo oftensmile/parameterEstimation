@@ -81,11 +81,11 @@ for t_gd in range(t_gd_max):
     
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(np.sum(gradK))
-    error_func=np.sum(np.abs(theta_model-J_vec))/d
+    error_func=np.sum(np.sum((theta_model-J_vec)**2))/d
     print(t_gd,sum_of_gradK,error_func)
     if(error_prev<error_func):
         break
-
+"""
 #Plot
 bins=np.arange(1,d+1)
 bar_width=0.2
@@ -97,3 +97,4 @@ plt.legend()
 filename="test_output_fixed6.png"
 plt.savefig(filename)
 plt.show()
+"""

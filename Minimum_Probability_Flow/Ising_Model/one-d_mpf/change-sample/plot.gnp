@@ -1,0 +1,3 @@
+file_list=system("QuadraticApproximation-dim64-sample*.dat")
+#set xrange [0:300]
+plot for [file_name in file_list] file_name title file_name 

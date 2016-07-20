@@ -12,11 +12,11 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 128,300 #124, 1000
+d, N_sample = 64,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=400 
+t_gd_max=600 
 beta=1.0
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
@@ -81,48 +81,56 @@ J_vec=np.random.uniform(J_min,J_max,d)
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 #SAMPLING
-for n in range(N_sample):
-    for t in range(t_interval):
-        x = np.copy(gen_mcmc(J_vec,x))
-    if(n==N_remove):X_sample = np.copy(x)
-    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-#MPF
-#In this case I applied 
-theta_model=np.random.uniform(0,4,d)    #Initial guess
-init_theta=np.copy(theta_model)
-error_func=1000
-for t_gd in range(t_gd_max):
-    error_prev=error_func
-    gradK=np.zeros(d)
-    n_bach=len(X_sample)
-    for nin in range(n_bach):
-        x_nin=np.copy(X_sample[nin])
-        gradK_nin=np.zeros(d)
-        x_nin_shift=np.copy(x_nin[1:d])
-        x_nin_shift=np.append(x_nin_shift,x_nin[0])
-        x_nin_x_shift=x_nin*x_nin_shift
-        E_nin=np.dot(x_nin_x_shift,theta_model)
-        ##  Cluster porposals ##
-        set_of_proposal=claster_proposal(np.copy(x_nin))
-        len_set_proposal=len(np.matrix(set_of_proposal))
-        for l in range(len_set_proposal):
-            if(len_set_proposal==1):
-                x_nin_l=np.copy(set_of_proposal)
-            elif(len_set_proposal>1):
-                x_nin_l=np.copy(set_of_proposal[l])
-            x_nin_l_shift=np.copy(x_nin_l[1:d])
-            x_nin_l_shift=np.append(x_nin_l_shift,x_nin_l[0])
-            x_nin_l_x_shift=x_nin_l*x_nin_l_shift
-            E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
-            diff_E=E_nin_l-E_nin
-            gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/len_set_proposal
-        gradK=gradK+gradK_nin/n_bach
-    theta_model=theta_model-lr*gradK
-    sum_of_gradK=np.sum(np.sum(gradK))
-    error_func=np.sum(np.abs(theta_model-J_vec))/d
-    print(t_gd,sum_of_gradK,error_func)
-    if(error_prev<error_func):
-        break
+N_sample_list=[50,100,200,400,800]
+for N_sample in N_sample_list:
+    check=0
+    name="Cluster-Update-dim"+str(d)+"-sample"+str(N_sample)+".dat"
+    f=open(name,"w")
+    for n in range(N_sample+N_remove):
+        for t in range(t_interval):
+            x = np.copy(gen_mcmc(J_vec,x))
+        if(n==N_remove):X_sample = np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+    #MPF
+    #In this case I applied 
+    theta_model=np.random.uniform(0,1,d)    #Initial guess
+    init_theta=np.copy(theta_model)
+    error_func=1000
+    for t_gd in range(t_gd_max):
+        error_prev=error_func
+        gradK=np.zeros(d)
+        n_bach=len(X_sample)
+        for nin in range(n_bach):
+            x_nin=np.copy(X_sample[nin])
+            gradK_nin=np.zeros(d)
+            x_nin_shift=np.copy(x_nin[1:d])
+            x_nin_shift=np.append(x_nin_shift,x_nin[0])
+            x_nin_x_shift=x_nin*x_nin_shift
+            E_nin=np.dot(x_nin_x_shift,theta_model)
+            ##  Cluster porposals ##
+            set_of_proposal=claster_proposal(np.copy(x_nin))
+            len_set_proposal=len(np.matrix(set_of_proposal))
+            for l in range(len_set_proposal):
+                if(len_set_proposal==1):
+                    x_nin_l=np.copy(set_of_proposal)
+                elif(len_set_proposal>1):
+                    x_nin_l=np.copy(set_of_proposal[l])
+                x_nin_l_shift=np.copy(x_nin_l[1:d])
+                x_nin_l_shift=np.append(x_nin_l_shift,x_nin_l[0])
+                x_nin_l_x_shift=x_nin_l*x_nin_l_shift
+                E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
+                diff_E=E_nin_l-E_nin
+                gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/len_set_proposal
+            gradK=gradK+gradK_nin/n_bach
+        theta_model=theta_model-lr*gradK
+        sum_of_gradK=np.sum(np.sum(gradK))
+        error_func=np.sqrt(np.sum((theta_model-J_vec)**2))/d
+        f.write(str(t_gd)+" "+str(error_func)+"\n")
+        if(error_prev<error_func):
+            f.close()
+            check=1
+            break
+    if(check==0):f.close()
 
 #Plot
 """

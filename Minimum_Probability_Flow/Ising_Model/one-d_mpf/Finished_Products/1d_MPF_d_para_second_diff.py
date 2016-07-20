@@ -17,7 +17,6 @@ N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=400 
-beta=1.0
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
@@ -28,51 +27,6 @@ def gen_mcmc(J=[],x=[] ):
         if(R<=r):
             x[i]=x[i]*(-1)
     return x
-
-def claster_proposal(a=[]):
-    m_a=-np.ones(d)
-    r=1-np.exp(-2.0*beta)
-    m=0
-    ## To allocate a number on a cluster.
-    max_m=1
-    for i in range(d):
-        u=np.random.uniform()
-        if(a[i]!=a[(i+d-1)%d] or u>r):
-            m+=1
-            m_a[i]=m
-            max_m=m
-        else:
-            m_a[i]=m
-
-    ## Treatment for the P.B.C.
-    for j in range(d):
-        if(m_a[j]==0):
-            m_a[j]=max_m
-        else:
-            break
-    ## Propose single cluster update.
-    sta=0
-    for m in range(1,max_m+1):
-        temp=np.copy(a)
-        flag=0
-        for i in range(sta,d):
-            if(m_a[i]==m):
-                flag=1
-                temp[i]*=-1
-            elif(m_a[i]!=m and flag==1):
-                sta=i
-                break
-        if(m==max_m):
-            for j in range(d):
-                if(m_a[j]==m):
-                    temp[j]*=-1
-                else:
-                    break
-        if(m==1):
-            proposal=np.copy(temp)
-        else:
-            proposal=np.vstack((proposal,np.copy(temp)))
-    return proposal
 
 #######    MAIN    ########
 #Generate sample-dist
@@ -90,6 +44,7 @@ for n in range(N_sample):
 #In this case I applied 
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)
+print("#diff_E diff_E1_nin diff_E2_nin")
 error_func=1000
 for t_gd in range(t_gd_max):
     error_prev=error_func
@@ -102,21 +57,28 @@ for t_gd in range(t_gd_max):
         x_nin_shift=np.append(x_nin_shift,x_nin[0])
         x_nin_x_shift=x_nin*x_nin_shift
         E_nin=np.dot(x_nin_x_shift,theta_model)
-        ##  Cluster porposals ##
-        set_of_proposal=claster_proposal(np.copy(x_nin))
-        len_set_proposal=len(np.matrix(set_of_proposal))
-        for l in range(len_set_proposal):
-            if(len_set_proposal==1):
-                x_nin_l=np.copy(set_of_proposal)
-            elif(len_set_proposal>1):
-                x_nin_l=np.copy(set_of_proposal[l])
+        for l1 in range(d):
+            x_nin_l=np.copy(x_nin)
+            x_nin_l[l1]*=-1
             x_nin_l_shift=np.copy(x_nin_l[1:d])
             x_nin_l_shift=np.append(x_nin_l_shift,x_nin_l[0])
             x_nin_l_x_shift=x_nin_l*x_nin_l_shift
             E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
             diff_E=E_nin_l-E_nin
-            gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/len_set_proposal
+            gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/d
+            
+            """
+            xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
+            xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
+            xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
+            gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
+            gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
+            gradK[l]+=gradK_nin[l]/n_bach
+            gradK=gradK+gradK_nin/n_bach
+            """
         gradK=gradK+gradK_nin/n_bach
+    
+    
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(np.sum(gradK))
     error_func=np.sum(np.abs(theta_model-J_vec))/d
@@ -125,7 +87,6 @@ for t_gd in range(t_gd_max):
         break
 
 #Plot
-"""
 bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
@@ -136,4 +97,3 @@ plt.legend()
 filename="test_output_fixed6.png"
 plt.savefig(filename)
 plt.show()
-"""

@@ -12,7 +12,7 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 128,300 #124, 1000
+d, N_sample = 32,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -116,6 +116,17 @@ for t_gd in range(t_gd_max):
             E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
             diff_E=E_nin_l-E_nin
             gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/len_set_proposal
+        ##  single flip ##
+        for l1 in range(d):
+            x_nin_l=np.copy(x_nin)
+            x_nin_l[l1]*=-1
+            x_nin_l_shift=np.copy(x_nin_l[1:d])
+            x_nin_l_shift=np.append(x_nin_l_shift,x_nin_l[0])
+            x_nin_l_x_shift=x_nin_l*x_nin_l_shift
+            E_nin_l=np.dot(x_nin_l_x_shift,theta_model)
+            diff_E=E_nin_l-E_nin
+            gradK_nin=gradK_nin-(x_nin_x_shift-x_nin_l_x_shift)*np.exp(0.5*diff_E)/d
+       
         gradK=gradK+gradK_nin/n_bach
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(np.sum(gradK))
