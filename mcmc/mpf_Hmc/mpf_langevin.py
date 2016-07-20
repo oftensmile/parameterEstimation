@@ -28,39 +28,36 @@ def simple_mcmc(x=[]):
         x=np.copy(propose)
     return x  
 
-def mpf(x_tot=[[]]):
+def mpf(t=[],x_tot=[[]]):
     J=np.ones(dim)  #It is prepaiered of the check
     len_sample=len(x_tot)
-    list_beta=[0.5,1.0,1.5,2.0,10.0]
-    for beta_local in list_beta:
-        name="dim"+str(dim)+"-sample"+str(n_sample)+"-beta"+str(beta_local)+".dat"
+    error=100
+    for alpha in [0.01,0.1,0.2,0.4,0.8,1.2]:
+        name = "noise"+str(alpha)+".dat"
         f=open(name,"w")
+        t=np.random.rand(dim)
         for epc in range(epc_max):
-            error=100
             prob_flow=np.zeros(dim)
-            t=np.random.rand(dim)
             for n in range(len_sample):
                 x_n=np.copy(x_tot[n])
                 accept_of_x_n=accept(t,x_n)
+                rand1=np.random.randn()**2
                 for d1 in range(dim):
                     x_n_d=np.copy(x_n)
                     x_n_d[d1]*=-1
-                    for d2 in range(dim):
-                        if(d2!=d1):
-                            x_n_d[d2]*=-1
-                            prob_flow=prob_flow-beta_local*(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**(0.5*beta_local)/(dim**2)
+                    randd=np.random.randn()**2
+                    d_rand=alpha*(randd-rand1)
+                    prob_flow=prob_flow-(-x_n_d+x_n)*(accept(t,x_n_d)/accept_of_x_n)**0.5*np.exp(-beta*(d_rand))/(dim)
                         #prob_flow=prob_flow-((t-x_n_d)-(t-x_n))*(accept(t,x_n_d)/accept_of_x_n)**(0.5)/dim**2
             prob_flow/=len_sample
             t=t-0.1*prob_flow
             error_pre=error
             error=np.sum(np.abs(t-J))/dim
-            f.write(str(error)+"\n")
             #print(error)
+            f.write(str(error)+"\n")
             if(error_pre<error):
                 f.close()
                 break    
-    
-    
     return t
 if __name__ == '__main__':
     ##   SAMPLING PROCESS    ##
@@ -73,5 +70,7 @@ if __name__ == '__main__':
         elif(s>n_remove):
             x_tot=np.vstack((x_tot,np.copy(x)))
     ##      MPF     ##
-    J_mpf=mpf(x_tot)
+    J_mpf=np.random.rand(dim)
+    print("#",J_mpf)
+    J_mpf=mpf(np.copy(J_mpf),x_tot)
     print("#",J_mpf)
