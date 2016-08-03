@@ -35,8 +35,8 @@ J_max,J_min=1,0.0
 J_vec=np.random.uniform(J_min,J_max,d)
 J_mat=np.zeros((d,d))
 for i in range(d):
-    J_mat[i][(i+1)%d]=J_vec[i]*0.5
-    J_mat[(i+1)%d][i]=J_vec[i]*0.5
+    J_mat[i][(i+1)%d]=J_vec[i]#*0.5
+    J_mat[(i+1)%d][i]=J_vec[i]#*0.5
 J_norm=np.sqrt(np.sum(np.sum(J_mat**2)))
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
@@ -79,27 +79,22 @@ error_mat=J_hat-J_mat
 #error=np.sum(np.sum(np.abs(J_hat-J_mat)))/(d*d)
 error=np.sqrt(np.sum(np.sum((J_hat-J_mat)**2)))/J_norm
 
+print("error = ",error)
 time_f=time.time()
 dtime=time_f-time_i
-print("error = ",error)
 print("calc time =",dtime)
 #visualize
 plt.figure()
-plt.subplot(141)
+plt.subplot(131)
 plt.imshow(J_mat,interpolation='nearest')
 plt.colorbar()
 plt.title("True J")
-plt.subplot(142)
+plt.subplot(132)
 plt.imshow(J_hat,interpolation='nearest')
 plt.colorbar()
 plt.title("Estimated J")
-plt.subplot(143)
+plt.subplot(133)
 plt.imshow(error_mat,interpolation='nearest')
 plt.colorbar()
 plt.title("J_hat-J_true")
-plt.subplot(144)
-plt.imshow(C,interpolation='nearest')
-plt.colorbar()
-plt.title("C")
-
 plt.show()

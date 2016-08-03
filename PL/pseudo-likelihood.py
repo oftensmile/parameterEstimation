@@ -3,9 +3,10 @@ import sys
 import matplotlib.pyplot as plt
 np.random.seed(0)
 
-d,N_sample_model,N_sample_data,N_remove=128,100,1000,500
+#d,N_sample_model,N_sample_data,N_remove=,128,1000,500
+d,N_sample_model,N_sample_data,N_remove=64,600,600,200
 t_interval=40
-t_GD=100
+t_GD=400
 beta=1.0
 lr,eps=0.1,0.001
 """
@@ -43,6 +44,7 @@ def gen_mcmc(x=[],theta=[[]]):
 
 if __name__ == '__main__':
     #### SAMPLING ###
+    mean=0.0
     x=np.random.choice([-1,1],d)
     for n in range(N_sample_data+N_remove):
         for t in range(t_interval):
@@ -87,9 +89,11 @@ if __name__ == '__main__':
     for i in range(d):J_PL[i][i]=0
     norm=np.sum(np.sum(J_PL))
     #J_PL=J_PL*0.0024/(1200.0*0.0028)#*(1.0/norm)
-    J_PL=J_PL*(1.0/norm)*(24.0/0.06)
+    #J_PL=J_PL*(1.0/norm)*(24.0/0.06)
+    error_total=np.sqrt(np.sqrt(np.sum(np.sum(J-J_PL))))
     error_final=np.sum(np.sum(np.abs(J-J_PL/norm)))
     print("#final error=",error_final)
+    """
     plt.figure()
     plt.subplot(141)
     plt.imshow(J ,interpolation='nearest')
@@ -108,3 +112,4 @@ if __name__ == '__main__':
     plt.colorbar()
     plt.title("C_data")
     plt.show()
+    """

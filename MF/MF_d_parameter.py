@@ -13,18 +13,22 @@ np.random.seed(0)
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 8,800 #124, 1000
+d, N_sample = 63,600 #124, 1000
 N_remove = 200
 #parameter ( MPF+GD )
 
-J=np.random.choice([-1,1],(d,d))
+#J=np.random.choice([-1,1],(d,d))
+J_vec=np.random.uniform(0,1,d)
+"""
 for i in range(d):
     for j in range(i,d):
-        if(j==i):
-            J[i][i]=0.0
-        else:
-            J[j][i]=J[i][j]
-
+        J[j][i]=J[i][j]
+for i in range(d):J[i][i]=0
+"""
+J=np.zeros((d,d))
+for i in range(d):
+    J[i][(i+1)%d]=J_vec[i]
+    J[(i+1)%d][i]=J_vec[i]
 beta=1.0
 """
 #def gen_mcmc(J=[],x=[]):
@@ -51,6 +55,7 @@ def gen_mcmc(x=[]):
             x[i]=x[i]*(-1)
     return x
 #######    MAIN    ########
+"""
 #Generate sample-dist
 #J_max,J_min=5,0.0
 #J_vec=np.random.uniform(J_min,J_max,d)
@@ -58,7 +63,7 @@ def gen_mcmc(x=[]):
 #for i in range(d):
 #    J_mat[i][(i+1)%d]=J_vec[i]*0.5
 #    J_mat[(i+1)%d][i]=J_vec[i]*0.5
-
+"""
 
 x = np.random.choice([-1,1],d)
 #SAMPLING
@@ -67,12 +72,13 @@ for n in range(N_sample):
         x = np.copy(gen_mcmc(x))
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+
 ##########Calcuration of mean and variance###########
 m=np.zeros(d)
 n_bach=len(X_sample)
 for i in range(d):
     m[i]=np.sum(X_sample.T[i])/n_bach
-print(m)
+#print(m)
 XnXnt=np.zeros((d,d))
 for n in range(n_bach):
     xn=np.matrix(X_sample[n])
@@ -80,7 +86,6 @@ for n in range(n_bach):
 mmt=np.tensordot(np.matrix(m),np.matrix(m),axes=([0],[0]))  
 for i in range(d):XnXnt[i][i],mmt[i][i]=0.0,0.0
 C=XnXnt-mmt
-
 #########Calcuration of inverse values##########
 #for l in range(d):
 #    C[l][l]=0.0
@@ -89,10 +94,11 @@ C=XnXnt-mmt
 U,s,V = np.linalg.svd(C, full_matrices=True)
 sinv=1.0/s
 Cinv=np.dot(V.T,np.dot(np.diag(sinv),U.T))
-
 #########MFA#######
 J_MF=-Cinv
+for i in range(d):J_MF[i][i]=0
 #########MF+Onsager(TAP)##############
+"""
 J_TAP=np.zeros((d,d))
 for i in range(d):
     for j in range(i,d):
@@ -105,33 +111,39 @@ for i in range(d):
     for j in range(i+1,d):
         J_TAP[i][j]=J_TAP_temp[i][j]/np.sqrt(J_TAP_temp[j][j]*J_TAP_temp[i][i])
         J_TAP[j][i]=J_TAP[i][j]
-
-error_MF=np.sum(np.sum(np.abs(J_MF-J)))/(d*d)
-error_TAP=np.sum(np.sum(np.abs(J_TAP-J)))/(d*d)
-
-print("error_MF = ",error_MF)
+for i in range(d):J_TAP[i][i]=0
+"""
+#error_MF=np.sum(np.sum(np.abs(J_MF-J)))/(d*d)
+J_sum=np.sqrt(np.sum(J_vec**2))
+error_MF=np.sqrt(np.sqrt(np.sum(np.sum((J_MF-J)**2))))/J_sum
+#error_TAP=np.sum(np.sum(np.abs(J_TAP-J)))/(d*d)
+"""
+error_TAP=np.sqrt(np.sum((J_TAP-J)**2))/J_sum
 print("error_TAP = ",error_TAP)
+"""
+print("error_MF = ",error_MF)
+"""
 #visualize
 plt.figure()
 plt.subplot(231)
-plt.imshow(J)
+plt.imshow(J ,interpolation='nearest')
 plt.colorbar()
 plt.title("J")
 plt.subplot(232)
-plt.imshow(J_MF)
+plt.imshow(J_MF ,interpolation='nearest')
 plt.colorbar()
 plt.title("J_MF")
 plt.subplot(233)
-plt.imshow(J_TAP)
+plt.imshow(J_TAP ,interpolation='nearest')
 plt.colorbar()
 plt.title("J_TAP")
 plt.subplot(235)
-plt.imshow(J_MF-J)
+plt.imshow(J_MF-J ,interpolation='nearest')
 plt.colorbar()
 plt.title("J_MF-J")
 plt.subplot(236)
-plt.imshow(J_TAP-J)
+plt.imshow(J_TAP-J ,interpolation='nearest')
 plt.colorbar()
 plt.title("J_TAP-J")
-
 plt.show()
+"""
