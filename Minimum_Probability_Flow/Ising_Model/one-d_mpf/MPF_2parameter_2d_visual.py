@@ -17,7 +17,7 @@ height_lena=len(lena[1])
 #parameter ( MCMC )
 #t_interval = 10
 #parameter ( System )
-d_x,d_y, N_sample =width_lena,height_lena,10 #124, 1000
+d_x,d_y, N_sample =width_lena,height_lena,4 #124, 1000
 #N_remove=100
 #parameter ( MPF+GD )
 lr,eps =1, 1.0e-100
@@ -68,7 +68,8 @@ def main():
         print(t_gd,np.abs(gradK1),np.abs(gradK2),theta_diff1,theta_diff2)
     print("#theta1,=",J,"theta1,theta2 _estimated=",theta_model1,theta_model2)
     noize=np.random.randn(width_lena,height_lena)*30
-    damegede=lena+noize
+    damegede=lena+noize*3.0
+    damegede=noize*3.0
     #Plot of the 
     plt.figure()
     plt.subplot(221)
