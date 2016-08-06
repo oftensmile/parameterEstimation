@@ -18,7 +18,7 @@ d, N_sample =16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1000 
+t_gd_max=300 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
@@ -60,7 +60,7 @@ dist_mat/=4
 idx=np.where(dist_mat!=1)
 dist_mat2=np.copy(dist_mat)
 dist_mat2[idx]=0    #Dist of none zero elemens are 1 hamming distance.
-##
+##It seems doesn't use.
 len_idx=len(idx[0])
 for i in range(len_idx):
     diff_sample_pair_i=X_sample[idx[0][i]]-X_sample[idx[1][i]]
@@ -75,25 +75,32 @@ for t_gd in range(t_gd_max):
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
         gradK_nin=np.zeros(d)
-        idx2=np.where(dist_mat2[nin]==1)
+        #idx2=np.where(dist_mat2[nin]==1)
+        idx2=np.where(dist_mat2.T[nin]==1)
         #To eliminate transiton of data to data.
         #idx2 includes index of sample.
         check_list=np.zeros(d)
+        #"""
+        #Extracting only balanced flow.
+        normalize=d
         if(len(idx2[0]>0)):
             for i in idx2[0]:
                 diff_sample_pair_i=X_sample[nin]-X_sample[i]
                 idx3=np.where(diff_sample_pair_i!=0)
                 l2=idx3[0][0]
                 if(check_list[l2]==0):
+                    normalize-=1
                     #gradK[l2]-=gradK_nin[l2]/n_bach
                     check_list[l2]+=1
-
+        #"""
         for l in range(d):
             if(check_list[l]==0):
+            #if(check_list[l]==1):
                 xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
                 xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
                 xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
                 gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
+                #gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /(normalize )
                 gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
                 gradK[l]+=gradK_nin[l]/n_bach
                    
@@ -102,6 +109,7 @@ for t_gd in range(t_gd_max):
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,sum_of_gradK,error_func)
 #Plot
+"""
 bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
@@ -113,3 +121,4 @@ plt.title("With bias correction")
 #filename="test_output_fixed6.png"
 #plt.savefig(filename)
 plt.show()
+"""
