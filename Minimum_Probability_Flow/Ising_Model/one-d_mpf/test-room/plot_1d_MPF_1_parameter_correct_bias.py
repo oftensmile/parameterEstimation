@@ -9,12 +9,9 @@ import matplotlib.pyplot as plt
 import csv 
 np.random.seed(10)
 #parameter ( MCMC )
-#t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-#d, N_sample = 16,300 #124, 1000
-d, N_sample =16,300 #124, 1000
-#N_remove = 100
+d, N_sample =16,7200 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -54,15 +51,18 @@ dist_mat2[idx]=0    #Dist of none zero elemens are 1 hamming distance.
 #In this case I applied 
 theta_model=1.5   #Initial guess
 n_bach=len(X_sample)
-for t_gd in range(t_gd_max):
-    gradK=0
+theta_slice=np.arange(-1,1,0.05)
+#for t_gd in range(t_gd_max):
+
+for ts in theta_slice:
+    K,gradK=0.0,0.0
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
         gradK_nin=0
         #idx2=np.where(dist_mat2[nin]==1)
         idx2=np.where(dist_mat2.T[nin]==1)
         check_list=np.zeros(d)
-        """ 
+        #"""
         normalize=d
         if(len(idx2[0]>0)):
             for i in idx2[0]:
@@ -72,17 +72,18 @@ for t_gd in range(t_gd_max):
                 if(check_list[l2]==0):
                     normalize-=1
                     check_list[l2]+=1
-        """
+        #"""
         for l in range(d):
             if(check_list[l]==0):
                 gradE_nin=-x_nin[l]*(x_nin[(l+1)%d]+ x_nin[(l-1+d)%d])
-                gradK_nin=gradE_nin*np.exp(theta_model*gradE_nin)/d
+                gradK_nin=gradE_nin*np.exp(ts*gradE_nin)/d
+                K+=np.exp(ts*gradE_nin)/(n_bach*d)
                 gradK+=gradK_nin/n_bach
                    
-    theta_model-=lr*gradK
-    sum_of_gradK=gradK
-    error_func=np.abs(theta_model-J_tru)
-    print(t_gd,sum_of_gradK,error_func)
+    #theta_model-=lr*gradK
+    #sum_of_gradK=gradK
+    #error_func=np.abs(ts-J_tru)
+    print(ts,gradK,K)
 #Plot
 """
 bins=np.arange(1,d+1)
