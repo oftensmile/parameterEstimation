@@ -13,16 +13,16 @@ np.random.seed(10)
 t_interval = 40
 #parameter ( System )
 #d, N_sample = 16,300 #124, 1000
-d, N_sample =16,300 #124, 1000
+d, N_sample =16,800 #124, 1000
 #N_remove = 100
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=300 
+t_gd_max=200 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
-        diff_E=2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+        diff_E=2.0*x[i]*(J[i]*x[(d+1+i)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
@@ -60,27 +60,29 @@ dist_mat/=4
 idx=np.where(dist_mat!=1)
 dist_mat2=np.copy(dist_mat)
 dist_mat2[idx]=0    #Dist of none zero elemens are 1 hamming distance.
+"""
 ##It seems doesn't use.
 len_idx=len(idx[0])
 for i in range(len_idx):
     diff_sample_pair_i=X_sample[idx[0][i]]-X_sample[idx[1][i]]
     idx3=np.where(diff_sample_pair_i!=0)
-
+"""
 #In this case I applied 
 theta_model=np.random.uniform(0,4,d)    #Initial guess
 init_theta=np.copy(theta_model)
+n_bach=len(X_sample)
 for t_gd in range(t_gd_max):
     gradK=np.zeros(d)
-    n_bach=len(X_sample)
     for nin in range(n_bach):
         x_nin=np.copy(X_sample[nin])
+        #print("X_sample[nin]=\n",x_nin)
         gradK_nin=np.zeros(d)
         #idx2=np.where(dist_mat2[nin]==1)
         idx2=np.where(dist_mat2.T[nin]==1)
         #To eliminate transiton of data to data.
         #idx2 includes index of sample.
         check_list=np.zeros(d)
-        #"""
+        #""" 
         #Extracting only balanced flow.
         normalize=d
         if(len(idx2[0]>0)):
@@ -88,18 +90,22 @@ for t_gd in range(t_gd_max):
                 diff_sample_pair_i=X_sample[nin]-X_sample[i]
                 idx3=np.where(diff_sample_pair_i!=0)
                 l2=idx3[0][0]
+                #print("x_smaple[",i,"]=\n",X_sample[i]," l2=",l2)
                 if(check_list[l2]==0):
                     normalize-=1
                     #gradK[l2]-=gradK_nin[l2]/n_bach
                     check_list[l2]+=1
-        #"""
+                    print("X_smaple[nin]=\n",X_sample[nin])
+                    print("X_smaple[",i,"]=\n",X_sample[i])
+                    print("overlaped at ",l2,"\n\n")
+       #"""
         for l in range(d):
             if(check_list[l]==0):
             #if(check_list[l]==1):
                 xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
                 xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
                 xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
-                gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
+                gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d *2
                 #gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /(normalize )
                 gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
                 gradK[l]+=gradK_nin[l]/n_bach
@@ -107,7 +113,7 @@ for t_gd in range(t_gd_max):
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(gradK)
     error_func=np.sum(np.abs(theta_model-J_vec))/d
-    print(t_gd,sum_of_gradK,error_func)
+    #print(t_gd,sum_of_gradK,error_func)
 #Plot
 """
 bins=np.arange(1,d+1)
