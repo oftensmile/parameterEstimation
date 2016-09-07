@@ -16,11 +16,11 @@ d, N_sample = 16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1000 
+t_gd_max=400 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
-        diff_E=2.0*x[i]*(J[i]*x[(d+1)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
+        diff_E=2.0*x[i]*(J[i]*x[(d+1+i)%d]+J[(i+d-1)%d]*x[(i+d-1)%d])
         r=1.0/(1+np.exp(diff_E)) 
         #r=np.exp(-diff_E) 
         R=np.random.uniform(0,1)
@@ -63,6 +63,7 @@ for t_gd in range(t_gd_max):
     error_func=np.sum(np.abs(theta_model-J_vec))/d
     print(t_gd,sum_of_gradK,error_func)
 #Plot
+"""
 bins=np.arange(1,d+1)
 bar_width=0.2
 plt.bar(bins,J_vec,color="blue",width=bar_width,label="true",align="center")
@@ -72,3 +73,4 @@ plt.bar(bins+3*bar_width,gradK*10,color="gray",width=bar_width,label="gradK",ali
 plt.legend()
 plt.title("Normal")
 plt.show()
+"""
