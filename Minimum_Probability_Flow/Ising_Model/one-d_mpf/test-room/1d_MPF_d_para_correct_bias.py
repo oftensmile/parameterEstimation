@@ -18,7 +18,7 @@ d, N_sample =16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=200 
+t_gd_max=2000 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath
@@ -95,11 +95,6 @@ for t_gd in range(t_gd_max):
                     normalize-=1
                     #gradK[l2]-=gradK_nin[l2]/n_bach
                     check_list[l2]+=1
-                    #print("X_smaple[nin]=\n",X_sample[nin])
-                    #print("X_smaple[",i,"]=\n",X_sample[i])
-                    #print("overlaped at ",l2)
-        #print("check_list=\n",check_list,"\n\n")
-       #"""
         for l in range(d):
             if(check_list[l]==0):
             #if(check_list[l]==1):
