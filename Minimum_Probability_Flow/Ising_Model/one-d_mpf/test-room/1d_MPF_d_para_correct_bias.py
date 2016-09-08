@@ -13,7 +13,7 @@ np.random.seed(10)
 t_interval = 40
 #parameter ( System )
 #d, N_sample = 16,300 #124, 1000
-d, N_sample =16,800 #124, 1000
+d, N_sample =16,300 #124, 1000
 #N_remove = 100
 N_remove = 100
 #parameter ( MPF+GD )
@@ -95,9 +95,10 @@ for t_gd in range(t_gd_max):
                     normalize-=1
                     #gradK[l2]-=gradK_nin[l2]/n_bach
                     check_list[l2]+=1
-                    print("X_smaple[nin]=\n",X_sample[nin])
-                    print("X_smaple[",i,"]=\n",X_sample[i])
-                    print("overlaped at ",l2,"\n\n")
+                    #print("X_smaple[nin]=\n",X_sample[nin])
+                    #print("X_smaple[",i,"]=\n",X_sample[i])
+                    #print("overlaped at ",l2)
+        #print("check_list=\n",check_list,"\n\n")
        #"""
         for l in range(d):
             if(check_list[l]==0):
@@ -113,7 +114,7 @@ for t_gd in range(t_gd_max):
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(gradK)
     error_func=np.sum(np.abs(theta_model-J_vec))/d
-    #print(t_gd,sum_of_gradK,error_func)
+    print(t_gd,sum_of_gradK,error_func)
 #Plot
 """
 bins=np.arange(1,d+1)
