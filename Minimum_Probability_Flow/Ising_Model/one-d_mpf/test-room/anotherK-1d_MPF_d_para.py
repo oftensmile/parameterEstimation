@@ -70,7 +70,7 @@ for t_gd in range(t_gd_max):
         idx2=np.where(dist_mat2.T[nin]==1)
         #To eliminate transiton of data to data.
         check_list=np.zeros(d)
-        #""" 
+        """ 
         #Extracting only balanced flow.
         normalize=d
         if(len(idx2[0]>0)):
@@ -81,7 +81,7 @@ for t_gd in range(t_gd_max):
                 if(check_list[l2]==0):
                     normalize-=1
                     check_list[l2]+=1
-        #"""
+        """
         for l in range(d):
             if(check_list[l]==0):
             #if(check_list[l]==1):
