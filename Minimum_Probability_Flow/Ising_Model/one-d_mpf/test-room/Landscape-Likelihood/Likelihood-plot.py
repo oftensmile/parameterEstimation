@@ -1,7 +1,3 @@
-#2016/08/05
-##############
-#   H = -J*sum(xixj), J in R^1
-##############
 import numpy as np
 import time 
 from scipy import linalg
@@ -10,7 +6,7 @@ import csv
 np.random.seed(10)
 #parameter ( MCMC )
 t_interval = 40
-d, N_sample =16,3200 #124, 1000
+d, N_sample =16,200 #124, 1000
 num_mcmc_sample=500
 N_remove = 100
 lr,eps =0.1, 1.0e-100
@@ -36,8 +32,6 @@ def calc_E(x_tot=[[]],theta=[[]]):
 
 #######    MAIN    ########
 ##Generate sample-dist
-#J_max,J_min=1.0,0.0
-#J_vec=np.random.uniform(J_min,J_max,d)
 J_true=0.5
 x = np.random.choice([-1,1],d)
 correlation_data=np.zeros(d)
@@ -58,25 +52,12 @@ for n in range(N_sample+N_remove):
  
 ######### L(theta)=sum( theta*sum(xixj) - log((2cosh(theta))**d+(2cosh(theta))**d) ) #########
 theta_model=2.0
-theta_slice=np.arange(-2.0,2.0,0.025)
+bins=0.025
+theta_slice=np.arange(-2.0,2.0,bins)
 sum_correlation_data=np.sum(correlation_data)
+sum_prob=0
 for th in theta_slice:
     #MCMC-mean(using CD-method)
-    """
-    correlation_model=np.zeros(d)
-    for m in range(num_mcmc_sample):
-        x_init=np.copy(X_sample[np.random.randint(N_sample)])
-        x_new_for_mcmc=np.copy(gen_mcmc(theta_model,x_init))
-        if (m==0):
-            for j in range(d):
-                correlation_model[j]=x_new_for_mcmc[j]*x_new_for_mcmc[(j+1)%d]/num_mcmc_sample
-        elif(m>0):
-            for j in range(d):
-                correlation_model[j]+=x_new_for_mcmc[j]*x_new_for_mcmc[(j+1)%d]/num_mcmc_sample
-    
-    theta_model=theta_model-(correlation_model-correlation_data)
-    error=np.sqrt((theta_model-J_true)**2)
-    print(t_gd,error )
-    """
-    l_of_theta=th*sum_correlation_data-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d)
-    print(th,l_of_theta)
+    l_of_theta=(th*sum_correlation_data-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d) )
+    sum_prob+=np.exp(l_of_theta)*bins
+    print(th,l_of_theta,np.exp(l_of_theta),sum_prob)

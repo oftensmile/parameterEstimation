@@ -1,0 +1,10 @@
+#set xrange [0.45:0.55]
+set yrange [-1.004:-1.0]
+set title "Likelihood-landscape, #sample=300"
+set xlabel "parameter"
+set ylabel "value of likleihood"
+p "liklihood-1.dat" u 1:2 title "likelihood1" w l,"liklihood-2.dat" u 1:2 title "likelihood2" w l,"liklihood-3.dat" u 1:2  title "likelihood3" w l,"liklihood-4.dat" u 1:2  title "likelihood4" w l,"liklihood-5.dat" u 1:2  title "likelihood5" w l,"liklihood-6.dat" u 1:2  title "likelihood6" w l,"liklihood-7.dat" u 1:2  title "likelihood7" w l,"liklihood-8.dat" u 1:2  title "likelihood8" w l,"liklihood-9.dat" u 1:2  title "likelihood9" w l
+set terminal png 
+set output "plot-liklihood-sample300.png"
+replot
+set terminal aqua

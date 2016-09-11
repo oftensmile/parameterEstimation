@@ -10,8 +10,7 @@ import csv
 np.random.seed(10)
 #parameter ( MCMC )
 t_interval = 40
-d, N_sample =16,3200 #124, 1000
-num_mcmc_sample=500
+d, N_sample =16,200 #124, 1000
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
@@ -35,13 +34,11 @@ def calc_E(x_tot=[[]],theta=[[]]):
     return E
 
 #######    MAIN    ########
-##Generate sample-dist
-#J_max,J_min=1.0,0.0
-#J_vec=np.random.uniform(J_min,J_max,d)
 J_true=0.5
 x = np.random.choice([-1,1],d)
 correlation_data=np.zeros(d)
 ##SAMPLING
+sum_correlation_data_vec=np.zeros(N_sample)
 for n in range(N_sample+N_remove):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_true,x))
@@ -49,34 +46,52 @@ for n in range(N_sample+N_remove):
         x_new=np.copy(x)
         for i in range(d):
             correlation_data[i]=x_new[i]*x_new[(i+1)%d]/N_sample
+            sum_correlation_data_vec[n-N_remove]+=x_new[i]*x_new[(i+1)%d]
         X_sample = x_new
     elif(n>N_remove):
         x_new=np.copy(x)
         for i in range(d):
             correlation_data[i]+=x_new[i]*x_new[(i+1)%d]/N_sample
+            sum_correlation_data_vec[n-N_remove]+=x_new[i]*x_new[(i+1)%d]
         X_sample=np.vstack((X_sample,x_new))
- 
-######### L(theta)=sum( theta*sum(xixj) - log((2cosh(theta))**d+(2cosh(theta))**d) ) #########
+
+#1================
+dist_mat=d*np.ones((N_sample,N_sample))
+dist_mat=2*np.copy(dist_mat)-2*(np.matrix(X_sample)*np.matrix(X_sample).T)
+dist_mat/=4
+idx=np.where(dist_mat!=1)
+dist_mat2=np.copy(dist_mat)
+dist_mat2[idx]=0  
+#1================
+
 theta_model=2.0
 theta_slice=np.arange(-2.0,2.0,0.025)
 sum_correlation_data=np.sum(correlation_data)
 for th in theta_slice:
     #MCMC-mean(using CD-method)
-    """
-    correlation_model=np.zeros(d)
-    for m in range(num_mcmc_sample):
-        x_init=np.copy(X_sample[np.random.randint(N_sample)])
-        x_new_for_mcmc=np.copy(gen_mcmc(theta_model,x_init))
-        if (m==0):
-            for j in range(d):
-                correlation_model[j]=x_new_for_mcmc[j]*x_new_for_mcmc[(j+1)%d]/num_mcmc_sample
-        elif(m>0):
-            for j in range(d):
-                correlation_model[j]+=x_new_for_mcmc[j]*x_new_for_mcmc[(j+1)%d]/num_mcmc_sample
+    MPF_of_th=0.0
+    for m in range(N_sample):
+        #CD_of_th_m=th*sum_correlation_data_vec[m]-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d)
+
+        #2=====================
+        idx2=np.where(dist_mat2.T[m]==1)
+        check_list=np.zeros(d)       
+        if(len(idx2[0]>0)):
+            for i in idx2[0]:
+                diff_sample_pair_i=X_sample[m]-X_sample[i]
+                idx3=np.where(diff_sample_pair_i!=0)
+                l2=idx3[0][0]
+                if(check_list[l2]==0):
+                    check_list[l2]+=1
+        #2=====================
+
+        p_of_xm=0.0
+        xm=np.copy(X_sample[m])
+        for j in range(d):
+            if(check_list[j]!=0):
+                #These contributions are states which trasist data to data.
+                p_of_xm+=1.0/(1.0 + np.exp(-2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d
+        if(p_of_xm>0):
+            MPF_of_th+=np.log(p_of_xm)/N_sample
     
-    theta_model=theta_model-(correlation_model-correlation_data)
-    error=np.sqrt((theta_model-J_true)**2)
-    print(t_gd,error )
-    """
-    l_of_theta=th*sum_correlation_data-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d)
-    print(th,l_of_theta)
+    print(th,MPF_of_th)

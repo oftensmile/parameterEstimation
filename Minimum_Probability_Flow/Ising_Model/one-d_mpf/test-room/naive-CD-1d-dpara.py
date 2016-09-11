@@ -10,7 +10,7 @@ import csv
 np.random.seed(10)
 #parameter ( MCMC )
 t_interval = 40
-d, N_sample =16,1000 #124, 1000
+d, N_sample =16,300 #124, 1000
 num_mcmc_sample=500
 N_remove = 100
 lr,eps =0.1, 1.0e-100

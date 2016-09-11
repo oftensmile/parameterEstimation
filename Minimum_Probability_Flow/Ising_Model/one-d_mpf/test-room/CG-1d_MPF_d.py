@@ -19,7 +19,7 @@ d, N_sample =16,300 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=2000 
+t_gd_max=300 
 def gen_mcmc(J=[],x=[] ):
     for i in range(d):
         #Heat Bath

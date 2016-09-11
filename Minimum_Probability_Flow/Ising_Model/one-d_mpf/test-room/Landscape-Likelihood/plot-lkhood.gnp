@@ -1,0 +1,12 @@
+set yrange [-1.008:-0.999]
+set xrange [0.4:0.6]
+set xlabel "J(1-dim) "
+set ylabel "Likelihood of J"
+set title "Landscape of Likelihood"
+#
+p "plot-lkhood-sample100.dat" u 1:($2/9.312) title "sample100" w l, "plot-lkhood-sample200.dat" u 1:($2/9.302) title "sample200" w l, "plot-lkhood-sample400.dat" u 1:($2/9.387) title "sample400" w l, "plot-lkhood-sample800.dat" u 1:($2/9.315) title "sample800" w l, "plot-lkhood-sample1600.dat" u 1:($2/9.276) title "sample1600" w l , "plot-lkhood-sample3200.dat" u 1:($2/9.277)  title "sample3200" w lp
+
+set terminal png
+set output "Landscape-Lkhood.png"
+replot
+set terminal aqua

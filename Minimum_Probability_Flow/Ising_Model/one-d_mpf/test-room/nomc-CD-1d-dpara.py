@@ -63,8 +63,6 @@ for t_gd in range(t_gd_max):
         x_m=np.copy(X_sample[m])
         for l in range(d):
             correlation_model[l]+=x_m[l]*x_m[(l+1)%d]/(1 + np.exp(-2.0*x_m[l]*( x_m[(l+1)%d]*theta_model[l] + x_m[(l+d-1)%d]*theta_model[(l+d-1)%d])))/(N_sample)
-            #print("correlation_model[",l,"]=",correlation_model[l])
-    
     theta_model=theta_model-(correlation_model-correlation_data)
     error=np.sqrt(np.sum((theta_model-J_vec)**2))/d
     print(t_gd,error )
