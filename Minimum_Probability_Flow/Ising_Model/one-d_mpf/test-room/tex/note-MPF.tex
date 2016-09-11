@@ -12,26 +12,26 @@ MPF$B5Z$S(BCD-method$B$N(Bobjection function$B$r@0M}$7$?%N!<%H$G$9!#(B
 \begin{eqnarray}
 	CD(p^{(0)}\|p^{(1)})&:=&KL(p^{(0)}\|p^{(\infty)})-KL(p^{(1)}\|p^{(\infty)})\\
 	&=&\sum_{x}p^{(0)}(x)\log(\frac{p^{(0)}(x)}{p^{(\infty)}(x|\theta)})-\sum_{x}p^{(1)}(x|\theta)\log(\frac{p^{(1)}(x|\theta)}{p^{(\infty)}(x|\theta)})\\
-	&=&-\sum_{x}p^{(0)}(x)\log(p^{(\infty)}(x|\theta)) + \sum_{x}p^{(1)}(x|\theta)\log(p^{(\infty)}(x|\theta))
+	&=&-\sum_{x}p^{(0)}(x)\log(p^{(\infty)}(x|\theta)) + \sum_{x}p^{(1)}(x|\theta)\log (\frac{p^{(1)}(x|\theta)}{p^{(\infty)}(x|\theta)})+const
 \end{eqnarray}
 $B$?$@$7!"(B$p^{(0)}$$B$O7P83J,I[!#(B$p^{(1)}$$B$O7P83J,I[$+$i(B1MC-step$B$GE~C#$G$-$k3NN(J,$H$7$^$9!#0l<!85(B($B%5%$%H?t(Bd)$B%$%8%s%0%b%G%k!"$+$D!"%Q%i%a!<%?$,0lMM(B($B0lJQ?t(B)$B$N>l9g$OJ,G[4X?t$r4JC1$K=q$/$3$H$,$G$-!"0J2<$N$h$&$J<0$K$J$j$^$9!#(B
 \begin{equation}
 	Z(\theta)=(2\cosh(\theta))^d+(2\sinh(\theta))^d
 \end{equation}
 \begin{equation}
-	p^{(0)}(x)=\frac{1}{M}\sum_{m=1}^{M} \prod_{j=1}^{d} \delta(x_j,x^{(m)}_j)
+	p^{(0)}(x)=\frac{1}{|{\mathcal D}|}\sum_{y\in {\mathcal D}} \prod_{j=1}^{d} \delta(x_j,y_j)
 \end{equation}
 
 
 $B=>$C$F!"Bh(B1$B9`L\$O(B
 \begin{equation}
 	\sum_{x}p^{(0)}(x)\log(\frac{p^{(0)}(x)}{p^{(\infty)}(x|\theta)})= 
-	\frac{1}{|{\mathcal D}|}\{-\sum_{x\in{\mathcal D}}E(x|\theta)-\log((2\cosh(\theta))^d+(2\sinh(\theta))) \}
+	\frac{1}{|{\mathcal D}|}\{-\sum_{x\in{\mathcal D}}E(x|\theta)-\log((2\cosh(\theta))^d+(2\sinh(\theta))^d) \}-\log(|{\mathcal D}|)
 \end{equation}
 1MC-step$B$NA+0\$GF@$i$l$k3NN(J,I[$O0J2<$N$h$&$K9M$($^$7$?!#(B\\
 $B$^$:$O!"=i4|>uBV$H<!$NA+0\@h$NF1;~3NN($r!"=i4|>uBV$NJQ?t$r<~JU2=$9$k$H$_$J$7$^$9(B($p^{(1)}(x)$$B$O0lEY$NA+0\$GE~C#$G$-JQ?t$N3NN(J,I[$G$"$k$?$a(B)$B!#(B
 \begin{equation}
-	p^{(1)}(x)=\sum_{x':all}p(x|x')p(x')=\sum_{x'\in {\mathcal D}}p(x|x')p^{(0)}(x)
+	p^{(1)}(x)=\sum_{x':all}p(x|x')p(x')^{(0)}=\sum_{x'\in {\mathcal D}}p(x|x')\frac{1}{|{\mathcal D}|}
 \end{equation}
 $B7P83J,I[$O%G!<%?$K4^$^$l$F$$$k>uBV$N$_M-8B$NCM$r;}$D$H$7$^$9(B\\
 \begin{equation}
@@ -54,7 +54,7 @@ $x=x'$$B$N>l9g$OG$0U$N3NN(JQ?t(B$x,y$$B$KBP$7$F!"(B$\sum_{x:all}p(x|y)=1$$B
 $B=>$C$F!"(B1MC-step$B$GA+0\2DG=$J3NN(J,I[$O(B\\
 \begin{eqnarray}
 	p^{(1)}(x)&=&|{\mathcal D}|^{-1}\sum_{x'\in{\mathcal D}}p(x|x')\\
-	&=&|{\mathcal D}|^{-1}\sum_{x'\in{\mathcal D}, \|x-x'\|=1}p(x|x')+|{\mathcal D}|^{-1}p(x|x'=x)
+				       &=&|{\mathcal D}|^{-1}\sum_{x'\in{\mathcal D}, \|x-x'\|=1}p(x|x')+|{\mathcal D}|^{-1}\sum_{x'\in {\mathcal D}:x'=x}p(x|x')
 \end{eqnarray}
 $B$3$N(B$p^{(1)}$$B$r(BCD$B$NBh(B2$B9`L\$KBeF~$9$l$PNI$$$N$@$H;W$$$^$9!#(B\\
 \section{MPF}
@@ -66,8 +66,8 @@ CD$B$N>O$GF@$i$l$?(B$p^{(1)}$$B$rMQ$$$k$H0J2<$N<0$rF@$i$l$^$9(B
 \begin{eqnarray}
 	MPF(\theta)&=&-\sum_{x:all}p^{(0)}(x)\log(p^{(1)}(x|\theta))\\
 	&=&-\frac{1}{|\mathcal D|}\sum_{x\in {\mathcal D}} \log(p^{(1)}(x|\theta))\\
-	&=&-\frac{1}{|\mathcal D|}\sum_{x\in {\mathcal D}} \log\{ \sum_{x'\in {\mathcal D}, \|x-x'\|=1 }\{ d^{-1}(1+\exp\{-E(x'|\theta)+E(x|\theta)\})^{-1} \}\\ &&+1-\sum_{x:{\rm all},\|x-x'\|=1} d^{-1} \{1+\exp(-E(x'|\theta)+E(x|\theta)) \}^{-1}  \} \} \\
-	&=&-\frac{1}{|\mathcal D|}\sum_{x\in {\mathcal D}} \log\{ 1-\sum_{x'\not \in {\mathcal D}, \|x-x'\|=1 }\{ d^{-1}(1+\exp\{-E(x'|\theta)+E(x|\theta)\})^{-1} \}   \}
+	&=&-\frac{1}{|\mathcal D|}\sum_{x\in {\mathcal D}} \log\{ \sum_{x'\in {\mathcal D}, \|x-x'\|=1 }\{ d^{-1}(1+\exp\{-E(x'|\theta)+E(x|\theta)\})^{-1} \}\\ &&+1-\sum_{x':{\rm all},\|x-x'\|=1} d^{-1} \{1+\exp(-E(x|\theta)+E(x'|\theta)) \}^{-1}  \} \} 
+	%&=&-\frac{1}{|\mathcal D|}\sum_{x\in {\mathcal D}} \log\{ 1-\sum_{x'\not \in {\mathcal D}, \|x-x'\|=1 }\{ d^{-1}(1+\exp\{-E(x'|\theta)+E(x|\theta)\})^{-1} \}   \}
 \end{eqnarray}
 $B<0$N0UL#$H$7$F$O!":G=i$N>uBVE@$K(B1MC-step$B@h$G$b;_$^$k3NN(J,I[$H$J$C$F$$$^$9!#(B
 ($B$?$V$s!":G8e$N9T$,4V0c$C$F$$$k$N$G$O$J$$$+$H;W$$$^$9!#(B)\\
@@ -77,7 +77,8 @@ CD$B$N>O$GF@$i$l$?(B$p^{(1)}$$B$rMQ$$$k$H0J2<$N<0$rF@$i$l$^$9(B
 	\includegraphics[width=10cm]{MPF-landscape.eps}\\
 	  landscape of MPF
   \end{center}
-
+\section{$B@0M}$7D>$7(B}
+$p^{(1)}(x|\theta)$$B$r$b$&0lEY9M$(D>$7$F(B
 
 
 %\bibliography{main}
