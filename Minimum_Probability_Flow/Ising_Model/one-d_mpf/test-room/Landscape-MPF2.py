@@ -65,10 +65,13 @@ dist_mat2[idx]=0
 #1================
 
 theta_model=2.0
-theta_slice=np.arange(-2.0,2.0,0.025)
+bins=0.025
+theta_slice=np.arange(-2.0,2.0,bins)
 sum_correlation_data=np.sum(correlation_data)
+MPF_of_th=0.0
 for th in theta_slice:
     #MCMC-mean(using CD-method)
+    MPF_of_th_old=MPF_of_th
     MPF_of_th=0.0
     for m in range(N_sample):
         #CD_of_th_m=th*sum_correlation_data_vec[m]-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d)
@@ -84,12 +87,13 @@ for th in theta_slice:
                 if(check_list[l2]==0):
                     check_list[l2]+=1
         #2=====================
-
-        q_of_xm=0.0 #p_of_xm := 1-q_of_xm
+        p_of_xm,q_of_xm=0.0,0.0 #p_of_xm := 1-q_of_xm
         xm=np.copy(X_sample[m])
         for j in range(d):
-            if(check_list[j]==0):
+            q_of_xm+=1.0/(1.0 + np.exp(2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d#N_sample#d
+            if(check_list[j]>0):
+                p_of_xm+=check_list[j]/(1.0 + np.exp(-2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d#N_sample#d
                 #These contributions are states which trasist data to data.
-                q_of_xm+=1.0/(1.0 + np.exp(-2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d#N_sample#d
-        MPF_of_th+=np.log(1-q_of_xm)/N_sample
-    print(th,MPF_of_th)
+        MPF_of_th+=np.log(p_of_xm+1.0-q_of_xm)/N_sample
+    delta_MPF = (MPF_of_th-MPF_of_th_old)/bins
+    print(th,MPF_of_th,delta_MPF,np.exp(MPF_of_th))

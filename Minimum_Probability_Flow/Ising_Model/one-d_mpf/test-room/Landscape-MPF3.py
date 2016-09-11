@@ -3,7 +3,7 @@
 #   H = -J*sum(xixj), J in R^1
 ##############
 import numpy as np
-import time 
+import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv 
@@ -11,7 +11,7 @@ np.random.seed(10)
 #parameter ( MCMC )
 t_interval = 40
 #d, N_sample =16,200 #124, 1000
-d, N_sample =6,300 #124, 1000
+d, N_sample =16,30 #124, 1000
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
@@ -35,7 +35,7 @@ def calc_E(x_tot=[[]],theta=[[]]):
     return E
 
 #######    MAIN    ########
-J_true=1.2
+J_true=0.5
 x = np.random.choice([-1,1],d)
 correlation_data=np.zeros(d)
 ##SAMPLING
@@ -61,6 +61,9 @@ dist_mat=d*np.ones((N_sample,N_sample))
 dist_mat=2*np.copy(dist_mat)-2*(np.matrix(X_sample)*np.matrix(X_sample).T)
 dist_mat/=4
 idx=np.where(dist_mat!=1)
+idx0=np.where(dist_mat==0)
+for j in range(N_sample):
+    print(j,"-th 0 entry is ", idx0[j])
 dist_mat2=np.copy(dist_mat)
 dist_mat2[idx]=0 
 #1================
@@ -102,6 +105,8 @@ for th in theta_slice:
             q_of_xm+=1.0/(1.0 + np.exp(2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d
             if(local_check_list[j]!=0):
                 p_of_xm+=local_check_list[j]/(1.0 + np.exp(-2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d
-        MPF_of_th+=np.log(p_of_xm+q_of_xm)/N_sample
+        MPF_of_th+=-np.log(p_of_xm+1.0-q_of_xm)/N_sample
+        #   Using sugestion.
+        #MPF_of_th+=-np.log((p_of_xm+ 1.0-q_of_xm))/N_sample
     delta_MPF = (MPF_of_th-MPF_of_th_old)/bins
-    print(th,MPF_of_th,delta_MPF)
+    print(th,MPF_of_th,delta_MPF,np.exp(MPF_of_th))
