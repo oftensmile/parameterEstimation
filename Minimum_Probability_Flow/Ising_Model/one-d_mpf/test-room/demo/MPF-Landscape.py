@@ -7,9 +7,9 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import csv 
 np.random.seed(10)
-J_true=0.1
-t_interval = 50
-d, N_sample =6,100 #124, 1000
+J_true=0.5
+t_interval = 40
+d, N_sample =6,50 #124, 1000
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
