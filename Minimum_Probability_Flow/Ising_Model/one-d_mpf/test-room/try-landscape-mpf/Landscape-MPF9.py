@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import csv 
 np.random.seed(10)
 t_interval = 50
-d, N_sample =8,30 #124, 1000
+d, N_sample =6,100 #124, 1000
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
@@ -34,7 +34,7 @@ def convert_decimal_to_binary(x):
         a=np.sign(b%(2**(l+1)))
         y[l]=int(2*(a-0.5))
     return y
-
+#   This function seems doesn't work propary.
 def build_state_dist(X_sample=[[]]):
     global state_dist
     global address
@@ -62,16 +62,13 @@ def gen_mcmc(J,x=[]):
             x[i]=x[i]*(-1)
     return x
 
-def prob_x_goout(th,j,x=[]):
+def prob_trans(th,j,x=[]):
     pout=1.0/(1.0 + np.exp( 2.0*th*x[j]*(x[(j+1)%d]+x[(j+d-1)%d]))) / d
     #   This must shape must be propotional to r in gen_mcmc
     return  pout
 
-def prob_x_into(th,j,x=[]):
-    pin=1.0/(1.0 + np.exp( -2.0*th*x[j]*(x[(j+1)%d]+x[(j+d-1)%d]))) / d
-    return pin 
  
-J_true=10
+J_true=0.3
 x = np.random.choice([-1,1],d)
 for n in range(N_sample+N_remove):
     for t in range(t_interval):
@@ -83,39 +80,62 @@ for n in range(N_sample+N_remove):
         x_new=np.copy(x)
         X_sample=np.vstack((X_sample,x_new))
 build_state_dist(X_sample)
-print(X_sample)
 size_of_sample=len(state_dist)
+#aa=0
+#for st in state_dist:
+#    print(aa, "  ",st.index,"  ", st.degree,"  ",st.state)
+#    aa+=1
 bins=0.025
-theta_slice=np.arange(.0,2.0,bins)
+theta_slice=np.arange(-1.0,2.0,bins)
 MPF_of_th=0
+#theta_slice=[0.1]
 
-#theta_slice=[0]
-#sum_degree=0
-#for l in range(size_of_sample):
-    #print(l,"",state_dist[l].degree,"",sum_degree)
-    #sum_degree+=state_dist[l].degree
+
+list_decimal=-np.ones(size_of_sample)
+for q in range(size_of_sample):
+    list_decimal[q]=convert_binary_to_decimal(np.copy(state_dist[q].state))
 
 for th in theta_slice:
     MPF_of_th_old=MPF_of_th
     MPF_of_th=0.0
-    prob1=0
-    #Ihave to use only 
+    prob1=0 #It is not to be 1 even if somes up all Data state(it can be to 1 if somes up Data and neighbor states.)
+    list_prob1=np.zeros(size_of_sample)
+    list_prob0=np.zeros(size_of_sample)
     for l in range(size_of_sample):
         xl=np.copy(state_dist[l].state)
-        p_comin,p_goout=0.0,0.0
+        #p_comin,p_goout=0.0,0.0
+        #p_expected_null,p_null_tot=0,0
         index_xl=convert_binary_to_decimal(xl)
+        list_prob0[l]=state_dist[l].degree/N_sample
+        list_prob1[l]=state_dist[l].degree/N_sample
+        
         for j in range(d):
+            list_prob1[l]+= -state_dist[l].degree/N_sample * prob_trans(th,j,xl)
+            #p_expected_null+=prob_trans(th,j,xl)
+            #p_goout+=prob_trans(th,j,xl)
             xl[j]*=-1
             index_neighbor=convert_binary_to_decimal(xl)
-            size_neighbor=len(np.where(address[0]==index_neighbor)[0]) 
+            #p_expected_null+=prob_trans(th,j,xl)-1/d
+            #np.where()で返された場所にindex_neighborの値が正しく来ているかは確かめるべき
+            
+            size_neighbor=len(np.where(list_decimal==index_neighbor)[0])
             if(size_neighbor>0):
-                id2=np.where(address[0]==index_neighbor)[0][0] 
-                p_comin+=state_dist[id2].degree*prob_x_into(th,j,xl)/d
+                id2=np.where(list_decimal==index_neighbor)[0][0] 
+                list_prob1[l]+= state_dist[id2].degree/N_sample * prob_trans(th,j,xl)
+                #p_comin+=state_dist[id2].degree*prob_trans(th,j,xl)
             xl[j]*=-1
-            p_goout+=prob_x_goout(th,j,xl)/d
-        prob1_l=(p_comin+state_dist[l].degree*(1-p_goout))/N_sample
-        prob1+=prob1_l
-        if(prob1>0):#state_dist[l].degree must be positive value.
-            MPF_of_th+=np.log(prob1*state_dist[l].degree/N_sample)/N_sample
+        
+        #p_null_tot+=p_expected_null/size_of_sample
+        #prob1_l=(p_comin+state_dist[l].degree*(1-p_goout))/N_sample
+        #prob1+=prob1_l
+        #if(prob1>0):#state_dist[l].degree must be positive value.
+            #MPF_of_th+=np.log(prob1*state_dist[l].degree/N_sample)/N_sample
+       
+    #for k in range(size_of_sample):
+        #print(k,list_prob1[k],list_prob0[k])
+    #print("#sum=",sum(list_prob1))
+    prob1=np.sum(list_prob1)
+    MPF_of_th=np.dot(np.log(list_prob1),list_prob0)
     del_MPF = (MPF_of_th-MPF_of_th_old)/bins
     print(th,MPF_of_th,del_MPF,prob1)
+    #print("p_null_tot=",p_null_tot)
