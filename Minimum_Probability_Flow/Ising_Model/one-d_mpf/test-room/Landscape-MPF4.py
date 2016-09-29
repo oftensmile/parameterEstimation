@@ -7,10 +7,10 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv 
-np.random.seed(3)
+np.random.seed(10)
 #parameter ( MCMC )
 t_interval = 40
-d, N_sample =16,300 #124, 1000
+d, N_sample =6,30 #124, 1000
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
@@ -64,6 +64,7 @@ idx0=np.where(dist_mat==0)
 dist_mat2=np.copy(dist_mat)
 dist_mat2[idx]=0
 dist_mat2[idx0]=-1
+print("dist_mat2=\n",dist_mat2)
 
 #1================
 identical_list=np.zeros(N_sample)
@@ -85,17 +86,16 @@ for u in range(N_sample):
         check_list_table=np.copy(check_list)
     elif(u>0):
         check_list_table=np.vstack((check_list_table,np.copy(check_list)))
+print("identical_list=\n",identical_list)
 theta_model=2.0
 bins=0.025
 theta_slice=np.arange(-2.0,2.0,bins)
 sum_correlation_data=np.sum(correlation_data)
 MPF_of_th=0
-sum_of_p,accume_p=0,0
 for th in theta_slice:
     #MCMC-mean(using CD-method)
     MPF_of_th_old=MPF_of_th
     MPF_of_th=0.0
-    sum_of_p=0
     for m in range(N_sample):
         #CD_of_th_m=th*sum_correlation_data_vec[m]-np.log( (2*np.cosh(th))**d + (2*np.sinh(th))**d)
         #p_of_xm:Hamming 1  => data to another data
@@ -108,9 +108,7 @@ for th in theta_slice:
             if(local_check_list[j]!=0):
                 p_of_xm+=local_check_list[j]/(1.0 + np.exp(-2.0*th*xm[j]*(xm[(j+1)%d]+xm[(j-1+d)%d]))) / d
         MPF_of_th+=-np.log(p_of_xm+1.0-q_of_xm)/N_sample
-        sum_of_p+=(p_of_xm-q_of_xm+1.0)
         #   Using sugestion.
         #MPF_of_th+=-np.log((p_of_xm+ 1.0-q_of_xm))/N_sample
-    accume_p+=sum_of_p
     delta_MPF = (MPF_of_th-MPF_of_th_old)/bins
-    print(th,MPF_of_th,delta_MPF,sum_of_p*bins,accume_p*bins)
+    print(th,MPF_of_th,delta_MPF,np.exp(MPF_of_th))
