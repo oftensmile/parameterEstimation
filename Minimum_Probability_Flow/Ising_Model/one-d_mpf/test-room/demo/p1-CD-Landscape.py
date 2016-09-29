@@ -11,7 +11,7 @@ np.random.seed(10)
 t_interval = 40
 d, N_sample =6,50 #124, 1000
 num_mcmc_sample=100
-J_true=0.5
+J_true=0.1
 N_remove = 100
 lr,eps =0.1, 1.0e-100
 t_gd_max=200 
