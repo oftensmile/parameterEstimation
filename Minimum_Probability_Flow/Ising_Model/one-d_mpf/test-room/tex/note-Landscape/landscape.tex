@@ -113,20 +113,51 @@
 %\end{equation}
 $\langle {\delta_{J}}^2 \rangle $
 \subsection{熱力学的極限の結果の援用}
+parameter J の対数尤度解を陽に解いて、確率変数(スピン変数)として書きたいのですが、前の章の手法では直接解くことができませんでした\\
+しかしながら、一次元で結合定数が一様なモデルに対しては転送行列法で分配関数が簡単に解け、分配関数のパラメータ依存性が分かります。\\
+以下の議論では、一次元、一様な結合定数の場合で最近接相互作用のみのモデル(前章と同じ設定)に対してパラメータを解いて標本数の依存性を調べます。
 Hamiltonianは以下ように定義します。
  \begin{equation}
 	{\mathcal H}(x|J)=-J\sum_{i=1}^{d}x_ix_{i+1}
  \end{equation}
  分配関数は以下のように与えられます。
  \begin{equation}
-	 Z(J)_d=\lambda_{1}^d+\lambda_{2}^d, \lambda_{1}:=\sinh(J), \lambda_{2}=\cosh(J)
+	 Z(J)_d=\lambda_{1}^d+\lambda_{2}^d,\  2\lambda_{1}:=\sinh(J),\  2\lambda_{2}=\cosh(J)
  \end{equation}
  天下り的ですが、以下の結果を援用します。
  \begin{equation}
-	 \langle x_k x_l \rangle_d =\frac{1}{Z}\sum_{x: all }x_k x_l e^{^\beta {\mathcal H}(J)}
+	 \langle x_k x_l \rangle_d =\frac{1}{Z}\sum_{x: all }x_k x_l e^{^{\beta {\mathcal H}(J)}}
  \end{equation}
 
+ \begin{equation}
+	 \langle x_k x_l \rangle_d =\frac{\lambda_{1}^{d-(l-k)}\lambda_{2}^{(l-1)}+\lambda_{1}^{(l-1)}\lambda_{2}^{d-(l-k)} }{\lambda_{1}^d +\lambda_{2}^d }
+ \end{equation}
+ただし、$l\langle k$としています。システムのサイズdの極限をとります。
+ \begin{equation}
+	 \langle x_k x_l \rangle=\lim_{d\to \infty}\langle x_k x_l \rangle_d = ( \frac{\lambda_2}{\lambda_1} )^{(l-k)}
+ \end{equation}
+上式と、前章で扱っていた尤度方程式とを組み合わせます。
+\begin{eqnarray}
+	\frac{1}{N}\sum_{n=1}^{N}\sum_{i=1}^d x_{i}^{(n)}x_{i+1}^{(n)}&=&d\frac{1}{N}\sum_{n=1}^{N} x_{i}^{(n)}x_{i+1}^{(n)} \\
+	&=&d\lim_{d\to \infty}\langle x_i x_{i+1} \rangle_{d,{\hat J}} = d\frac{\cosh({\hat J})}{\sinh({\hat J})}
+\end{eqnarray}
+${\hat J}$についてまとめます
+\begin{eqnarray}
+	\frac{\cosh({\hat J})}{\sinh({\hat J})} &=&\frac{e^{\hat J}+e^{-{\hat J}}}{e^{\hat J}-e^{-{\hat J}}}\\
+&=&\frac{e^{\hat J}-e^{-{\hat J}}+2e^{-{\hat J}}}{e^{\hat J}-e^{-{\hat J}}}\\
+&=&1+\frac{2e^{-{\hat J}}}{e^{\hat J}-e^{-{\hat J}}}\\
+&=&1+\frac{2}{e^{2\hat J}-1}\\
+\end{eqnarray}
 
-%\bibliography{main}
+標本平均の結果を使います。
+\begin{eqnarray}
+ e^{2\hat J}-1=\frac{2}{\frac{1}{N}\sum_{n=1}^{N} x_{i}^{(n)}x_{i+1}^{(n)}-1}
+ \end{eqnarray}
+
+ \begin{equation}
+	 {\hat J}=\frac{1}{2} \log{ ( \frac{2N}{\sum_{n=1}^{N} x_{i}^{(n)}x_{i+1}^{(n)}-1} ) }
+ \end{equation}
+ 上で得られた結果を、真のパラメータによる平均$\langle \rangle_{J_0}$でも成り立つため、パラメータの平均の推定誤差の統計量はゼロになります。
+ %\bibliography{main}
 \end{document}
 %Below of this line is not printed
