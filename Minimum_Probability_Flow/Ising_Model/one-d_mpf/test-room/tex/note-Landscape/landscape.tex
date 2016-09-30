@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[top=20mm, bottom=30mm, left = 20mm, right=20mm]{geometry}%Set blank space of this article
+\usepackage{graphicx}
+\usepackage{float}
+\setlength{\parindent}{1cm}
+\newcommand{\R}{{\mathsf{I\!R}}}
+\begin{document}
+\begin{abstract}
+このドキュメントは標本数の変化に対する最尤推定値の依存性について調べた記録です。\\
+得られた結論の一つとして、標本数を増加させても、対数尤度自体は鋭い分布にはならないことがわかります(確率分布の母数を推定した分布は真の母数を中心に、標本数を増やすほど鋭い分布になりますが、標本数をいくら増やしても、もともとの分布自体(例えば標本数を変化させても分布自体の母数である平均や分散)は変化していないことからも分かります)。\\
+
+構成は、初めに正規分布を例に、パラメータ(統計学では母数)である1次のモーメントの推定値$\hat \mu$の平均値、および分散について調べます。正規分布を例にした場合は母数の推定値の分散は標本数に対して平方根の逆数で減少することが導かれます。\\
+
+次に、ギッブス分布を用いて、正規分布の場合と同様の議論を繰り返し、母数の推定値の分散が標本数に対してどのように変化するかを調べます。結果は、一時のモーメントは標本数無限の極限で真のパラメータに一致することが直接確認できましたが、パラメータに関して陽に解くことができないことが原因で、２次のモーメントについての標本数の依存性は依然として分からないです(一次のモーメントの標本数依存性を調べた方法は、汎用的ではなく、2次のモーメントを調べる場合には用いることができませんでした).
+\end{abstract}
+\section{母数推定値の標本数依存性について}
+\subsection{正規分布の場合}
+簡単な例として、正規分布について母数の推定値の標本数の依存性を調べます。\\
+正規分布(1次元)は以下のように与えられるているとします。
+\begin{equation}
+	x\sim {\mathcal N}(x|\mu_0, \sigma_{0}^{-2})
+\end{equation}
+ただし、$\mu_0, \sigma_{0}^{-2}$は確率分布の真のパラメータ(母数)であるとし、両方とも未知であるとします。\\
+従って、標本数$N$だけ、標本が得られた場合の対数尤度関数は以下のようになります。
+\begin{equation}
+	l(\mu, \sigma^{-2})=\sum_{n=1}^{N} \log( \frac{1}{\sqrt(2\pi\sigma^2)}\exp(-\frac{1}{2\pi\sigma^2}(x^{(n)}-\mu)^2) )
+\end{equation}
+この尤度関数をパラメータの極大値について解きます。解は簡単に求めることができ以下のような表現の推定解になります。
+\begin{equation}
+	{\hat \mu}=\frac{1}{N}\sum_{n=1}^{N}x^{(n)}, \ {\hat \sigma }= \frac{1}{N-1}\sum_{n=1}^{N}(x^{(n)}-{\hat \mu})
+\end{equation}
+分散の規格因子がN出ない理由は、平均の推定に自由度が1減っているためです。\\
+以下では、母数の推定値である${\hat \mu}$に対しての標本数依存性を調べます。真の母数の値と、推定結果${\hat \mu}_N$(標本数N依存性について調べるので、以降では顕にNの添え字を書きます)との差を以下のように定義します。
+\begin{equation}
+	\delta_{\mu}:={\hat \mu_{N}}-\mu_0
+\end{equation}
+標本は確率分布${\mathcal N}(x|\mu_0, \sigma_{0}^{-2})$に従って現れるので、母数の推定値と真の母数との差は以下のようになります。　
+\begin{eqnarray}
+	\langle\delta_\mu \rangle_x&=&\langle  \frac{1}{N}\sum_{n=1}^{N}x^{(n)}-\mu_0\rangle\\
+	&=&\frac{1}{N}\sum_{n=1}^{N}\int_{ \R}dx^{(n)}x^{(n)}{\mathcal N}(x^{(n)}|\mu_0, \sigma^{-1}_{0})-\mu_0 \\
+	&=&\mu_0-\mu_0=0
+\end{eqnarray}
+次に母数の推定値の分散についての統計値を求めます
+\begin{eqnarray}
+	\langle{\delta_{\mu}}^2 \rangle_x&=&\langle  (\frac{1}{N}\sum_{n=1}^{N}x^{(n)}-\mu_0)^2\rangle\\
+	&=&\frac{1}{NN'}\sum_{n=1}^{N}\sum_{n'=1}^{N}\langle x^{(n)}x^{(n')}\rangle-\mu_{0}^2 \\
+	&=&\frac{1}{NN'}\sum_{n,n'=1|n'\not=n}^{N}\langle x^{(n)}x^{(n')}\rangle + \frac{1}{NN'}\sum_{n=1}^{N}\langle {x^{(n)}}^2 \rangle-\mu_{0}^2 \\
+	&=&\frac{1}{NN'}\sum_{n,n'=1|n'\not=n}^{N}\mu_{0}^2+\frac{1}{NN'}\sum_{n=1}^{N}\langle {x^{(n)}}^2\rangle-\mu_{0}^2\\
+	&=&\mu_{0}^2(\frac{N(N-1)}{N^2}-1)+\frac{1}{N^2}\sum_{n=1}^{N}\int_{ \R}dx^{(n)}{x^{(n)}}^2{\mathcal N}(x^{(n)}|\mu_0, \sigma^{-1}_{0})\\
+	&=&-\frac{\mu_{0}^2}{N}+\frac{\sigma_{0}^2+\mu_{0}^2}{N} = \frac{\sigma_{0}^2}{N}
+\end{eqnarray}
+よって、母数の推定値の標本数依存性は
+\begin{equation}
+\langle{\delta_{\mu}} \rangle_x=0,\ \langle{\delta_{\mu}}^2 \rangle_x=\frac{\sigma_{0}^2}{N}
+\end{equation}
+従って、真の確率分布が${\mathcal N}(x|\mu_0, \sigma_{0}^{-2})$である時、その母数の推定値${\hat \mu}$の分散は$\frac{\sigma_{0}}{N}$となる.
+
+\subsection{Gibbs分布の場合}
+この章では、正規分布において,母数の推定値の標本数依存性を調べた議論をGibbs分布に対して用います。一般的なGibbs分布ではなくIsingモデルをエネルギー関数とする場合で調べます\\
+正規分布の場合と同様にして、注目すべき量は$\langle \delta_{\mu}\rangle, \langle{ \delta_{\mu}}^2\rangle$です.\\
+確率分布の形は以下のように与えられているとします。
+\begin{equation}
+	p(x|J_0)=\frac{e^{-E(x|J_0)}}{Z(J_0)},\ E(x|J_0)=-J_0\sum_{i=1}^{d}x_ix_{i+1},\ Z(J_0)=\sum_{x:all}e^{-E(x|J_0)}
+\end{equation}
+変数の次元はd次元として、パラメータ数は1つであるとします。これより、標本数がNとき、対数尤度関数は以下のような式になります。
+
+\begin{equation}
+	l(J)=-\sum_{n=1}^{N}E(x^{(n)})-N\log(Z(J))
+\end{equation}
+パラメータの推定値は尤度関数の極大値を与えるパラメータであるため、パラメータ微分した式について$=0$となるパラメータが最尤推定解です。
+\begin{equation}
+	\frac{\partial l(J)}{\partial J}=-\sum_{n=1}^{N}(\sum_{i=1}^d x_{i}^{(n)}x_{i+1}^{(n)}) + N\frac{\sum_{x:all}(\sum_{i=1}^d x_{i}x_{i+1})e^{-J(\sum_{i=1}^d x_{i}x_{i+1})} 
+}{\sum_{x:all} e^{-J(\sum_{i=1}^d x_{i}x_{i+1})}} 
+\end{equation}
+式を見やすくするため、一部をまとめます.
+\begin{equation}
+	g(x):=\sum_{i=1}^d x_{i}x_{i+1},\ \  x^N:=\{x^{(n)}\}_{n=1}^{N}
+\end{equation}
+\begin{equation}
+	\frac{1}{N}\sum_{n=1}^{N}g(x^{(n)})=\sum_{x:all}g(x)e^{-{\hat J(x^N)}g(x)}Z({\hat J(x^N)}) 
+\end{equation}
+上式の両辺を、真の確率分布で平均を取った量を考えます。すなわち
+\begin{equation}
+	\langle	\frac{1}{N}\sum_{n=1}^{N}g(x^{(n)}) \rangle_{x^N} =\langle \sum_{x:all}g(x)e^{-{\hat J(x^N)}g(x)}Z({\hat J(x^N)})  \rangle_{x^N}
+\end{equation}
+\begin{eqnarray}
+	l.h.s&=&\langle	\frac{1}{N}\sum_{n=1}^{N}g(x^{(n)}) \rangle_{x^N} \\
+	&=&\frac{1}{N}\sum_{n=1}^{N} \langle g(x^{(n)}) \rangle_{x^N} \\
+	&=&\langle g(x^{(n)}) \rangle_{x^N} \\
+	&=&\sum_{x:all}g(x)e^{-{J }g(x)}Z({ J_0}) 
+\end{eqnarray}
+
+\begin{eqnarray}
+	r.h.s &=&\langle \sum_{x:all}g(x)e^{-{\hat J(x^N)}g(x)}Z({\hat J(x^N)})  \rangle_{x^N}\\
+	&=&\sum_{x:all}g(x)\langle e^{-{\hat J(x^N)}g(x)}Z({\hat J(x^N)})  \rangle_{x^N}\\
+\end{eqnarray}
+従って、任意の$ x\in\{-1,+1\}^d$に対して
+\begin{eqnarray}
+	&&\sum_{x:all}g(x) \{ \langle e^{-{\hat J(x^N)}g(x)}Z({\hat J(x^N)}) \rangle_{x^N} - e^{-{J }g(x)}Z({ J_0}) \}=0\\
+\end{eqnarray}
+であるので、これより
+\begin{equation}
+	\langle {\hat J(x^N)} \rangle_{x^N}=J_0
+\end{equation}
+となります。\\
+先ほどの正規分布の時と同様に
+\begin{equation}
+	\langle {\hat J(x^N)}-J_0 \rangle_{x^N}=\langle{\delta_{J}} \rangle_{x^N}=0
+\end{equation}
+%Jについては顕に解けないのですが、形式的にJの式を表現します。
+%\begin{equation}
+%	h(J)=\sum_{x:all}g(x)e^{-Jg(x)}Z(J) \ \Rightarrow\  {\hat J}(x^N)=h^{-1}(\frac{1}{N}\sum_{n=1}^{N}g(x^{(n)}))
+%\end{equation}
+$\langle {\delta_{J}}^2 \rangle $
+\subsection{熱力学的極限の結果の援用}
+Hamiltonianは以下ように定義します。
+ \begin{equation}
+	{\mathcal H}(x|J)=-J\sum_{i=1}^{d}x_ix_{i+1}
+ \end{equation}
+ 分配関数は以下のように与えられます。
+ \begin{equation}
+	 Z(J)_d=\lambda_{1}^d+\lambda_{2}^d, \lambda_{1}:=\sinh(J), \lambda_{2}=\cosh(J)
+ \end{equation}
+ 天下り的ですが、以下の結果を援用します。
+ \begin{equation}
+	 \langle x_k x_l \rangle_d =\frac{1}{Z}\sum_{x: all }x_k x_l e^{^\beta {\mathcal H}(J)}
+ \end{equation}
+
+
+%\bibliography{main}
+\end{document}
+%Below of this line is not printed
