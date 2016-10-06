@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage[top=20mm, bottom=30mm, left = 20mm, right=20mm]{geometry}%Set blank space of this article
+\usepackage{graphicx}
+\usepackage{float}
+\setlength{\parindent}{1cm}
+\newcommand{\R}{{\mathsf{I\!R}}}
+\begin{document}
+\begin{abstract}
+Contrastive Divergence methodにおける、標本数の極限をとった場合の収束性、推定精度(分散の評価)について分かった結果を簡単にまとめました。途中の計算は丁寧に書いてありますが。内容としては少ないです。
+\end{abstract}
+まずはCDの収束性の証明です。(CD法自体はHintonによって2002年に発見されましたが、遅くとも2005年の論文[1]では収束性について議論している論文がありました。しかしながら、この論文では収束先が真のパラメータに一致する事を示していますが、likelihoodのcurvatureについては論じてないです)。\\
+
+\subsection{推定精度の計算}
+以下では、経験分布の標本数極限についてCD法のパラメータの1階と2階の勾配を求めます。1階については0に一致し、2階については比熱のような項が生じる事を確認します。\\
+計算の詳細に入る前に、略記した標本の集合と、確率分布を以下にまとめます。\\
+\begin{eqnarray}
+	p^{(0)}(x)&:=&p^{(0)}(x|x^{(0)})=\frac{1}{N}\sum_{n=1}^{N}\delta(x,x^{(0),n})\\
+	p^{(1)}(x|J)&:=&\sum_{x'}p(x|x';J)p^{(0)}(x')\\
+	p^{(\infty)}(x|J)&:=&\frac{e^{-Jg(x)}}{Z(J)}\\
+	p(x|x';J)&:=&\frac{e^{-Jg(x)}}{e^{-Jg(x)}+e^{-Jg(x')}}\\
+	g(x)&:=&-\sum_{i=1}^d x_i x_{i+1}
+\end{eqnarray}
+$x^{(0)}$を標本の一つとし、上の確率分布を順に、経験分布と、経験分布から一度遷移した分布とします。
+\begin{eqnarray}
+	\frac{\partial}{\partial J}CD(p^{(0)}\|p^{(1)}(|J))&=&\frac{\partial}{\partial J}(\sum_{x:all}p^{(0)}(x)\log{\frac{p^{(0)}(x)}{p^{(\infty)}(x|J)}}-\sum_{x:all}p^{(1)}(x|J)\log{\frac{p^{(1)}(x|J)}{p^{(\infty)}(x|J)}})\\
+&=&-\sum_{x:all}(p^{(0)}(x)-p^{(1)}(x|J))\frac{\partial}{\partial J}\log p^{(\infty)}(x|J)-\sum_{x:all}p^{(1)}(x|J)\frac{\partial}{\partial J}\log p^{(1)}(x|J)\\
+&=&-\sum_{x:all}(p^{(0)}(x)-p^{(1)}(x|J))\frac{\partial}{\partial J}\log p^{(\infty)}(x|J)-\frac{\partial}{\partial J}\sum_{x:all}p^{(1)}(x|J)\\
+\end{eqnarray}
+ここで、第一項目の$(p^{(0)}(x)-p^{(1)}(x|J))$は経験分布について平均をとり、パラメータ$J$を真のパラメータにセットすると消えます。すなわち
+\begin{eqnarray}
+	[\langle p^{(1)}(x|J)\rangle_{x^{(0)}|J_0}]_{J=J_0}&=&[\langle p^{(1)}(x|J)\rangle_{x^{(0)}|J_0}]_{J=J_0}\\
+	&=&[\sum_{x^{(0)}}p(x|x^{(0)};J)p^{(\infty)}(x^{(0)}|J_0)]_{J=J_0}\\
+	&=&p^{(\infty)}(x|J_0)
+\end{eqnarray}
+かつ
+\begin{eqnarray}
+	[\langle p^{(0)}(x)\rangle_{x^{(0)}|J_0}]_{J=J_0}&=&[\langle p^{(0)}(x|x^{(0)})\rangle_{x^{(0)}|J_0}]_{J=J_0}\\
+	&=&p^{(\infty)}(x|J_0)
+\end{eqnarray}
+また、第二項目は遷移後も確率分布になっているためパラメータ微分で消えます。\\
+ゆえに、
+\begin{equation}
+[\langle\frac{\partial}{\partial J}CD(p^{(0)}\|p^{(1)}(|J)) \rangle_{x^{(0)}|J_0}]_{J=J_0}=0
+\end{equation}
+ただし、
+\begin{equation}
+	\langle \cdot \rangle_{x^{(0)}|J_0}:=\lim_{N\to\infty}\frac{1}{N}\sum_{n=1}^{N}\cdot \delta(x,x^{(0),n}) = \sum_{x}\cdot p^{(\infty)}(x|J_0)
+\end{equation}
+ここで、$x^{(0),n}$は$n$番目の標本で、真のパラメータ$J_0$に従ってサンプリングされているとしています。\\
+likelihoodの平均の極値は、真のパラメータに一致する事がわかりました。\\
+$p^{(infty)}(x|\theta)$がJについて指数分布的$e.i.p^{(\infty)}(x|\theta)\propto e^{-\theta \cdot u(x)}$であるならば、CDの評価関数はparameter Jについて凸関数になることが知られています。凸性と、上の議論における極値が真のパラメータに一致する結果により、任意の初期状態から最適化を開始しても大域的な最適解に収束することがわかりました!!\\
+CD法の手足性については2005年以降から幾つかの論文で議論されており、同様に真のパラメータへの収束を示していました(Alan Yuille, 2005)\\
+\\
+\\
+次にCDの評価関数の2階微分について経験分布の平均をとり、パラメータを真のパラメータにセットした量が比熱のような量としてかけることを示します。\\
+\begin{eqnarray}
+	\frac{\partial^2}{\partial J^2}CD&=& \frac{\partial}{\partial J}\{ \sum_{x:all}(p^{(1)}(x|J)-p^{(0)}(x))\frac{\partial}{\partial J}\log p^{(\infty)}(x|J)-\frac{\partial}{\partial J}\sum_{x:all}p^{(1)}(x|J) \}\\
+&=&\sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J}\frac{\partial}{\partial J}\log{p^{(\infty)}(x|J)}+\sum_{x}(p^{(1)}(x|J)-p^{(0)}(x))\frac{\partial^2}{\partial J^2}\log p^{(\infty)}(x|J)\\
+&-&\sum_{x}\frac{\partial^2 p^{(1)}(x|J)}{\partial J^2}\log\frac{p^{(1)}(x|J)}{p^{(\infty)}(x|J)}-\sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J}(\frac{\partial}{\partial J}\log p^{(1)}(x|J)-\frac{\partial}{\partial J}p^{(\infty)}(x|J)) \nonumber
+\end{eqnarray}
+ここで、一階微分の場合と同様に、経験分布について平均を取り、パラメータを真のパラメータにセットすると第一項目を除いて消えてしまいます。従って二階の微分は結局
+\begin{equation}
+[\langle\frac{\partial^2}{\partial J^2}CD(p^{(0)}\|p^{(1)}(|J)) \rangle_{x^{(0)}|J_0}]_{J=J_0}=[\langle \sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J}\frac{\partial}{\partial J}\log{p^{(\infty)}(x|J)} \rangle_{x^{(0)}|J_0}]_{J=J_0}
+\end{equation}
+上式の$p^{(1)}(x|J)$のパラメータ微分の平均の扱いが厄介ではありますが、詳細に踏み込まず、もう少し簡単な形にできます。\\
+平衡分布は以下のように形で与えらえられていることから\\
+\begin{eqnarray}
+	\frac{\partial}{\partial J}\log p^{(1)}(x|J)&=&\frac{\partial}{\partial J}\log{\frac{e^{-Jg(x)}}{Z(J)} }\\
+	&=&-g(x)+\langle g(x) \rangle_{x|J}
+\end{eqnarray}
+ここで、$\langle g(x) \rangle_{x|J}$は$x$に依らないため、CDの二階微分の初期分布についての平均に上式を入れた場合、以下のように0となります。
+\begin{eqnarray}
+	[\langle \sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J}\langle g(x) \rangle_{x|J}	\rangle_{x^{(0)}|J_0}]_{J=J_0}&=&[\langle g(x) \rangle_{x|J} \langle \sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J} \rangle_{x^{(0)}|J_0}]_{J=J_0} \\
+	&=&[\langle g(x) \rangle_{x|J}\ \langle0  \rangle_{x^{(0)}|J_0}]_{J=J_0}=0
+\end{eqnarray}
+\\
+さらに計算を実行していくと
+\begin{eqnarray}
+	&&[\langle\frac{\partial^2}{\partial J^2}CD(p^{(0)}\|p^{(1)}(|J)) \rangle_{x^{(0)}|J_0}]_{J=J_0}\\
+&=&-[\langle \sum_{x}\frac{\partial p^{(1)}(x|J)}{\partial J}g(x)\rangle_{x^{(0)}|J_0}]_{J=J_0}\\
+&=&-[\sum_{x}g(x)\langle \frac{\partial p^{(1)}(x|J)}{\partial J}\rangle_{x^{(0)}|J_0}]_{J=J_0}\\
+&=&-[\sum_{x}g(x)\sum_{x^{(0)}}\frac{\partial p(x|x^{(0)};J)} {\partial J}p^{(\infty)}(x^{(0)}|J_0)]_{J=J_0}\\
+&=&-\sum_{x}g(x)\sum_{x^{(0)}}\frac{\partial p(x|x^{(0)};J)} {\partial J}|_{J=J_0}p^{(\infty)}(x^{(0)}|J_0)\\
+&=&-\sum_{x}g(x)\sum_{x^{(0)}}\frac{\partial p(x|x^{(0)};J)} {\partial J}|_{J=J_0}(p^{(\infty)}(x^{(0)}|J) +(p^{(\infty)}(x^{(0)}|J_0)-p^{(\infty)}(x^{(0)}|J))\\
+&=&-\sum_{x}  g(x) \frac{\partial } {\partial J}|_{J=J_0} \sum_{x^{(0)}} p(x|x^{(0)};J) \{p^{(\infty)}(x^{(0)}|J) +(p^{(\infty)}(x^{(0)}|J_0)-p^{(\infty)}(x^{(0)}|J)) \}\\
+&=&-\sum_{x}  g(x) \frac{\partial } {\partial J}|_{J=J_0} \{ p^{(\infty)}(x|J)  + \sum_{x^{(0)}} p(x|x^{(0)};J)(p^{(\infty)}(x^{(0)}|J_0)-p^{(\infty)}(x^{(0)}|J)) \}\\
+&=&-\sum_{x}  g(x)  \{ -g(x)p^{(\infty)}(x|J_0)+\langle g(x)\rangle_{x|J_0}p^{(\infty)}(x|J_0) \}  \\
+&-&\sum_{x}  g(x) \frac{\partial } {\partial J}|_{J=J_0}\sum_{x^{(0)}} p(x|x^{(0)};J)\{p^{(\infty)}(x^{(0)}|J_0)-p^{(\infty)}(x^{(0)}|J)) \}\\
+&=&-(\langle g(x)^2\rangle_{x|J_0} -\langle g(x)\rangle_{x|J_0}^2 )  \\
+&-&\ \ \sum_{x}  g(x) \frac{\partial } {\partial J}|_{J=J_0}\sum_{x^{(0)}} p(x|x^{(0)};J)\{p^{(\infty)}(x^{(0)}|J_0)-p^{(\infty)}(x^{(0)}|J)) \}\\
+&=&-(\langle g(x)^2\rangle_{x|J_0} -\langle g(x)\rangle_{x|J_0}^2 )- \sum_{x}  g(x) \frac{\partial } {\partial J}|_{J=J_0}\sum_{x^{(0)}} p(x|x^{(0)};J)p^{(\infty)}(x^{(0)}|J_0)  
+\end{eqnarray}
+第一項目は明らかに比熱に比例するような項です。第二項目は補正項の役割を果たしています(比熱を減少させるか、増加させるかを知る必要があります)。
+
+\subsection{Correctionの解析}
+補正の計算が実行できました。\\
+\begin{eqnarray}
+Corrrection&=&\sum_{x}g(x)\frac{\partial}{\partial J}|_{J=J_0}\sum_{x^{(0)}}p(x|x^{(0)};J)[p^{(\infty)}(x^{(0)}|J)-p^{(\infty)}(x^{(0)}|J_0)]\\
+&=&\sum_{x}g(x)\sum_{x^{(0)}}\frac{\partial p(x|x^{(0)};J)}{\partial J}|_{J=J_0}[p^{(\infty)}(x^{(0)}|J)-p^{(\infty)}(x^{(0)}|J_0)]\\
+&+&\sum_{x}g(x)\sum_{x^{(0)}}p(x|x^{(0)};J)\frac{\partial}{\partial J}|_{J=J_0}[p^{(\infty)}(x^{(0)}|J)-p^{(\infty)}(x^{(0)}|J_0)]\nonumber \\
+	&=&0+\sum_{x}g(x)\sum_{x^{(0)}}p(x|x^{(0)};J)\frac{\partial}{\partial J}|_{J=J_0}[p^{(\infty)}(x^{(0)}|J)-0]\\
+	&=&\sum_{x}g(x)\sum_{x^{(0)}}p(x|x^{(0)};J)\{-g(x)+\langle g(x) \rangle_{x|J_0} \} p^{(\infty)}(x^{(0)}|J_0)\\
+	&=&\sum_{x}g(x)\{-g(x)+\langle g(x) \rangle_{x|J} \}\sum_{x^{(0)}}p(x|x^{(0)};J) p^{(\infty)}(x^{(0)}|J_0)\\
+	&=&\sum_{x}g(x)\{-g(x)+\langle g(x) \rangle_{x|J} \} p^{(\infty)}(x|J_0)\\
+	&=&-(\ \langle g(x)^2 \rangle_{x|J_0}-{\langle g(x) \rangle_{x|J_0}}^2 \  )
+\end{eqnarray}
+なんだか、妙な気もしますが、前章の結果と合わせると\\
+\begin{equation}
+	[\langle\frac{\partial^2}{\partial J^2}CD(p^{(0)}\|p^{(1)}(|J)) \rangle_{x^{(0)}|J_0}]_{J=J_0}=-2(\ \langle g(x)^2 \rangle_{x|J_0}-{\langle g(x) \rangle_{x|J_0}}^2 \  )
+\end{equation}
+上式の結果を利用するとHessianは殆ど解けた事になります。\\
+\\
+\begin{eqnarray}
+	{\rm H}[CD]&:=&[\langle\frac{\partial}{\partial {\vec J}}{\frac{\partial}{\partial {\vec J}}}^{\rm T}CD(p^{(0)}\|p^{(1)}(|J)) \rangle_{x^{(0)}|J_0}]_{J=J_0}\\ 
+	&=&-2(\ \langle {\vec g(x)} {\vec g(x)}^{\rm T}\rangle_{x|J_0}-{\langle {\vec g(x)} \rangle_{x|J_0}}{\langle {\vec g(x)} \rangle_{x|J_0}}^{\rm T} \  )
+\end{eqnarray}
+ただし、$\frac{\partial}{\partial {\vec J}}$を縦ベクトルで定義しています。\\
+ここで、任意のベクトル${\vec a}$を用いてHessianの正定値性条件が確認できます。\\
+\begin{eqnarray}
+	{\vec a}^{\rm T}{\rm H}[CD]{\vec a}&=&\sum_{i}^{d}\sum_{j}^{d}\sum_{x}p^{(\infty)}(x|J_0)(x)a_i a_j g_i (x)(-g_j(x)+\langle g_j (x)\rangle_{x|J_0})\\
+	&=&\sum_{i}^{d}\sum_{j}^{d}a_i a_j\langle g_i (x)(-g_j(x)+\langle g_j (x)\rangle_{x|J_0}) \rangle_{x|J_0} 
+\end{eqnarray}
+$g(x)$の具体的な標識を与えることで共分散行列の$i,j$要素を評価します。
+ここで、$g(x)=-\sum_{i=1}^d x_i x_{i+1}$で与えられている場合は
+\begin{equation}
+	\langle g_i (x) \rangle_{x|J_0} \langle g_j(x) \rangle_{x|J_0}- \langle g_i(x) g_j (x) \rangle_{x|J_0} =\left\{  \begin{array}{ll}
+		0 &   {\rm for}|i-j|\ >1\\
+			C_{ij}(J_0) &   {\rm for}|i-j|\ \leq1
+	\end{array}\right.
+\end{equation}
+となり、Ising Modelにおける磁場無しの$\langle g(x) \rangle_{x|J_0}$は0であり、$\langle {g(x)}^2 \rangle_{x|J_0}< 0$より、分散は正になっています。\\
+従って(半)正定値性が示され、凸性がわかります(あっ、けどこれ真のパラメータ周りでの自明な凸性しか言えていないですよね。。。)。
+
+\subsection{MPFの場合}
+CD法で調べた量をMPFに対しても同様に議論します。\\
+\begin{eqnarray}
+	\langle \frac{\partial}{\partial J}MPF \rangle_{x^{(0)}|J_0}&=&\langle \frac{\partial}{\partial J}|_{J=J_0}\sum_{x}p^{(0)}(x)\log\frac{ p^{(0)}(x)}{p^{(\epsilon)}(x|J)}\rangle_{x^{(0)}|J_0} \\
+	&=&\langle \sum_{x} \frac{p^{(0)}(x)}{p^{(\epsilon)}(x|J)} \frac{\partial p^{(\epsilon)}(x|J)}{\partial J}|_{J=J_0}\rangle_{x^{(0)}|J_0}\\ 
+	&=&\sum_{x} \frac{p^{(0)}(x)}{p^{(\infty)}(x|J)}|_{J=J_0}=0
+\end{eqnarray}
+真のパラメータに収束することが分かります。また、分散についても同様に。\\
+\begin{eqnarray}
+	&&\langle \frac{{\partial}^2}{\partial J^2}MPF \rangle_{x^{(0)}|J_0}\\
+	&=&-\sum_{x}p^{(0)}(x)\{\langle \frac{1}{p^{(\epsilon)}(x|x^{(0)};J)}\frac{\partial^2 p^{(\epsilon)}(x|x^{(0)};J)}{\partial J^2}\rangle_{x^{(0)}|J_0} -\langle \frac{1}{p^{(\epsilon)}(x|x^{(0)};J)}\frac{\partial p^{(\epsilon)}(x|x^{(0)};J)}{\partial J}\rangle_{x^{(0)}|J_0}^2\}\\
+	&=&\langle g(x)^2\rangle_{x|J_0}-\langle g(x)\rangle_{x|J_0}^2
+\end{eqnarray}
+示されました。
+
+\end{document}
