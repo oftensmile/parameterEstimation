@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage[top=20mm, bottom=30mm, left = 20mm, right=20mm]{geometry}%Set blank space of this article
+\usepackage{graphicx}
+\usepackage{float}
+\setlength{\parindent}{1cm}
+\begin{document}
+\begin{abstract}
+	"Why Contrastive Divergence Works"を読んだ感想（Contrastive Divergenceがどのような理屈で、どんな場合に機能するかを議論している論文）についてレポートです(この論文の主張として、Gibbsカーネルを用いた場合などで、状態の更新方法を変えるとMaximum Pseudolikelihood Estimation (MPLE), Maximum Composite Likelihood Estimation(MCLE)などに漸近的に一致するため推定できているという主張です(PLMEは漸近的にMLEに一致するためバイアスはありません。MCLEのバイアス有無は調べ中です。それぞれの評価関数の真のパラメータ周りの曲率はMLE>MPLE>MCLEです))。CDが特にうまくいくときは少ないMC stepで同じ変数の更新が繰り返されるときだそうです。\\
+また、CDのmomentを導くような評価関数を作る方法を考えました。この評価関数を使用するとパラメータに対しての分散は標本に依らず、０になります。
+\end{abstract}
+\section{論文}
+以下では、大文字の変数を確率変数とします。また、扱う分布は一般的な指数分布であるとします。
+\[
+	q(Y)=f(Y)e^{\theta g(Y)+\eta(\theta)}
+\]
+論文中ではCDの評価関数として、KL divergenceの差を使用するのではなく、別の評価関数を定義し、その評価関数が以下のような評価関数を使用していました。
+\begin{equation}
+	cd(p,q):=\sum_{A}d_{A}(p,q)\pi(A)
+\end{equation}
+\begin{eqnarray}
+	d_{a}(p,q)&=&KL(p\|q)-KL(p_m\|q_m)+\sum_{y}\log(\frac{q(Y_a|y_{\backslash a})}{q^{*}(Y_a|y_{\backslash a},y^{(0)})})p(y)\\
+	&=&KL(p\|q*p_m)\geq 0
+\end{eqnarray}
+
+ただし確率変数yのindexを$i\in (1,...,m)$とし、$b$をyのindexの組みを表すベクトルだとします。まとめたindexを$a=\cup_{i}b_i$とします。また、$p_m(y_{\backslash a})=\sum_{y_a}p(y)$としています。。$d_{a}(p,q)$はKL Divergenceを用いて、以下のように定義されているとします。
+
+\section{簡単な評価関数}
+以下をCDの評価関数として仮定できると思います。
+\begin{equation}
+	CD(p^{(0)},p^{(1)}(|\theta^{(s)})\|p^{(\infty)}(\theta))=KL(p^{(0)}\|p^{(\infty)}(\theta))-KL(p^{(1)}(|\theta^{(s)})\|p^{(\infty)}(\theta))
+\end{equation}
+%\begin{equation}
+%	\theta^{(s+1)}=\theta^{(s)}+\lambda \frac{\partial }{\partial \theta}\{\CD(p^{(0)},p^{1}|p^{(\infty)}) \}
+%\end{equation}
+$p^{(1)}$のパラメータ依存性が一つ前の更新時の依る表現が変更点です。CDの評価関数をパラメータ微分すると正しく、momentの式が現れます。また、二階のパラメータ微分をとると、ゼロになります。
+\begin{equation}
+	\frac{\partial}{\partial \theta}CD = \frac{\partial}{\partial \theta} \{ \sum_{x}p^{(0)}(x)\log\frac{p^{(0)}(x)}{p^{(\infty)}(x|\theta)}  -\sum_{x}p^{(1)}(x|\theta^{(s)})\log\frac{p^{(1)}(x|\theta^{(s)})}{p^{(\infty)}(x|\theta)}
+\end{equation}
+\end{document}
+%Below of this line is not printed
