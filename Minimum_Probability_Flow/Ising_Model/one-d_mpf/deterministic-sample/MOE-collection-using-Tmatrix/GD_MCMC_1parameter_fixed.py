@@ -73,16 +73,7 @@ for n in range(N_sample):
     x=get_sample(J_data)
     if(n==0):X_sample = np.copy(x)
     elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-"""
-#SAMPLING-Simple
-x = np.random.choice([-1,1],d)
-#SAMPLING
-for n in range(N_sample+N_remove):
-    for t in range(t_interval):
-        x = np.copy(gen_mcmc(J_data,x))
-    if(n==N_remove):X_sample = np.copy(x)
-    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-"""
+
 corre_sample_mean=calc_C(X_sample) 
 xi = np.array(np.sign(np.random.uniform(-1,1,d)))
 theta_model=2.0   #Initial Guess

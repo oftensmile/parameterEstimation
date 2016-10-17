@@ -68,16 +68,6 @@ def get_sample(j):
 #Generate sample-dist
 J_data=1.0 # =theta_sample
 x = np.random.choice([-1,1],d)
-"""
-#SAMPLING-Simple
-for n in range(N_sample+N_remove):
-    for t in range(t_interval):
-        x = np.copy(gen_mcmc(J_data,x))
-        if(n==N_remove):
-            X_sample = np.copy(x)
-        elif(n>N_remove):
-            X_sample=np.vstack((X_sample,np.copy(x)))
-"""
 #SAMPLING-Tmat
 for n in range(N_sample):
     x=get_sample(J_data)

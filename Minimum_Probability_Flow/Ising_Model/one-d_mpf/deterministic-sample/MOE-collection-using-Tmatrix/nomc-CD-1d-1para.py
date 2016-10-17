@@ -63,20 +63,6 @@ def get_sample(j):
 #J_vec=np.random.uniform(J_min,J_max,d)
 J_data=1.0
 correlation_data=0.0#np.zeros(d)
-"""
-#SAMPLING-Simple
-x = np.random.choice([-1,1],d)
-for n in range(N_sample+N_remove):
-    x = np.copy(gen_mcmc(J_data,x))
-    if(n==N_remove):
-        x_new=np.copy(x)
-        X_sample = x_new
-        correlation_data+=calc_C(x_new)/N_sample
-    elif(n>N_remove):
-        x_new=np.copy(x)
-        X_sample=np.vstack((X_sample,x_new))
-        correlation_data+=calc_C(x_new)/N_sample
-"""
 #SAMPLING-Tmat
 for n in range(N_sample):
     x=get_sample(J_data)
