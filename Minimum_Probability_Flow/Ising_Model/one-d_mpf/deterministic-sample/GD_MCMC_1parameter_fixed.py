@@ -13,11 +13,11 @@ t_burn_emp, t_burn_model = 100, 10#10000, 100
 t_interval = 10
 #parameter ( System )
 d, N_sample = 16,2 #124, 1000
-N_remove=10
+N_remove=30
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 n_mfa = 40 #Number of the sample for Mean Field Aproximation.
-t_gd_max=30 
+t_gd_max=300 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -65,16 +65,13 @@ def calc_C(X=[[]]):
 ########    MAIN    ########
 #Generate sample-dist
 J=1.0 # =theta_sample
-x = np.random.uniform(-1,1,d)
-x = np.array(np.sign(x))
-for t_burn in range(t_burn_emp):
-    x=np.copy(gen_mcmc(J,x))
+x = np.random.choice([-1,1],d)
 #SAMPLING
-for n in range(N_sample):
+for n in range(N_sample+N_remove):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J,x))
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+    if(n==N_remove):X_sample = np.copy(x)
+    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
 #GD+MFA
 corre_sample_mean=calc_C(X_sample) 
 #Generate model-dist
@@ -82,13 +79,11 @@ xi = np.array(np.sign(np.random.uniform(-1,1,d)))
 theta_model=2.0   #Initial Guess
 print("#gd-step, abs-grad_likelihood, theta-error")
 for t_gd in range(t_gd_max):
-    for t_burn in range(t_burn_model*10):
-        xi = np.copy(gen_mcmc(theta_model,xi))
-    for n_model in range(n_mfa):
+    for n_model in range(n_mfa+N_remove):
         for t in range(t_interval):
             xi = np.copy(gen_mcmc(theta_model,xi))
-        if (n_model==0):Xi_model = np.copy(xi)
-        elif(n_model>0):Xi_model = np.vstack((Xi_model,np.copy(xi)))
+        if (n_model==N_remove):Xi_model = np.copy(xi)
+        elif(n_model>N_remove):Xi_model = np.vstack((Xi_model,np.copy(xi)))
     corre_model_mean=calc_C(Xi_model)
     grad_likelihood=-corre_sample_mean+corre_model_mean
     theta_model=np.copy(theta_model)-lr*grad_likelihood

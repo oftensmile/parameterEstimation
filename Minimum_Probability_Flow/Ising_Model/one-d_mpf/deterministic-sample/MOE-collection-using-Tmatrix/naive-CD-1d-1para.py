@@ -1,7 +1,5 @@
-#2016/08/05
-##############
-#   H = -J*sum(xixj), J in R^1
-##############
+#! /usr/bin/env python
+#-*-coding:utf-8-*-
 import numpy as np
 import time 
 from scipy import linalg
@@ -9,6 +7,7 @@ import matplotlib.pyplot as plt
 import csv 
 np.random.seed(1)
 #parameter ( MCMC )
+n_estimation=300
 d, N_sample =16,2 #124, 1000
 num_mcmc_sample=50
 N_remove = 100
@@ -70,40 +69,43 @@ def get_sample(j):
     return X
 
 
-#######    MAIN    ########
-##Generate sample-dist
-#J_max,J_min=1.0,0.0
-#J_vec=np.random.uniform(J_min,J_max,d)
-J_data=1.0
-correlation_data=0.0#np.zeros(d)
+if __name__ == '__main__':
+    
+    fname="sample"+str(N_sample)+"naiveCD.dat"
+    f=open(fname,"w")
+    for nf in range(n_estimation):
+        ##Generate sample-dist
+        J_data=1.0
+        correlation_data=0.0#np.zeros(d)
 
-#SAMPLING-Tmat
-for n in range(N_sample):
-    x=get_sample(J_data)
-    if(n==0):
-        x_new=np.copy(x)
-        X_sample = np.copy(x)
-        correlation_data+=calc_C(x_new)/N_sample
-    elif(n>0):
-        x_new=np.copy(x)
-        X_sample=np.vstack((X_sample,np.copy(x)))
-        correlation_data+=calc_C(x_new)/N_sample
+        #SAMPLING-Tmat
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):
+                x_new=np.copy(x)
+                X_sample = np.copy(x)
+                correlation_data+=calc_C(x_new)/N_sample
+            elif(n>0):
+                x_new=np.copy(x)
+                X_sample=np.vstack((X_sample,np.copy(x)))
+                correlation_data+=calc_C(x_new)/N_sample
 
-
-#theta_model=np.random.uniform(0,4,d)    #Initial guess
-J_model=2.0
-for t_gd in range(t_gd_max):
-    gradl=np.zeros(d)
-    #MCMC-mean(using CD-method)
-    correlation_model=0.0
-    for m in range(N_sample):
-        #Using all samples
-        #/*THIS CHICE IS VERY IMPORRTANT!! MAYBE*/#
-        #x_init=np.copy(X_sample[m])
-        x_init=np.copy(X_sample[(np.random.randint(N_sample))])
-        x_new_for_mcmc=np.copy(gen_mcmc(J_model,x_init))#This update is possible to generate any state.
-        correlation_model+=calc_C(x_new_for_mcmc)/N_sample
-    J_model-=lr*(correlation_model-correlation_data)
-    #error=np.sqrt(np.sum((theta_model-J_vec)**2))/d
-    error=np.abs(J_model-J_data)
-    print(t_gd,error)
+        #theta_model=np.random.uniform(0,4,d)    #Initial guess
+        J_model=2.0
+        for t_gd in range(t_gd_max):
+            gradl=np.zeros(d)
+            #MCMC-mean(using CD-method)
+            correlation_model=0.0
+            for m in range(N_sample):
+                #Using all samples
+                #/*THIS CHICE IS VERY IMPORRTANT!! MAYBE*/#
+                #x_init=np.copy(X_sample[m])
+                x_init=np.copy(X_sample[(np.random.randint(N_sample))])
+                x_new_for_mcmc=np.copy(gen_mcmc(J_model,x_init))#This update is possible to generate any state.
+                correlation_model+=calc_C(x_new_for_mcmc)/N_sample
+            J_model-=lr*(correlation_model-correlation_data)
+            #error=np.sqrt(np.sum((theta_model-J_vec)**2))/d
+            error=J_model-J_data
+            #print(t_gd,error)
+        f.write(str(error)+"\n")
+    f.close()

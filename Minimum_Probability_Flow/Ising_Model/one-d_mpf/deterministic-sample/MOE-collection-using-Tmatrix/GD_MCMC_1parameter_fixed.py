@@ -1,12 +1,11 @@
-#2016/05/19
-##############
-#   H = J*sum(xixj), J in R^1
-##############
+#! /usr/bin/env python
+#-*-coding:utf-8-*-
 import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
+n_estimation=300
 np.random.seed(1)
 t_interval = 10
 #parameter ( System )
@@ -66,26 +65,31 @@ def get_sample(j):
     return X
 
 
-########    MAIN    ########
-J_data=1.0 # =theta_sample
-#SAMPLING-Tmat
-for n in range(N_sample):
-    x=get_sample(J_data)
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+if __name__ == '__main__':
+    fname="sample"+str(N_sample)+"MCMC.dat"
+    f=open(fname,"w")
+    for nf in range(n_estimation):
+        J_data=1.0 # =theta_sample
+        #SAMPLING-Tmat
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):X_sample = np.copy(x)
+            elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-corre_sample_mean=calc_C(X_sample) 
-xi = np.array(np.sign(np.random.uniform(-1,1,d)))
-theta_model=2.0   #Initial Guess
-for t_gd in range(t_gd_max):
-    for n_model in range(n_mfa+N_remove):
-        for t in range(t_interval):
-            xi = np.copy(gen_mcmc(theta_model,xi))
-        if (n_model==N_remove):Xi_model = np.copy(xi)
-        elif(n_model>N_remove):Xi_model = np.vstack((Xi_model,np.copy(xi)))
-    corre_model_mean=calc_C(Xi_model)
-    grad_likelihood=-corre_sample_mean+corre_model_mean
-    theta_model=np.copy(theta_model)-lr*grad_likelihood
-    #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
-    theta_diff = np.abs(theta_model-J_data)
-    print(t_gd,np.abs(grad_likelihood),theta_diff)
+        corre_sample_mean=calc_C(X_sample) 
+        xi = np.array(np.sign(np.random.uniform(-1,1,d)))
+        theta_model=2.0   #Initial Guess
+        for t_gd in range(t_gd_max):
+            for n_model in range(n_mfa+N_remove):
+                for t in range(t_interval):
+                    xi = np.copy(gen_mcmc(theta_model,xi))
+                if (n_model==N_remove):Xi_model = np.copy(xi)
+                elif(n_model>N_remove):Xi_model = np.vstack((Xi_model,np.copy(xi)))
+            corre_model_mean=calc_C(Xi_model)
+            grad_likelihood=-corre_sample_mean+corre_model_mean
+            theta_model=np.copy(theta_model)-lr*grad_likelihood
+            #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
+            theta_diff = theta_model-J_data
+            #print(t_gd,np.abs(grad_likelihood),theta_diff)
+        f.write(str(theta_diff)+"\n")
+    f.close()

@@ -1,12 +1,11 @@
-#2016/08/05
-##############
-#   H = -J*sum(xixj), J in R^1
-##############
+#! /usr/bin/env python
+#-*-coding:utf-8-*-
 import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
-np.random.seed(4)
+np.random.seed(3)
+n_estimation=300
 #parameter ( MCMC )
 d, N_sample =16,2#124, 1000
 N_remove = 100
@@ -56,33 +55,35 @@ def get_sample(j):
         X[k]=gen_x_pofx(p)
     return X
 
-#######    MAIN    ########
-##Generate sample-dist
-#J_max,J_min=1.0,0.0
-#J_vec=np.random.uniform(J_min,J_max,d)
-J_data=1.0
-correlation_data=0.0#np.zeros(d)
-#SAMPLING-Tmat
-for n in range(N_sample):
-    x=get_sample(J_data)
-    if(n==0):
-        x_new=np.copy(x)
-        X_sample = np.copy(x)
-        correlation_data+=calc_C(x_new)/N_sample
-    elif(n>0):
-        x_new=np.copy(x)
-        X_sample=np.vstack((X_sample,np.copy(x)))
-        correlation_data+=calc_C(x_new)/N_sample
-
-J_model=2.0
-for t_gd in range(t_gd_max):
-    diff_expect=0.0#np.zeros(d)
-    for m in range(N_sample):
-        x_m=np.copy(X_sample[m])
-        for l in range(d):
-            diff_E=2*x_m[l]*(x_m[(l+1)%d]+x_m[(l-1+d)%d])
-            diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
-    J_model-=lr*diff_expect
-    error=np.abs(J_model - J_data)
-    print(t_gd,error)
-
+if __name__ == '__main__':
+    fname="sample"+str(N_sample)+"nomcCD.dat"
+    f=open(fname,"w")
+    for nf in range(n_estimation):
+        ##Generate sample-dist
+        J_data=1.0
+        correlation_data=0.0#np.zeros(d)
+        #SAMPLING-Tmat
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):
+                x_new=np.copy(x)
+                X_sample = np.copy(x)
+                correlation_data+=calc_C(x_new)/N_sample
+            elif(n>0):
+                x_new=np.copy(x)
+                X_sample=np.vstack((X_sample,np.copy(x)))
+                correlation_data+=calc_C(x_new)/N_sample
+        
+        J_model=2.0
+        for t_gd in range(t_gd_max):
+            diff_expect=0.0#np.zeros(d)
+            for m in range(N_sample):
+                x_m=np.copy(X_sample[m])
+                for l in range(d):
+                    diff_E=2*x_m[l]*(x_m[(l+1)%d]+x_m[(l-1+d)%d])
+                    diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
+            J_model-=lr*diff_expect
+            error=J_model - J_data
+            #print(t_gd,error)
+        f.write(str(error)+"\n")
+    f.close()

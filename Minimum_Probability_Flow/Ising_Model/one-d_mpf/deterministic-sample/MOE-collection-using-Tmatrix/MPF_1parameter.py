@@ -1,13 +1,12 @@
-#2016/05/19
-##############
-#   H = J*sum(xixj), J in R^1
-##############
+#! /usr/bin/env python
+#-*-coding:utf-8-*-
 import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
 np.random.seed(1)
+n_estimation=300
 #parameter ( Model )
 T_max=1.2
 #Temperature Dependance
@@ -63,33 +62,37 @@ def get_sample(j):
     return X
 
 
-#######    MAIN    ########
-#Generate sample-dist
-J_data=1.0 # =theta_sample
-x = np.random.choice([-1,1],d)
-#SAMPLING-Tmat
-for n in range(N_sample):
-    x=get_sample(J_data)
-    if(n==0):X_sample = np.copy(x)
-    elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+if __name__ == '__main__':
+    fname="sample"+str(N_sample)+"MPF.dat"
+    f=open(fname,"w")
+    for nf in range(n_estimation):
+        #Generate sample-dist
+        J_data=1.0 # =theta_sample
+        x = np.random.choice([-1,1],d)
+        #SAMPLING-Tmat
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):X_sample = np.copy(x)
+            elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
 
-n_bach=len(X_sample)
-J_model=2.0   #Initial Guess
-print("#gd-step, abs-grad_likelihood, theta-error")
-for t_gd in range(t_gd_max):
-    #calc gradK of theta
-    gradK=0.0
-    for sample in X_sample:
-        #x_nin=np.reshep(np.copy(sample),(d,d)
-        x_nin=np.copy(sample)
-        gradK_nin=0.0
-        #hamming distance = 1
-        for hd in range(d):
-            diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
-            diff_E_nin=diff_delE_nin*J_model
-            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
-        gradK+=gradK_nin/n_bach
-    J_model-= lr * gradK
-    J_diff=abs(J_model-J_data)
-    print(t_gd,np.abs(gradK),J_diff)
-print("#J_data=",J_data,"J_model=",J_model)
+        n_bach=len(X_sample)
+        J_model=2.0   #Initial Guess
+        for t_gd in range(t_gd_max):
+            #calc gradK of theta
+            gradK=0.0
+            for sample in X_sample:
+                #x_nin=np.reshep(np.copy(sample),(d,d)
+                x_nin=np.copy(sample)
+                gradK_nin=0.0
+                #hamming distance = 1
+                for hd in range(d):
+                    diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
+                    diff_E_nin=diff_delE_nin*J_model
+                    gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
+                gradK+=gradK_nin/n_bach
+            J_model-= lr * gradK
+            J_diff=J_model-J_data
+            #print(t_gd,np.abs(gradK),J_diff)
+        #print("#J_data=",J_data,"J_model=",J_model)
+        f.write(str(J_diff)+"\n")
+    f.close()
