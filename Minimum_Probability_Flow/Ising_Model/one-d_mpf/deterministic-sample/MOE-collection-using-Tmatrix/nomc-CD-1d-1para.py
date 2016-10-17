@@ -6,13 +6,12 @@ import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
-np.random.seed(11)
+np.random.seed(4)
 #parameter ( MCMC )
-t_interval = 40
-d, N_sample =16,100 #124, 1000
+d, N_sample =16,2#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
-t_gd_max=100 
+t_gd_max=500 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath

@@ -17,7 +17,6 @@ dT=T_max/n_T
 J=1.0
 #parameter ( MCMC )
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
-t_interval = 40
 #parameter ( System )
 d, N_sample = 16,2 #124, 1000
 N_remove = 100

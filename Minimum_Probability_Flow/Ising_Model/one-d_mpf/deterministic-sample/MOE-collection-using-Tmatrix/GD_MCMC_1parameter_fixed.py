@@ -7,15 +7,15 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
-np.random.seed(0)
+np.random.seed(1)
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,20 #124, 1000
-N_remove=30
+d, N_sample = 16,2 #124, 1000
+N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-n_mfa = 40 #Number of the sample for Mean Field Aproximation.
-t_gd_max=300 
+n_mfa = 50 #Number of the sample for Mean Field Aproximation.
+t_gd_max=500 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
