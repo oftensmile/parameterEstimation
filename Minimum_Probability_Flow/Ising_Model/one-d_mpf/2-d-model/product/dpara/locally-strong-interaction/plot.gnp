@@ -1,0 +1,6 @@
+set yrange [9:15]
+set xrange [0:1000]
+set title "Estimation Error vs Epoch(partially strong interaction)" font "Times, 20"
+set xlabel "Epoch" font "Times, 25"
+set ylabel "Estimation Error" font "Times, 25"
+p "test_gdmc.dat" u 0:1 title "GD+mcmc(J1)" w l,"test_gdmc.dat" u 0:2 title "GD+mcmc(J2)" w l,  "test_naive.dat" u 0:1 title "niveCD(J1)" w l,"test_naive.dat" u 0:2 title "niveCD(J2)" w l,  "test_nomc.dat" u 0:1 title "nomcCD(J1)" w l, "test_nomc.dat" u 0:2 title "nomcCD(J2)" w l, "test_mpf.dat" u 0:1 title "MPF(J1)" w l, "test_mpf.dat" u 0:2 title "MPF(J2)" w l

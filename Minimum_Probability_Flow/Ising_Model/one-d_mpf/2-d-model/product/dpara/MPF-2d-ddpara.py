@@ -10,7 +10,7 @@ t_interval = 100
 d, N_sample,N_model = 6,100,30 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
-lr,eps =0.1, 1.0e-100
+lr,eps =1, 1.0e-100
 t_gd_max=1000 
 
 class Matrices():

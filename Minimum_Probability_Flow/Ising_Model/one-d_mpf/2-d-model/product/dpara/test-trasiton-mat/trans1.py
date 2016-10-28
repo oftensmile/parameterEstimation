@@ -41,7 +41,7 @@ if __name__ == '__main__':
     #Target Structure of the graph
     # vertical parameter
     J1_data=[[0,0,0,0,0,0],
-            [0,1,0,0,0,0],
+            [0,10,0,0,0,0],
             [0,0,1,1,0,0],
             [0,0,0,1,0,0],
             [0,1,0,1,0,0],
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             [0,1,0,1,1,0],
             [0,1,0,0,1,1],
             [0,1,1,0,0,0],
-            [0,0,0,1,1,0],
+            [0,0,0,1,10,0],
             [0,0,0,0,0,0]]
     J1_model=np.ones((d,d))
     J2_model=np.ones((d,d))
@@ -74,17 +74,22 @@ if __name__ == '__main__':
         #C2_model=np.zeros((d,d))
         gradK1=np.zeros((d,d))
         gradK2=np.zeros((d,d))
+        alpha=0.00001
+        exp_sum_J1_model=np.exp(-alpha*np.sum(J1_model*J1_model))
+        exp_sum_J2_model=np.exp(-alpha*np.sum(J2_model*J2_model))
+        exp_sum_J_model=exp_sum_J1_model*exp_sum_J2_model
         for M in data_matrix:
             x=np.copy(M.mat)
             for i1 in range(d):
                 for i2 in range(d):
                     diff_E=2.0*x[i1][i2]*(J1_model[(i1+d-1)%d][i2]*x[(i1+d-1)%d][i2]+J1_model[i1][i2]*x[(i1+1)%d][i2]
                     +J2_model[i1][(i2+d-1)%d]*x[i1][(i2+d-1)%d]+J2_model[i1][i2]*x[i1][(i2+1)%d])#E_new-E_old
+                    #P(J1_model, J2_model)=exp(-a1|J1_model|**2-a2|J2_model|**2)#
 
-                    gradK1[i1][i2]+=(-2.0*x[i1][i2]*x[(i1+1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2)
-                    gradK1[(i1+d-1)%d][i2]+=(-2.0*x[i1][i2]*x[(i1+d-1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2)
-                    gradK2[i1][i2]+=(-2.0*x[i1][i2]*x[i1][(i2+1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2)
-                    gradK2[i1][(i2+d-1)%d]+=(-2.0*x[i1][i2]*x[i1][(i2+d-1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2)
+                    gradK1[i1][i2]+=( (-2.0*x[i1][i2]*x[(i1+1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2)   -alpha*J1_model[i1][i2] )*exp_sum_J_model
+                    gradK1[(i1+d-1)%d][i2]+=( (-2.0*x[i1][i2]*x[(i1+d-1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2) * -alpha*J1_model[(i1+d-1)%d][i2] )*exp_sum_J_model
+                    gradK2[i1][i2]+=( (-2.0*x[i1][i2]*x[i1][(i2+1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2)   - alpha*J2_model[i1][i2])*exp_sum_J_model
+                    gradK2[i1][(i2+d-1)%d]+=((-2.0*x[i1][i2]*x[i1][(i2+d-1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2) -alpha*J2_model[i1][(i2+d-1)%d])*exp_sum_J_model
                     
         J1_model=J1_model - lr * gradK1
         J2_model=J2_model - lr * gradK2

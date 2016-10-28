@@ -1,0 +1,7 @@
+set yrange [10.5:15]
+set xrange [0:1000]
+set title "Estimation Error vs Epoch(partially strong interaction), Different Transition Probability" font "Times, 20"
+set xlabel "Epoch" font "Times, 25"
+set ylabel "Estimation Error" font "Times, 25"
+
+p "test_normal.dat" u 0:1 title "normal(J1)" w l ,"test_normal.dat" u 0:2 title "normal(J2)" w l, "MPF-eta0.0.dat" u 0:1 title "a=0.0(J1)" w l,"MPF-eta0.0.dat" u 0:2 title "a=0.0(J2)" w l, "MPF-eta-0.5.dat" u 0:1 title "a=0.5(J1)" w l, "MPF-eta0.5.dat" u 0:2 title "a=0.5(J2)"w l, "MPF-eta0.5.dat" u 0:1 title "a=0.5(J1)" w l, "MPF-eta-0.5.dat" u 0:2 title "a=-0.5(J2)" w l,"MPF-eta-1.0.dat" u 0:1 title "a=-1.0(J1)" w l , "MPF-eta-1.0.dat" u 0:2 title "a=-1.0(J2)" w l

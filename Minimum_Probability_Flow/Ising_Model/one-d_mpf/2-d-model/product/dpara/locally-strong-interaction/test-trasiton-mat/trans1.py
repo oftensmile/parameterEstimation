@@ -74,7 +74,7 @@ if __name__ == '__main__':
         #C2_model=np.zeros((d,d))
         gradK1=np.zeros((d,d))
         gradK2=np.zeros((d,d))
-        alpha=0.01*(1+t_gd)**(-0.5)
+        alpha=0.00001
         exp_sum_J1_model=np.exp(-alpha*np.sum(J1_model*J1_model))
         exp_sum_J2_model=np.exp(-alpha*np.sum(J2_model*J2_model))
         exp_sum_J_model=exp_sum_J1_model*exp_sum_J2_model

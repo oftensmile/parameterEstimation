@@ -1,8 +1,5 @@
 #! /usr/bin/env python
 #-*-coding:utf-8-*-
-#T_xx'=exp(theta*g(x)
-#
-
 import numpy as np
 import time 
 from scipy import linalg
@@ -14,7 +11,7 @@ d, N_sample,N_model = 6,100,30 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=1000 
+t_gd_max=4000 
 
 class Matrices():
     def __init__(self,mat):
@@ -68,29 +65,23 @@ if __name__ == '__main__':
             for t in range(t_interval):
                 x=np.copy(gen_mcmc(J1_data,J2_data,x))
             data_matrix=np.append(data_matrix,Matrices(x))
-
+    eta=0.5
     for t_gd in range(t_gd_max):
-        #C1_model=np.zeros((d,d))
-        #C2_model=np.zeros((d,d))
         gradK1=np.zeros((d,d))
         gradK2=np.zeros((d,d))
-        alpha=0.01*(1+t_gd)**(-0.5)
-        exp_sum_J1_model=np.exp(-alpha*np.sum(J1_model*J1_model))
-        exp_sum_J2_model=np.exp(-alpha*np.sum(J2_model*J2_model))
-        exp_sum_J_model=exp_sum_J1_model*exp_sum_J2_model
         for M in data_matrix:
             x=np.copy(M.mat)
             for i1 in range(d):
                 for i2 in range(d):
                     diff_E=2.0*x[i1][i2]*(J1_model[(i1+d-1)%d][i2]*x[(i1+d-1)%d][i2]+J1_model[i1][i2]*x[(i1+1)%d][i2]
                     +J2_model[i1][(i2+d-1)%d]*x[i1][(i2+d-1)%d]+J2_model[i1][i2]*x[i1][(i2+1)%d])#E_new-E_old
-                    #P(J1_model, J2_model)=exp(-a1|J1_model|**2-a2|J2_model|**2)#
-
-                    gradK1[i1][i2]+=( (-2.0*x[i1][i2]*x[(i1+1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2)   -alpha*J1_model[i1][i2] )*exp_sum_J_model
-                    gradK1[(i1+d-1)%d][i2]+=( (-2.0*x[i1][i2]*x[(i1+d-1)%d][i2])*np.exp(-0.5*diff_E)/(N_sample*d**2) * -alpha*J1_model[(i1+d-1)%d][i2] )*exp_sum_J_model
-                    gradK2[i1][i2]+=( (-2.0*x[i1][i2]*x[i1][(i2+1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2)   - alpha*J2_model[i1][i2])*exp_sum_J_model
-                    gradK2[i1][(i2+d-1)%d]+=((-2.0*x[i1][i2]*x[i1][(i2+d-1)%d])*np.exp(-0.5*diff_E)/(N_sample*d**2) -alpha*J2_model[i1][(i2+d-1)%d])*exp_sum_J_model
+                    abs_diff_E=abs(diff_E) +0.000001
                     
+                    gradK1[i1][i2]+=(-2.0*x[i1][i2]*x[(i1+1)%d][i2]) * (1/abs_diff_E**eta) * np.exp(-0.5*diff_E)/(N_sample*d**2)
+                    gradK1[(i1+d-1)%d][i2]+=(-2.0*x[i1][i2]*x[(i1+d-1)%d][i2]) * (1/abs_diff_E**eta) * np.exp(-0.5*diff_E)/(N_sample*d**2)
+                    gradK2[i1][i2]+=(-2.0*x[i1][i2]*x[i1][(i2+1)%d]) * (1/abs_diff_E**eta)  * np.exp(-0.5*diff_E)/(N_sample*d**2)
+                    gradK2[i1][(i2+d-1)%d]+=(-2.0*x[i1][i2]*x[i1][(i2+d-1)%d]) * (1/abs_diff_E**eta)  * np.exp(-0.5*diff_E)/(N_sample*d**2)
+                        
         J1_model=J1_model - lr * gradK1
         J2_model=J2_model - lr * gradK2
         print(sum(sum(abs(J1_model-J1_data))), sum(sum(abs(J2_model-J2_data))) )

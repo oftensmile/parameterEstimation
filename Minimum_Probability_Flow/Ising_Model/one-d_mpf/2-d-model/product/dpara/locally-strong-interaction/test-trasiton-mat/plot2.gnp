@@ -1,0 +1,6 @@
+set xrange [0:4000]
+set title "Estimation Error vs Epoch " font "Times, 20"
+set xlabel "Epoch" font "Times, 25"
+set ylabel "Estimation Error" font "Times, 25"
+
+ p "normalint_a0p5.dat" u 0:1 title "normal a=0.5" w l, "nomalint_a0.dat" u 0:1 title "normal a=0.0" w l, "partiallyStrongint_a0p5.dat" u 0:1 title "strong a=0.5" w l, "partiallyStrongint_a0.dat" u 0:1 title "strong a=0.0" w l
