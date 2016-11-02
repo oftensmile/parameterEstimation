@@ -11,7 +11,7 @@ d, N_sample,N_model = 6,100,30 #124, 1000
 N_remove=100
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
-t_gd_max=4000 
+t_gd_max=50000 
 
 class Matrices():
     def __init__(self,mat):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         J1_model=np.ones((d,d))
         J2_model=np.ones((d,d))
         #eta=min_eta+e*d_eta
-        fname="nomcCD-eta"+str(eta)+"_2.dat"
+        fname="nomcCD-eta"+str(eta)+"_3.dat"
         f=open(fname,"w")
         for t_gd in range(t_gd_max):
             #C1_model=np.zeros((d,d))

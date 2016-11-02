@@ -1,0 +1,6 @@
+set xrange [0:4000]
+#set yrange [12:15]
+set title "Estimation Error vs Epoch(partially strong interaction), Different Transition Probability for CD1" font "Times, 20"
+set xlabel "Epoch" font "Times, 25"
+set ylabel "Estimation Error" font "Times, 25"
+p "nomcCD-eta0.5_2.dat" u 0:1 title "0.5" w l,  "nomcCD-eta-1.0_2.dat" u 0:1 title "-1.0" w l
