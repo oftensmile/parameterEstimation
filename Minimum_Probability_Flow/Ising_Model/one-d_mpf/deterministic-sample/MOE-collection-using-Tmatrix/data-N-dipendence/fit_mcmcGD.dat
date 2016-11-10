@@ -1,0 +1,31 @@
+gnuplot> fit f(x) "n_estimation100_mcmcGD.dat" u 1:(abs($2)) via a,b
+iter      chisq       delta/lim  lambda   a             b            
+   0 3.0688081668e-01   0.00e+00  2.19e-01    1.622445e+00  -1.534550e+00
+   1 2.3935164790e-02  -1.18e+06  2.19e-02    7.200402e-01  -1.877773e+00
+   2 1.0605188403e-03  -2.16e+06  2.19e-03    1.236790e-01  -1.760003e+00
+   3 7.6675898869e-04  -3.83e+04  2.19e-04    1.104431e-01  -1.126795e+00
+   4 7.4360518286e-04  -3.11e+03  2.19e-05    9.922806e-02  -1.104458e+00
+   5 7.4337009031e-04  -3.16e+01  2.19e-06    9.808762e-02  -1.090366e+00
+   6 7.4329862782e-04  -9.61e+00  2.19e-07    9.734865e-02  -1.082566e+00
+   7 7.4327476013e-04  -3.21e+00  2.19e-08    9.693327e-02  -1.078170e+00
+   8 7.4326651611e-04  -1.11e+00  2.19e-09    9.669722e-02  -1.075674e+00
+   9 7.4326354558e-04  -4.00e-01  2.19e-10    9.656252e-02  -1.074249e+00
+iter      chisq       delta/lim  lambda   a             b            
+
+After 9 iterations the fit converged.
+final sum of squares of residuals : 0.000743264
+rel. change during last iteration : -3.99661e-06
+
+degrees of freedom    (FIT_NDF)                        : 9
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.00908762
+variance of residuals (reduced chisquare) = WSSR/ndf   : 8.25848e-05
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+a               = 0.0965625        +/- 0.03566      (36.93%)
+b               = -1.07425         +/- 0.3363       (31.31%)
+
+correlation matrix of the fit parameters:
+                a      b      
+a               1.000 
+b              -0.892  1.000 

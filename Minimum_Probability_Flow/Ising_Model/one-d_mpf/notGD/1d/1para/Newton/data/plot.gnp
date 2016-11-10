@@ -1,0 +1,6 @@
+set title "Estimation-Error vs Sample-Size " font "Times, 20"
+set logscale x
+set xlabel "Sample-size" font "Times, 25"
+set ylabel "Estimation-Error" font "Times, 25"
+p "Likelihood_mcmc.dat" u 1:2:3 w errorbars title "MLE(mcmc)" ,"CD1_nomc.dat" u 1:2:3 w errorbars title "CD1(nomc)" ,"MPF.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=0)" ,"MPF-eta-1.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=-1)","MPF-eta-0.5.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=-0.5)"
+#p "MPF.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=0)" ,"Pseudo-Likhood.dat" u 1:2:3 w errorbars title "PL","MPF-eta-1.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=-1)","MPF-eta-0.5.dat" u 1:2:3 w errorbars title "MPF({/Symbol a}=-0.5)"

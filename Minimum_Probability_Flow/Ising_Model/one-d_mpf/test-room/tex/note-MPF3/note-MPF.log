@@ -1,15 +1,15 @@
-This is e-pTeX, Version 3.14159265-p3.5-130605-2.6 (utf8.euc) (TeX Live 2014) (preloaded format=platex 2015.4.9)  13 OCT 2016 16:00
+This is e-pTeX, Version 3.14159265-p3.5-130605-2.6 (utf8.euc) (TeX Live 2014) (preloaded format=platex 2015.5.29)  8 NOV 2016 13:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **note-MPF.tex
 (./note-MPF.tex
 pLaTeX2e <2006/11/10> (based on LaTeX2e <2014/05/01> patch level 0)
-Babel <3.9k> and hyphenation patterns for 78 languages loaded.
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/size11.clo
-File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count81
 \c@section=\count82
@@ -27,7 +27,7 @@ File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 Package: geometry 2010/09/12 v5.6 Page Geometry
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/keyval.sty
-Package: keyval 2014/05/08 v1.15 key=value parser (DPC)
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks15
 )
 (/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/ifpdf.sty
@@ -55,10 +55,10 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 \Gm@dimlist=\toks16
 )
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2014/04/25 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
@@ -69,7 +69,7 @@ File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 Package graphics Info: Driver file: dvips.def on input line 91.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/dvips.def
-File: dvips.def 2014/04/23 v3.0j Driver-dependant file (DPC,SPQR)
+File: dvips.def 2014/10/14 v3.0j Driver-dependent file (DPC,SPQR)
 ))
 \Gin@req@height=\dimen127
 \Gin@req@width=\dimen128
@@ -81,7 +81,8 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \float@box=\box41
 \@float@everytoks=\toks18
 \@floatcapt=\box42
-) (./note-MPF.aux)
+)
+No file note-MPF.aux.
 \openout1 = `note-MPF.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 6.
@@ -139,25 +140,52 @@ LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10> not available
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10> not available
 (Font)              Font shape `JY1/gt/m/n' tried instead on input line 7.
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <14.4> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 11.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 12.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <14.4> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 11.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 12.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <10.95> on input line 13.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 13.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 13.
+
+LaTeX Font Warning: Command \large invalid in math mode on input line 39.
+
+
+LaTeX Font Warning: Command \large invalid in math mode on input line 47.
+
 [1
 
-] (./note-MPF.aux) ) 
-Here is how much of TeX's memory you used:
- 1098 strings out of 493807
- 14782 string characters out of 6151952
- 81804 words of memory out of 5000000
- 4602 multiletter control sequences out of 15000+600000
- 12563 words of font info for 49 fonts, out of 8000000 for 9000
- 929 hyphenation exceptions out of 8191
- 25i,7n,19p,629b,201s stack positions out of 5000i,500n,10000p,200000b,80000s
+]
 
-Output written on note-MPF.dvi (1 page, 5268 bytes).
+LaTeX Warning: File `MPF-landscape.eps' not found on input line 78.
+
+
+! LaTeX Error: File `MPF-landscape.eps' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.78 ...udegraphics[width=10cm]{MPF-landscape.eps}
+                                                  \\
+? 
+! Emergency stop.
+ ...                                              
+                                                  
+l.78 ...udegraphics[width=10cm]{MPF-landscape.eps}
+                                                  \\
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+ 
+Here is how much of TeX's memory you used:
+ 1097 strings out of 493799
+ 14898 string characters out of 6151522
+ 85855 words of memory out of 5000000
+ 4604 multiletter control sequences out of 15000+600000
+ 12861 words of font info for 50 fonts, out of 8000000 for 9000
+ 929 hyphenation exceptions out of 8191
+ 25i,8n,19p,280b,201s stack positions out of 5000i,500n,10000p,200000b,80000s
+Output written on note-MPF.dvi (1 page, 5516 bytes).

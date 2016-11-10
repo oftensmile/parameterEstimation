@@ -5,9 +5,9 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 np.random.seed(3)
-n_estimation=300
+n_estimation=4
 #parameter ( MCMC )
-d, N_sample =16,2#124, 1000
+d, N_sample =16,10#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
 t_gd_max=500 
@@ -84,6 +84,6 @@ if __name__ == '__main__':
                     diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
             J_model-=lr*diff_expect
             error=J_model - J_data
-            #print(t_gd,error)
+            print(t_gd,error)
         f.write(str(error)+"\n")
     f.close()
