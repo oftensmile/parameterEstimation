@@ -8,7 +8,7 @@ from scipy.optimize import fsolve
 np.random.seed(1)
 #parameter ( MCMC )
 n_estimation=10
-d, N_sample =16,1000 #124, 1000
+d, N_sample =16,400 #124, 1000
 num_mcmc_sample=50
 N_remove = 100
 lr,eps =0.01, 1.0e-100
@@ -92,10 +92,10 @@ def grad_obj(J,correlation_data,X_sample):
         #x_init=np.copy(X_sample[(np.random.randint(N_sample))])
         x_new_for_mcmc=np.copy(gen_mcmc(J,x_init))#This update is possible to generate any state.
         correlation+=calc_C(x_new_for_mcmc)/N_sample
-    return correlation-correlation_data
+    return [correlation-correlation_data]
 
 if __name__ == '__main__':
-    dJ=0.01
+    dJ=0.1
     J_list=np.arange(0.0,3.0,dJ)
     #J_list=np.arange(1.0,1.0+dJ*3,dJ)
     J_len=len(J_list)
@@ -103,25 +103,36 @@ if __name__ == '__main__':
     cd1_list=np.zeros(J_len)
     Dmle_lis=np.zeros(J_len)
     Dcd1_lis=np.zeros(J_len)
-    fname="plot-cd-mle-sample"+str(N_sample)+"-3.dat"
+    fname="plot-cd-mle-sample"+str(N_sample)+".dat"
     f=open(fname,"w")
     nJ=0
-    #SAMPLING-Tmat
-    J_data=0.5
-    for n in range(N_sample):
-        x=get_sample(J_data)
-        if(n==0):X_sample = np.copy(x)
-        elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-    corre_data=calc_C_tot(X_sample)
-    
-    for J in J_list:
+    for J_data in J_list:
         correlation_data=0.0#np.zeros(d)
-        del_L = Obfunc_1d_1para(J,corre_data) 
-        #J_mle = fsolve(Obfunc_1d_1para,0.1,args=(corre_data))
-        del_CD1= grad_obj(J,corre_data,X_sample)
+        #SAMPLING-Tmat
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):X_sample = np.copy(x)
+            elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+        corre_data=calc_C_tot(X_sample) 
+        J_mle = fsolve(Obfunc_1d_1para,0.1,args=(corre_data))
         
-        mle_list[nJ]=del_L 
-        cd1_list[nJ]=del_CD1
+        J_model=2.0
+        for t_gd in range(t_gd_max):
+            gradl=np.zeros(d)
+            #MCMC-mean(using CD-method)
+            correlation_model=0.0
+            for m in range(N_sample):
+                x_init=np.copy(X_sample[m])
+                x_new_for_mcmc=np.copy(gen_mcmc(J_model,x_init))#This update is possible to generate any state.
+                correlation_model+=calc_C(x_new_for_mcmc)/N_sample
+            J_model-=lr*(correlation_model-corre_data)
+            if(t_gd==300):J_reco=[J_model]
+            elif(t_gd>300):J_reco=np.append(J_reco,J_model)
+            error=J_model-J_data
+        J_model_mean=np.mean(J_reco)
+        
+        mle_list[nJ]=J_mle 
+        cd1_list[nJ]=J_model_mean 
         if(nJ>0):
             Dmle_lis[nJ]=(mle_list[nJ]-mle_list[nJ-1])/dJ
             Dcd1_lis[nJ]=(cd1_list[nJ]-cd1_list[nJ-1])/dJ
@@ -129,6 +140,6 @@ if __name__ == '__main__':
         #print(nJ,", J_cd=",cd1_list[nJ])
         #print(nJ,", DJ_mle=",Dmle_lis[nJ])
         #print(nJ,", DJ_cd1=",Dcd1_lis[nJ])
-        f.write(str(J)+"  "+str(mle_list[nJ])+" "+str(cd1_list[nJ])+"  "+str(Dmle_lis[nJ])+" "+ str(Dcd1_lis[nJ])+"\n" )
+        f.write(str(J_data)+"  "+str(mle_list[nJ])+" "+str(cd1_list[nJ])+"  "+str(Dmle_lis[nJ])+" "+ str(Dcd1_lis[nJ])+"\n" )
         nJ+=1
     f.close()
