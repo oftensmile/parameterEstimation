@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import csv 
 np.random.seed(1)
 #parameter ( MCMC )
-n_estimation=10
-d, N_sample =16,2 #124, 1000
+n_estimation=1
+d, N_sample =16,200 #124, 1000
 num_mcmc_sample=50
 N_remove = 100
 lr,eps =0.01, 1.0e-100
@@ -70,7 +70,7 @@ def get_sample(j):
 
 
 if __name__ == '__main__':
-    sample_list=[500]
+    sample_list=[200]
     for N_sample in sample_list:
         fname="sample"+str(N_sample)+"naiveCD.dat"
         f=open(fname,"w")
@@ -107,5 +107,5 @@ if __name__ == '__main__':
                 #error=np.sqrt(np.sum((theta_model-J_vec)**2))/d
                 error=J_model-J_data
                 #print(t_gd,error)
-            f.write(str(error)+"\n")
+                f.write(str(error)+"\n")
         f.close()

@@ -13,7 +13,7 @@ n_estimation=3
 np.random.seed(1)
 t_interval = 30
 #parameter ( System )
-d, N_sample = 8,50 #124, 1000
+d, N_sample = 8,200 #124, 1000
 N_remove=40
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -71,7 +71,8 @@ def get_sample(j):
 
 def Obfunc_1d_1para(J,g_data_sum):
     #return -g_data_sum + d*((2*np.cosh(J))**(d-1)+(2*np.sinh(J))**(d-1))/((2*np.cosh(J))**d+(2*np.sinh(J))**d)
-    return -g_data_sum + d*((2*np.cosh(J))**(d-1)+(2*np.sinh(J))**(d-1))/((2*np.cosh(J))**d+(2*np.sinh(J))**d)
+    #return -g_data_sum + d*((2*np.cosh(J))**(d-1)+(2*np.sinh(J))**(d-1))/((2*np.cosh(J))**d+(2*np.sinh(J))**d)
+    return -g_data_sum+(d*np.cosh(J)*np.sinh(J)*(np.cosh(J)**(-2+d)+np.sinh(J)**(-2+d)))/(np.cosh(J)**d+np.sinh(J)**d)
 
 if __name__ == '__main__':
     #fname="sample"+str(N_sample)+"MCMC.dat"

@@ -70,7 +70,7 @@ def get_sample(j):
 
 if __name__ == '__main__':
     estimation_list=[1,2,3,10,50,100,200,400]
-    N_sample=200
+    N_sample=100
     fname="sample"+str(N_sample)+"-estimation-n-subset-naiveCD.dat"
     f=open(fname,"w")
     for n_estimation in estimation_list:

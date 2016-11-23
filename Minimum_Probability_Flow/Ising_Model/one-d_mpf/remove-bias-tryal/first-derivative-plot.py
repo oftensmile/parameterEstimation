@@ -8,7 +8,7 @@ from scipy.optimize import fsolve
 np.random.seed(1)
 #parameter ( MCMC )
 n_estimation=10
-d, N_sample =16,1000 #124, 1000
+d, N_sample =16,400 #124, 1000
 num_mcmc_sample=50
 N_remove = 100
 lr,eps =0.01, 1.0e-100
@@ -95,7 +95,7 @@ def grad_obj(J,correlation_data,X_sample):
     return correlation-correlation_data
 
 if __name__ == '__main__':
-    dJ=0.01
+    dJ=0.05
     J_list=np.arange(0.0,3.0,dJ)
     #J_list=np.arange(1.0,1.0+dJ*3,dJ)
     J_len=len(J_list)
@@ -103,32 +103,38 @@ if __name__ == '__main__':
     cd1_list=np.zeros(J_len)
     Dmle_lis=np.zeros(J_len)
     Dcd1_lis=np.zeros(J_len)
-    fname="plot-cd-mle-sample"+str(N_sample)+"-3.dat"
+    fname="plot-cd-mle-sample"+str(N_sample)+"-4.dat"
     f=open(fname,"w")
-    nJ=0
     #SAMPLING-Tmat
-    J_data=0.5
-    for n in range(N_sample):
-        x=get_sample(J_data)
-        if(n==0):X_sample = np.copy(x)
-        elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-    corre_data=calc_C_tot(X_sample)
-    
-    for J in J_list:
-        correlation_data=0.0#np.zeros(d)
-        del_L = Obfunc_1d_1para(J,corre_data) 
-        #J_mle = fsolve(Obfunc_1d_1para,0.1,args=(corre_data))
-        del_CD1= grad_obj(J,corre_data,X_sample)
+    J_data=1.0
+    n_tryal=1000
+    for nt in range(n_tryal):
+        np.random.seed(nt)
         
-        mle_list[nJ]=del_L 
-        cd1_list[nJ]=del_CD1
+        for n in range(N_sample):
+            x=get_sample(J_data)
+            if(n==0):X_sample = np.copy(x)
+            elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+        corre_data=calc_C_tot(X_sample)
+        
+        nJ=0
+        for J in J_list:
+            correlation_data=0.0#np.zeros(d)
+            del_L = Obfunc_1d_1para(J,corre_data) 
+            #J_mle = fsolve(Obfunc_1d_1para,0.1,args=(corre_data))
+            del_CD1= grad_obj(J,corre_data,X_sample)
+            mle_list[nJ]+=del_L/n_tryal 
+            cd1_list[nJ]+=del_CD1/n_tryal
+            #print(nJ,", J_mle=",mle_list[nJ])
+            #print(nJ,", J_cd=",cd1_list[nJ])
+            #print(nJ,", DJ_mle=",Dmle_lis[nJ])
+            #print(nJ,", DJ_cd1=",Dcd1_lis[nJ])
+            nJ+=1
+    nJ=0
+    for J in J_list:
         if(nJ>0):
             Dmle_lis[nJ]=(mle_list[nJ]-mle_list[nJ-1])/dJ
             Dcd1_lis[nJ]=(cd1_list[nJ]-cd1_list[nJ-1])/dJ
-        #print(nJ,", J_mle=",mle_list[nJ])
-        #print(nJ,", J_cd=",cd1_list[nJ])
-        #print(nJ,", DJ_mle=",Dmle_lis[nJ])
-        #print(nJ,", DJ_cd1=",Dcd1_lis[nJ])
         f.write(str(J)+"  "+str(mle_list[nJ])+" "+str(cd1_list[nJ])+"  "+str(Dmle_lis[nJ])+" "+ str(Dcd1_lis[nJ])+"\n" )
         nJ+=1
     f.close()

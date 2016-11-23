@@ -9,7 +9,7 @@ import csv
 np.random.seed(1)
 #parameter ( MCMC )
 n_estimation=10
-d, N_sample =16,400 #124, 1000
+d, N_sample =16,1000 #124, 1000
 num_mcmc_sample=50
 N_remove = 100
 lr,eps =0.01, 1.0e-100
@@ -49,7 +49,7 @@ def calc_C_tot(X=[[]]):
         xn=X[n]
         corre=0.0
         for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
+            corre+=xn[i]*xn[(i+1)%d]
         corre_mean+=corre
     corre_mean/=n_bach
     return corre_mean
