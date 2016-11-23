@@ -6,14 +6,15 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
 from scipy.optimize import fsolve
+from scipy.optimize import newton 
 from scipy.optimize import minimize 
 import math
 n_estimation=3
 np.random.seed(1)
 t_interval = 10
 #parameter ( System )
-d, N_sample = 16,2 #124, 1000
-N_remove=100
+d, N_sample = 5,500000 #124, 1000
+N_remove=30
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 n_mfa = 50 #Number of the sample for Mean Field Aproximation.
@@ -35,9 +36,8 @@ def calc_C(X=[[]]):
         xn=X[n]
         corre=0.0
         for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
-        corre_mean+=corre
-    corre_mean/=n_bach
+            corre+=xn[i]*xn[(i+1)%d]
+        corre_mean+=corre/n_bach
     return corre_mean
 
 def Tk(J,k):
@@ -68,8 +68,7 @@ def get_sample(j):
     return X
 
 def Obfunc_1d_1para(J,g_data_sum):
-    #return -g_data_sum+((2*np.cosh(J))**(d-1)+(2*np.sinh(J))**(d-1))/ ((2*np.cosh(J))**d+(2*np.sinh(J))**d)
-    return g_data_sum*J+np.log((2*np.cosh(J))**d+(2*np.sinh(J))**d)
+    return -g_data_sum+(d*np.cosh(J)*np.sinh(J)*(np.cosh(J)**(-2+d)+np.sinh(J)**(-2+d)))/(np.cosh(J)**d+np.sinh(J)**d)
 
 if __name__ == '__main__':
     fname="sample"+str(N_sample)+"MCMC.dat"
@@ -77,19 +76,19 @@ if __name__ == '__main__':
     #for nf in range(n_estimation):
     J_data=1.0 # =theta_sample
     #SAMPLING-Tmat
+    c_mean_data=0.0
     for n in range(N_sample):
         x=get_sample(J_data)
         if(n==0):X_sample = np.copy(x)
         elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
     corre_sample_mean=calc_C(X_sample) 
-    #J_newton = fsolve(Obfunc_1d_1para,0.001,args=(corre_sample_mean))
-    J_nelder_mead = minimize(Obfunc_1d_1para,0.1,method="Nelder-Mead",args=(corre_sample_mean))
-    J_powell = minimize(Obfunc_1d_1para, 0.1,method="Powell",args=(corre_sample_mean))
-    J_cg = minimize(Obfunc_1d_1para, 0.1,method="CG",args=(corre_sample_mean))
-    J_bfgs = minimize(Obfunc_1d_1para, 0.1,method="BFGS",args=(corre_sample_mean))
-   
+    print("corre_sample_mean=",corre_sample_mean)
+    J_newton=newton(Obfunc_1d_1para,0.5,args=(corre_sample_mean,))
+    print("confrim:Obfunc_1d_1para(ans)=",Obfunc_1d_1para(J_newton,corre_sample_mean))
+    
     xi = np.array(np.sign(np.random.uniform(-1,1,d)))
     theta_model=2.0   #Initial Guess
+    t_gd_max=1000
     for t_gd in range(t_gd_max):
         for n_model in range(n_mfa+N_remove):
             for t in range(t_interval):
@@ -99,16 +98,8 @@ if __name__ == '__main__':
         corre_model_mean=calc_C(Xi_model)
         grad_likelihood=-corre_sample_mean+corre_model_mean
         theta_model=np.copy(theta_model)-lr*grad_likelihood
-        #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
         theta_diff = theta_model-J_data
-        #f.write(str(theta_diff)+"\n")
         print(theta_diff)
-        #print(t_gd,np.abs(grad_likelihood),theta_diff)
-    #f.write(str(theta_diff)+"\n")
     print("#J_data= \n",J_data)
     print("#J_model= \n",theta_model)
-    print("#J_nelder_mead= \n",J_nelder_mead)
-    print("#J_powell= \n",J_powell)
-    print("#J_cg= \n",J_cg)
-    print("#J_bfgs= \n",J_bfgs)
-    #f.close()
+    print("#J_newton= \n", J_newton)

@@ -4,7 +4,7 @@ import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
-import csv
+from scipy.optimize import newton
 np.random.seed(1)
 n_estimation=300
 #parameter ( Model )
@@ -17,7 +17,7 @@ J=1.0
 #parameter ( MCMC )
 #t_burn_emp, t_burn_model = 1000, 10#10000, 100
 #parameter ( System )
-d, N_sample = 16,2 #124, 1000
+d, N_sample = 5,1000 #124, 1000
 N_remove = 100
 #parameter ( MPF+GD )
 lr,eps =0.01, 1.0e-100
@@ -61,38 +61,55 @@ def get_sample(j):
         X[k]=gen_x_pofx(p)
     return X
 
-
+def myob(J,X_sample=[[]]):
+    gradK=0
+    for sample in X_sample:
+        #x_nin=np.reshep(np.copy(sample),(d,d)
+        x_nin=np.copy(sample)
+        gradK_nin=0.0
+        #hamming distance = 1
+        for hd in range(d):
+            diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
+            diff_E_nin=diff_delE_nin*J
+            gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
+        gradK+=gradK_nin/N_sample
+    return gradK 
+    
 if __name__ == '__main__':
     fname="sample"+str(N_sample)+"MPF.dat"
     f=open(fname,"w")
-    for nf in range(n_estimation):
-        #Generate sample-dist
-        J_data=1.0 # =theta_sample
-        x = np.random.choice([-1,1],d)
-        #SAMPLING-Tmat
-        for n in range(N_sample):
-            x=get_sample(J_data)
-            if(n==0):X_sample = np.copy(x)
-            elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
-
-        n_bach=len(X_sample)
-        J_model=2.0   #Initial Guess
-        for t_gd in range(t_gd_max):
-            #calc gradK of theta
-            gradK=0.0
-            for sample in X_sample:
-                #x_nin=np.reshep(np.copy(sample),(d,d)
-                x_nin=np.copy(sample)
-                gradK_nin=0.0
-                #hamming distance = 1
-                for hd in range(d):
-                    diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
-                    diff_E_nin=diff_delE_nin*J_model
-                    gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
-                gradK+=gradK_nin/n_bach
-            J_model-= lr * gradK
-            J_diff=J_model-J_data
-            #print(t_gd,np.abs(gradK),J_diff)
+    #for nf in range(n_estimation):
+    #Generate sample-dist
+    J_data=1.0 # =theta_sample
+    x = np.random.choice([-1,1],d)
+    #SAMPLING-Tmat
+    for n in range(N_sample):
+        x=get_sample(J_data)
+        if(n==0):X_sample = np.copy(x)
+        elif(n>0):X_sample=np.vstack((X_sample,np.copy(x)))
+    
+    J_model=2.0   #Initial Guess
+    J_newton=newton(myob,0.5,args=(X_sample,))
+    n_bach=len(X_sample)
+    print("J_newton=",J_newton)
+    print("myob(J_newton)=",myob(J_newton,X_sample))
+    for t_gd in range(t_gd_max):
+        #calc gradK of theta
+        gradK=0.0
+        for sample in X_sample:
+            #x_nin=np.reshep(np.copy(sample),(d,d)
+            x_nin=np.copy(sample)
+            gradK_nin=0.0
+            #hamming distance = 1
+            for hd in range(d):
+                diff_delE_nin=-2.0*x_nin[hd]*(x_nin[(hd+d-1)%d]+x_nin[(hd+1)%d])
+                diff_E_nin=diff_delE_nin*J_model
+                gradK_nin+=diff_delE_nin*np.exp(0.5*diff_E_nin)/d
+            gradK+=gradK_nin/n_bach
+        J_model-= lr * gradK
+        J_diff=J_model-J_data
+    print("GD=",J_model)
+        #print(t_gd,np.abs(gradK),J_diff)
         #print("#J_data=",J_data,"J_model=",J_model)
-        f.write(str(J_diff)+"\n")
-    f.close()
+        #f.write(str(J_diff)+"\n")
+    #f.close()

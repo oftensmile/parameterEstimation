@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 np.random.seed(3)
 n_estimation=300
 #parameter ( MCMC )
-d, N_sample =16,2#124, 1000
+d, N_sample =16,70000#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
-t_gd_max=500 
+t_gd_max=50 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -57,6 +57,8 @@ def get_sample(j):
 
 if __name__ == '__main__':
     fname="sample"+str(N_sample)+"nomcCD.dat"
+    time_s=time.time()
+    variance=0
     f=open(fname,"w")
     for nf in range(n_estimation):
         ##Generate sample-dist
@@ -84,6 +86,10 @@ if __name__ == '__main__':
                     diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
             J_model-=lr*diff_expect
             error=J_model - J_data
-            #print(t_gd,error)
+            print(t_gd,error)
         f.write(str(error)+"\n")
+        variance+=error
+    d_time=time.time()-time_s
+    print("#time=",d_time,"variance=",variance/N_sample)
+    f.write("#variance="+str(variance/N_sample)+"\n")
     f.close()
