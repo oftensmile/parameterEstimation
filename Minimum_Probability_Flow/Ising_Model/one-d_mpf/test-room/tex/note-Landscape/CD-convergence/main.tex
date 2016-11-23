@@ -1,0 +1,60 @@
+\documentclass[a4j,10pt,oneside,openany]{jsbook}
+\bibliographystyle{jplain}
+%
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{ascmac}
+\usepackage{makeidx}
+\usepackage{/Users/kaishimgakki/Documents/TeXShop/algorithms/algorithm}
+\usepackage{/Users/kaishimgakki/Documents/TeXShop/algorithms/algorithmic}
+\usepackage{ulem}
+%
+\makeindex
+%
+\newcommand{\diff}{\mathrm{d}}  %微分記号
+\newcommand{\divergence}{\mathrm{div}\,}  %ダイバージェンス
+\newcommand{\grad}{\mathrm{grad}\,}  %グラディエント
+\newcommand{\rot}{\mathrm{rot}\,}  %ローテーション
+\newcommand{\dtheta}{\mathrm{\frac{\partial}{\partial \theta}}}% theta微分
+\newcommand{\real}{\mathbb{R}} % real set
+\newcommand{\expect}{\mathbb{E}} % expectation
+\newcommand{\argmax}{\mathop{\rm arg~max}\limits}	%arg Max
+\newcommand{\argmin}{\mathop{\rm arg~min}\limits}	%arg Min
+\newcommand{\trance}{\rm T}	%trancepose
+%
+\setlength{\textwidth}{\fullwidth}
+\setlength{\textheight}{44\baselineskip}
+\addtolength{\textheight}{\topskip}
+\setlength{\voffset}{-0.6in}
+%
+\title{{\Huge \textbf{研究ノート}}\\ {\small Ver. 1.0}}
+\author{Kai Shimagaki\\ \texttt{url}}
+\date{\today}
+\begin{document}
+%
+%
+\maketitle
+\frontmatter
+\tableofcontents
+%
+%
+\mainmatter
+
+\chapter{EM-Algorithm}
+		\input{./cd-convergence.tex}
+	%\input{./EM-exp.tex} %chap	
+	%\input{./idea_memo.tex}
+
+\begin{thebibliography}{3}
+ \bibitem{amari1}Amari, S.: Information geometry of the EM and em algorithms for neural networks. Technical Report METR 94 04 University of Tokyo, 1949. (to appear in Neural Networks).
+\bibitem{akaho1}Shotaro,A.:EMアルゴリズムの幾何学, 情報処理Vol.37 No.1, 1996. 情報処理学会
+\bibitem{bishop}Bishop, M.: Pattern Recognition an Machine Learning, springer
+\bibitem{iwanami}汪金芳、手塚集、上田修功、田栗正章、樺島洋介、甘利俊一、竹村彰通、竹内啓、伊庭幸人『計算統計学1 -確率計算の新しい手法』11巻$<$統計科学フロンティア$>$、 2003年
+\end{thebibliography}
+\bibliography{ref}
+\newpage
+\printindex
+%
+%
+\end{document}

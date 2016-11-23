@@ -1,0 +1,26 @@
+[?1049h[?1h=[1;48r[?12;25h[?12l[?25h[27m[m[38;5;188m[48;5;233m[H[2J[?25l[48;1H[97m[41mE325: ATTENTION[m[38;5;188m[48;5;233m
+Found a swap file by the name ".1d_MPF_d_para_second_random_propose.py.swp"
+[10Cowned by: kaishimgakki   dated: Sat Jul 23 14:56:05 2016
+[9Cfile name: ~kaishimgakki/Documents/Information_Thechnology/Programming/parameter_estima_Ising/Minimum_Probability_Flow/Ising_Model/one-d_mpf/0722/unusual_transition/1d_
+[47;178HM[48;1HPF_d_para_second_random_propose.py
+[10Cmodified: YES
+[9Cuser name: kaishimgakki   host name: kai-no-MacBook-Air.local
+[8Cprocess ID: 18216
+While opening file "1d_MPF_d_para_second_random_propose.py"
+[13Cdated: Sat Jul 23 21:27:17 2016
+      NEWER than swap file!
+
+(1) Another program may be editing the same file.  If this is the case,
+    be careful not to end up with two different instances of the same
+    file when making changes.  Quit, or continue with caution.
+(2) An edit session for this file crashed.
+    If this is the case, use ":recover" or "vim -r 1d_MPF_d_para_second_random_propose.py"
+    to recover the changes (see ":help recovery").
+    If you did this already, delete the swap file ".1d_MPF_d_para_second_random_propose.py.swp"
+    to avoid this message.
+
+[38;5;121mSwap file ".1d_MPF_d_para_second_random_propose.py.swp" already exists![m[38;5;188m[48;5;233m
+[38;5;121m[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort: [?12l[?25h[m[38;5;188m[48;5;233m[48;1H[K[48;1H
+Interrupt: [38;5;121mPress ENTER or type command to continue[m[38;5;188m[48;5;233m[39;49m[?1l>[?1049lVim: Error reading input, exiting...
+Vim: Finished.
+[48;1H[27m[m[38;5;188m[48;5;233m[39;49m

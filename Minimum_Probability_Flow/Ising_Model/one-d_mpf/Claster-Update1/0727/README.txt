@@ -1,0 +1,2 @@
+Metropoliceが加えられている。Claster Updateも使用しているみたい。
+0722のdirectoryから何が新しく加えられているのかわからない。

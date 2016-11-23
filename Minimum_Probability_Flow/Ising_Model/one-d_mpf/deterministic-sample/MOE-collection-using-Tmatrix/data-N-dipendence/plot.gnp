@@ -1,0 +1,14 @@
+set logscale x
+set logscale y
+set xlabel "#sample"
+set ylabel "Estimation Error"
+#p "n_estimation100_mcmcGD.dat" u 1:(abs($2)):3 w errorbars title "GD+mcmc", "n_estimation100_naiveCD.dat" u 1:(abs($2)):3 w errorbars title "naiveCD", "n_estimation100_nomcCD.dat" u 1:(abs($2)):3 w errorbars title "nomcCD", "n_estimation100_MPF.dat" u 1:(abs($2)):3 w errorbars title "MPF"
+
+#p "n_estimation100_mcmcGD.dat" u (abs($1)):2:3 w errorbars title "GD+mcmc", "n_estimation100_naiveCD.dat" u (abs($1)):2:3 w errorbars title "naiveCD", "n_estimation100_nomcCD.dat" u (abs($1)):2:3 w errorbars title "nomcCD", "n_estimation100_MPF.dat" u (abs($1)):2:3 w errorbars title "MPF"
+
+p "n_estimation100_mcmcGD.dat" u (abs($1)):2:3 w errorbars lc "purple" title "GD+mcmc", "n_estimation100_naiveCD.dat" u (abs($1)):2:3 w errorbars lc "dark-green" title "naiveCD", "n_estimation100_nomcCD.dat" u (abs($1)):2:3 w errorbars lc "cyan" title "nomcCD", "n_estimation100_MPF.dat" u (abs($1)):2:3 w errorbars lc "salmon" title "MPF", 0.0960537*x**(-0.56887)  lc "purple",1.62245*x**(-1.53455) lc "dark-green", 0.0116994*x**(-0.734073)  lc "cyan", 1.15555*x**(-0.691038)  lc "salmon" 
+
+set terminal png 
+set output "sample-dependence-on-estimation-error.png"
+replot
+

@@ -5,9 +5,9 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 np.random.seed(3)
-n_estimation=300
+n_estimation=4
 #parameter ( MCMC )
-d, N_sample =16,70000#124, 1000
+d, N_sample =16,10#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
 t_gd_max=50 
