@@ -69,8 +69,9 @@ def get_sample(j):
     return X
 
 if __name__ == '__main__':
-    estimation_list=[1,2,3,10,50,100,200,400]
-    N_sample=200
+    #estimation_list=[1,2,3,10,50,100,200,400]
+    estimation_list=[5,10,20]
+    N_sample=100
     fname="sample"+str(N_sample)+"-estimation-n-subset-naiveCD.dat"
     f=open(fname,"w")
     for n_estimation in estimation_list:
@@ -103,7 +104,6 @@ if __name__ == '__main__':
                     #Using all samples
                     #/*THIS CHICE IS VERY IMPORRTANT!! MAYBE*/#
                     x_init=np.copy(X_set2[m])
-                    #x_init=np.copy(X_set2[(np.random.randint(N_sample))])
                     x_new_for_mcmc=np.copy(gen_mcmc(J_model,x_init))#This update is possible to generate any state.
                     correlation_model+=calc_C(x_new_for_mcmc)/N_sample
                 J_model-=lr*(correlation_model-correlation_data)
