@@ -2,5 +2,5 @@ set title "Bias (#estimate), #sample=100" font "Times, 20"
 set logscale x
 set xlabel "#estimate" font "Times, 25"
 set ylabel "Bias" font "Times, 25"
-p "sample100-estimation-naiveCD.dat" u 1:2:3 w errorbar title "normal","sample100-estimation-n-subset-naiveCD.dat" u 1:2:3 w errorbar title "subset"
+p "sample100-estimation-naiveCD.dat" u 1:2:($3/sqrt($1)) w errorbar title "normal","sample100-estimation-n-subset-naiveCD.dat" u 1:2:($3/sqrt($1)) w errorbar title "subset"
 

@@ -1,0 +1,4 @@
+2D,1parameterについての勾配降下法を用いない推論
+nomcCD, MPF and pseudo-likelihoodはGDを使わない推論が正しく実行されているはず。
+ 
+nomcCDに対するsubset-treatmentはどのように、経験分布の分割を反映させればいいか分からずひとまず停止
