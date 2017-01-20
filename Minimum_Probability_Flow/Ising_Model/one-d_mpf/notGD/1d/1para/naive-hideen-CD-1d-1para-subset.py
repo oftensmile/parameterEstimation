@@ -14,7 +14,6 @@ d, N_sample = 16,50 #124, 1000
 dv=int(d/2)
 N_remove=20
 lr,eps =0.01,0.00001 
-k_max=1
 t_gd_max=1000 
 def gen_mcmc(J,x=[]):
     for i in range(d):
@@ -36,7 +35,7 @@ def gen_mcmc_single(J,x=[]):
         x[index]=x[index]*(-1)
     return x
 
-def sampling_phase(J_model,X_sample=[[]],X_sample2=[[]]):
+def sampling_phase(k_max,J_model,X_sample=[[]],X_sample2=[[]]):
     dJ=0.0
     for n in range(N_sample):
         x=np.copy(X_sample[n])
@@ -82,19 +81,32 @@ def sampling_phase(J_model,X_sample=[[]],X_sample2=[[]]):
     return (dJ,np.copy(v),np.copy(h))
 
 if __name__ == '__main__':
-    J_data=1.0
-    x=np.random.choice([-1,1],d)
-    for n in range(2*N_sample+N_remove):
-        for t in range(t_interval):
-            x = np.copy(gen_mcmc(J_data,x))
-        if(n==N_remove):X_sample = np.copy(x)
-        elif(n>N_remove and n<N_remove+N_sample):X_sample=np.vstack((X_sample,np.copy(x)))
-        elif(n==N_remove+N_sample):X_sample2=np.copy(x)
-        elif(n>N_remove+N_sample):X_sample2=np.vstack((X_sample2,np.copy(x)))
-   
-    J_model=2.0
-    for t in range(t_gd_max):
-        dJ,v,h=sampling_phase(J_model,X_sample,X_sample2)
-        J_model+=lr*dJ 
-        error=J_model-J_data
-        print(t,error,dJ,J_model)
+    sample_list=[200]
+    k_list=[1]
+    for k_max in k_list: 
+        fname="sample"+"-naiveCD"+str(k_max)+".dat"
+        f=open(fname,"w")
+        for N_sample in sample_list:
+            error_array=np.zeros(n_estimation)
+            for nf in range(n_estimation):
+                J_data=1.0
+                x=np.random.choice([-1,1],d)
+                for n in range(2*N_sample+N_remove):
+                    for t in range(t_interval):
+                        x = np.copy(gen_mcmc(J_data,x))
+                    if(n==N_remove):X_sample = np.copy(x)
+                    elif(n>N_remove and n<N_remove+N_sample):X_sample=np.vstack((X_sample,np.copy(x)))
+                    elif(n==N_remove+N_sample):X_sample2=np.copy(x)
+                    elif(n>N_remove+N_sample):X_sample2=np.vstack((X_sample2,np.copy(x)))
+               
+                J_model=2.0
+                for t in range(t_gd_max):
+                    dJ,v,h=sampling_phase(k_max,J_model,X_sample,X_sample2)
+                    J_model+=lr*dJ 
+                    #lrt=lr/(np.log(t+1)+1)
+                    #J_model+=lrt*dJ 
+                    error=J_model-J_data
+                    print(t,error)
+                error_array[nf]=error
+            f.write(str(N_sample)+"  " +str(np.mean(error_array) )+"  "+str(np.std(error_array)/np.sqrt(N_sample) )+"\n")
+        f.close()

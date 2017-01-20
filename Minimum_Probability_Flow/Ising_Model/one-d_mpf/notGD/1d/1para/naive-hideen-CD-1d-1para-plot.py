@@ -10,7 +10,7 @@ n_estimation=3
 np.random.seed(1)
 t_interval = 30
 #parameter ( System )
-d, N_sample = 16,50 #124, 1000
+d, N_sample = 16,100 #124, 1000
 dv=int(d/2)
 N_remove=20
 lr,eps =0.01,1.0e-20
@@ -69,30 +69,41 @@ def sampling_phase(k_max,J_model,X_sample=[[]]):
     return (dJ,np.copy(v),np.copy(h))
 
 if __name__ == '__main__':
-    sample_list=[200]
-    k_list=[1]
+    #sample_list=[200]
+    k_list=[1,2,10]
+    #for nf in range(n_estimation):
+    J_data=1.0
+    x=np.random.choice([-1,1],d)
+    N_sample, N_remove=100,20
+    for n in range(N_sample+N_remove):
+        for t in range(t_interval):
+            x = np.copy(gen_mcmc(J_data,x))
+        if(n==N_remove):X_sample = np.copy(x)
+        elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
+   
     for k_max in k_list: 
-        fname="sample"+"-naiveCD"+str(k_max)+".dat"
-        f=open(fname,"w")
-        for N_sample in sample_list:
-            error_array=np.zeros(n_estimation)
-            for nf in range(n_estimation):
-                J_data=1.0
-                x=np.random.choice([-1,1],d)
-                for n in range(N_sample+N_remove):
-                    for t in range(t_interval):
-                        x = np.copy(gen_mcmc(J_data,x))
-                    if(n==N_remove):X_sample = np.copy(x)
-                    elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-               
-                J_model=2.0
-                for t in range(t_gd_max):
-                    dJ,v,h=sampling_phase(k_max,J_model,X_sample)
-                    J_model+=lr*dJ 
-                    #lrt=lr/(np.log(t+1)+1)
-                    #J_model+=lrt*dJ 
-                    error=J_model-J_data
-                    print(t,error)
-                error_array[nf]=error
-            f.write(str(N_sample)+"  " +str(np.mean(error_array) )+"  "+str(np.std(error_array)/np.sqrt(N_sample) )+"\n")
-        f.close()
+        J_model=2.0
+        error_array=np.zeros(t_gd_max)
+        for t in range(t_gd_max):
+            dJ,v,h=sampling_phase(k_max,J_model,X_sample)
+            J_model+=lr*dJ 
+            #lrt=lr/(np.log(t+1)+1)
+            #J_model+=lrt*dJ 
+            error=J_model-J_data
+            #print(t,error)
+            error_array[t]=error
+        if(k_max==1):
+            error_list1=np.copy(error_array)
+        elif(k_max==2):
+            error_list2=np.copy(error_array)
+        else:
+            error_list10=np.copy(error_array)
+
+    plt.plot(error_list1,label="CD-1")
+    plt.plot(error_list2,label="CD-2")
+    plt.plot(error_list10,label="CD-10")
+    plt.xlabel("epoch",fontsize=18)
+    plt.ylabel("error",fontsize=18)
+    plt.title("Contrastive Divergence (with hidden), d="+str(d),fontsize=18)
+    plt.legend(fontsize=18)
+    plt.show()    

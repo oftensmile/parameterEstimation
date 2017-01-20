@@ -3,19 +3,15 @@
 import numpy as np
 import time 
 from scipy import linalg
-from scipy.optimize import root 
-from scipy.optimize import newton 
 import matplotlib.pyplot as plt
-import math
-n_estimation=300
-np.random.seed(0)
-t_interval = 10
-#parameter ( System )
-d, N_sample = 16,100 #124, 1000
-N_remove=100
-#parameter ( MPF+GD )
-lr,eps =0.1, 1.0e-100
-n_mfa = 50 #Number of the sample for Mean Field Aproximation.
+from scipy.optimize import root 
+np.random.seed(1)
+n_estimation=4
+#parameter ( MCMC )
+d, N_sample =64,300#124, 1000
+N_remove = 100
+t_interval=30
+lr,eps =0.5, 1.0e-100
 t_gd_max=100 
 def gen_mcmc(J=[],x=[]):
     for i in range(d):
@@ -27,15 +23,20 @@ def gen_mcmc(J=[],x=[]):
             x[i]=x[i]*(-1)
     return x
 
+def calc_E(J=[],x=[]):
+    e=0.0
+    for i in range(d):
+        e+=J[i]*x[i]*x[(i+1)%d]
+    return e
+
 def calc_C(X=[[]]):
     n_bach = len(X)
-    corre_mean=0.0
+    corre_mean=np.zeros(d)
     for n in range(n_bach):
         xn=X[n]
-        corre=0.0
         for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]
-        corre_mean+=corre/n_bach
+            #corre+=xn[i]*xn[(i+1)%d]/d
+            corre_mean[i]+=xn[i]*xn[(i+1)%d]/n_bach
     return corre_mean
 
 def Tk(J,k):
@@ -65,30 +66,26 @@ def get_sample(j):
         X[k]=gen_x_pofx(p)
     return X
 
-def Obfunc_1d_1para(J,g_data_sum):
-    return -g_data_sum+(d*np.cosh(J)*np.sinh(J)*(np.cosh(J)**(-2+d)+np.sinh(J)**(-2+d)))/(np.cosh(J)**d+np.sinh(J)**d)
-
-def myobj(J,X_sample):
-    J_est=np.zeros(d)
-    for n in range(N_sample):
-        xn=np.copy(X_sample[n])
-        for i in range(d):
-            J_est[i]+= xn[i]*xn[(i+1)%d] - xn[(i+1)%d]*np.tanh(xn[(i+1)%d]*J[i]+xn[(i-1+d)%d]*J[(i-1+d)%d])
-            #Adding belof this condition is seems wrong
-            J_est[i]+= xn[i]*xn[(i+1)%d]- xn[i]*np.tanh(xn[i]*J[i]+xn[(i+2)%d]*J[(i+1)%d])
-    return J_est 
+def grad_of_object(J,X_sample):
+    diff_expect=np.zeros(d)
+    for m in range(N_sample):
+        x_m=np.copy(X_sample[m])
+        for l in range(d):
+            diff_E=2*x_m[l]*(J[l]*x_m[(l+1)%d]+J[(l-1+d)%d]*x_m[(l-1+d)%d])
+            #next nerest
+            diff_E_nn=2*x_m[(l+1)%d]*(J[(l+1)%d]*x_m[(l+2)%d]+J[l]*x_m[l])
+            diff_expect[l]+=( - x_m[l]*x_m[(l+1)%d] )/N_sample *( np.exp(-0.5*diff_E)/d + np.exp(-0.5*diff_E_nn)/d )
+    return diff_expect
 
 if __name__ == '__main__':
-    #sample_list=[500,1000,5000,10000,50000]
-    #fname_sample="Pseudo-Likhood.dat"
-    #F=open(fname_sample,"w")
-    #for N_sample in sample_list:
-        #fname="sample"+str(N_sample)+"-PLkhood.dat"
-        #f=open(fname,"w")
-    #J_model_list=np.zeros(n_estimation)
-        #for nf in range(n_estimation):
+    #fname="sample"+str(N_sample)+"nomcCD.dat"
+    #f=open(fname,"w")
+    #for nf in range(n_estimation):
+    ##Generate sample-dist
+    #J_data=np.random.rand(d) # =theta_sample
     #J_data=[0,1.0,1.0,0.5,0.0,1.0]
     J_data=np.random.uniform(0,1,d)
+    correlation_data=0.0#np.zeros(d)
     #SAMPLING-Tmat                      1
     x=np.random.choice([-1,1],d)
     for n in range(N_sample+N_remove):
@@ -103,30 +100,47 @@ if __name__ == '__main__':
             X_sample=np.vstack((X_sample,np.copy(x)))
             #correlation_data+=calc_C(x_new)/N_sample
     J_model_init=np.random.uniform(0,2,d)
-    #J_model=root(myobj,0.3*np.ones(d),args=(X_sample),method="hybr")
-    J_model=root(myobj,J_model_init,args=(X_sample),method="hybr")
-    print("#J_data=",J_data)
-    print("#sol=",J_model.x)
-    print("#diff=",np.sum(np.abs(J_data-J_model.x)))
+    J_root=root(grad_of_object,J_model_init,args=(X_sample),method="hybr")
+    L=np.int(np.sqrt(d))
+    J_model_mat=np.reshape(J_root.x,(L,L)) 
+    J_data_mat=np.reshape(J_data,(L,L)) 
+    
+    plt.figure()
+    plt.subplot(131)
+    plt.imshow(J_model_mat, interpolation='nearest')
+    plt.colorbar()
+    plt.title("J_model")
+    plt.subplot(132)
+    plt.imshow(J_data_mat, interpolation='nearest')
+    plt.colorbar()
+    plt.title("J_data")
+    plt.subplot(133)
+    plt.imshow(J_model_mat-J_data_mat, interpolation='nearest')
+    plt.colorbar()
+    plt.title("J_model_mat-J_data_mat")
+    plt.clim(-0.01,1)
+    plt.show()
+ 
+    
+    
+    """ 
+    print("#solution=",J_root.x)
+    print("#diff==",np.sum(np.abs(J_data-J_root.x)) )
+    print("#check=",grad_of_object(J_root.x,X_sample))
     bins=np.arange(1,d+1)
     bar_width=0.2
     plt.bar(bins,J_data,color="blue",width=bar_width,label="$\it{J_{data}}$",align="center")
-    plt.bar(bins+bar_width,J_model.x,color="red",width=bar_width,label="$\it{J_{moel}}$",align="center")
+    plt.bar(bins+bar_width,J_root.x,color="red",width=bar_width,label="$\it{J_{moel}}$",align="center")
     #plt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="initial",align="center")
     plt.bar(bins+2*bar_width,J_model_init,color="gray",width=bar_width,label="$\it{J_{moel}};initial$",align="center")
     plt.legend(fontsize=18)
-    plt.title("Pseudo Likelihood",fontsize=22)
+    plt.title("Minimum Probability Flow",fontsize=22)
     plt.xlabel("i=1,2,...,16",fontsize=18)
     plt.ylabel("J",fontsize=18)
     plt.show()    
-    """
-    for i in range(d):
-        Ji_newtoon=newton(myobj, 0.1,args=(i,X_sample,))
-        J_model_list[i]=Ji_newtoon
-    J_newton=np.mean(J_model_list)
-    """
-            #f.write(str(J_newton)+"  "+str(np.abs(J_newton-J_data))+"\n")
-        #f.write("#"+str(N_sample)+"  "+str(np.mean(J_model_list))+"  "+str(np.std(J_model_list))+"\n" )
-        #f.close()
-        #F.write(str(N_sample)+"  "+str(np.mean(J_model_list))+"  "+str(np.std(J_model_list))+"\n" )
-    #F.close()
+ 
+   """ 
+    
+    
+    #f.write(str(error)+"\n")
+    #f.close()

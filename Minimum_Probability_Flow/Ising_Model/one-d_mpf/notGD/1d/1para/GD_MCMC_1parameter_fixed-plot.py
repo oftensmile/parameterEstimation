@@ -93,6 +93,12 @@ if __name__ == '__main__':
             #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
             theta_diff = theta_model-J_data
             error_vec[t_gd]=theta_diff
+    plt.plot(error_vec,label="MLE")
+    plt.xlabel("epoch",fontsize=18)
+    plt.ylabel("error",fontsize=18)
+    plt.title("Learning Curve",fontsize=18)
+    plt.legend(fontsize=18)
+    plt.show()    
             #print(t_gd,np.abs(grad_likelihood),theta_diff)
         #f.write(str(theta_diff)+"\n")
     #f.close()
