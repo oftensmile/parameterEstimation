@@ -5,7 +5,7 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv 
-np.random.seed(1)
+np.random.seed(3)
 #parameter ( MCMC )
 n_estimation=10
 d, N_sample =16,2 #124, 1000
@@ -69,11 +69,16 @@ def get_sample(j):
     return X
 
 if __name__ == '__main__':
-    estimation_list=[1,2,3,10,50,100,200,400]
-    N_sample=200
-    fname="sample"+str(N_sample)+"-estimation-n-subset-naiveCD.dat"
+    n_estimation=1000
+    sample_list=[5,10,20,40,100,200,400,800,1000]
+    time_s=time.time()
+    fname="mle-est"+str(n_estimation)+"naiveCD-subset.dat"
     f=open(fname,"w")
-    for n_estimation in estimation_list:
+    for N_sample in sample_list:
+        error_array=np.zeros(n_estimation)
+        #estimation_list=[1,2,3,10,50,100,200,400]
+        #N_sample=200
+        #for n_estimation in estimation_list:
         list_J_model=np.zeros(n_estimation)
         for nf in range(n_estimation):
             ##Generate sample-dist
@@ -108,10 +113,15 @@ if __name__ == '__main__':
                     correlation_model+=calc_C(x_new_for_mcmc)/N_sample
                 J_model-=lr*(correlation_model-correlation_data)
                 #error=np.sqrt(np.sum((theta_model-J_vec)**2))/d
-                error=J_model-J_data
+            error=J_model-J_data
+            error_array[nf]=error
             #f.write(str(error)+"\n")
             list_J_model[nf]=error
-        mean=np.mean(list_J_model)
-        std=np.std(list_J_model)
-        f.write(str(n_estimation)+"  "+str(mean)+"  "+str(std)+"\n")
+        time_f=time.time()-time_s
+        f.write(str(N_sample)+"  " +str(np.mean(error_array) )+"  "+str(np.std(error_array))+"\n")
+    f.write("#"+str(time_f))
     f.close()
+        #mean=np.mean(list_J_model)
+        #std=np.std(list_J_model)
+        #f.write(str(n_estimation)+"  "+str(mean)+"  "+str(std)+"\n")
+   # f.close()

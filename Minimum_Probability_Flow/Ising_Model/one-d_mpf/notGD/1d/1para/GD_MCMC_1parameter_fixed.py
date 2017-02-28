@@ -32,7 +32,7 @@ def calc_C(X=[[]]):
         xn=X[n]
         corre=0.0
         for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
+            corre+=xn[i]*xn[(i+1)%d]
         corre_mean+=corre
     corre_mean/=n_bach
     return corre_mean
@@ -66,8 +66,8 @@ def get_sample(j):
 
 
 if __name__ == '__main__':
-    fname="sample"+str(N_sample)+"MCMC.dat"
-    f=open(fname,"w")
+    #fname="sample"+str(N_sample)+"MCMC.dat"
+    #f=open(fname,"w")
     for nf in range(n_estimation):
         J_data=1.0 # =theta_sample
         #SAMPLING-Tmat
