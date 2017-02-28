@@ -32,7 +32,7 @@ def calc_C(X=[[]]):
         xn=X[n]
         corre=0.0
         for i in range(d):
-            corre+=xn[i]*xn[(i+1)%d]/d
+            corre+=xn[i]*xn[(i+1)%d]
         corre_mean+=corre
     corre_mean/=n_bach
     return corre_mean

@@ -10,16 +10,17 @@ def f(x):
 
 def f2(x,a):
     d=5
-    #return ((2*np.cosh(x))**(d-1)+(2*np.sinh(x))**(d-1))/ ((2*np.cosh(x))**d+(2*np.sinh(x))**d)
     return  (x-2.9)*(x-a)
 
+def myob(x,a):
+    d=5
+    return a-d*((2*np.cosh(x))**(d-1)+(2*np.sinh(x))**(d-1))/((2*np.cosh(x))**d+(2*np.sinh(x))**d)
 
 x_newton = fsolve(f, 1.0)
 x_nelder_mead = minimize(f2,1.0,method="Nelder-Mead",args=(1.3))
 x_powell = minimize(f, 1.0,method="Powell")
 x_cg = minimize(f, 1.0,method="CG")
 x_bfgs = minimize(f, 1.0,method="BFGS")
-#x_newtonCG = minimize(f, 1.0,method="Newton-CG")
 
 print("newton=",x_newton)
 print("nelder=",x_nelder_mead)

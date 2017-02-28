@@ -4,13 +4,14 @@ import numpy as np
 import time 
 from scipy import linalg
 import matplotlib.pyplot as plt
+from scipy.optimize import newton
 np.random.seed(3)
 n_estimation=4
 #parameter ( MCMC )
-d, N_sample =16,10#124, 1000
+d, N_sample =5,100#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
-t_gd_max=500 
+t_gd_max=100 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -55,35 +56,47 @@ def get_sample(j):
         X[k]=gen_x_pofx(p)
     return X
 
+def myob(J,X_sample=[[]]):
+    diff_expect=0
+    for m in range(N_sample):
+        x_m=np.copy(X_sample[m])
+        for l in range(d):
+            diff_E=2*x_m[l]*(x_m[(l+1)%d]+x_m[(l-1+d)%d])
+            diff_expect+=( - diff_E * (d*(1+np.exp(J*diff_E)))**(-1))/N_sample
+    return diff_expect
+
 if __name__ == '__main__':
-    fname="sample"+str(N_sample)+"nomcCD.dat"
-    f=open(fname,"w")
-    for nf in range(n_estimation):
-        ##Generate sample-dist
-        J_data=1.0
-        correlation_data=0.0#np.zeros(d)
-        #SAMPLING-Tmat
-        for n in range(N_sample):
-            x=get_sample(J_data)
-            if(n==0):
-                x_new=np.copy(x)
-                X_sample = np.copy(x)
-                correlation_data+=calc_C(x_new)/N_sample
-            elif(n>0):
-                x_new=np.copy(x)
-                X_sample=np.vstack((X_sample,np.copy(x)))
-                correlation_data+=calc_C(x_new)/N_sample
-        
-        J_model=2.0
-        for t_gd in range(t_gd_max):
-            diff_expect=0.0#np.zeros(d)
-            for m in range(N_sample):
-                x_m=np.copy(X_sample[m])
-                for l in range(d):
-                    diff_E=2*x_m[l]*(x_m[(l+1)%d]+x_m[(l-1+d)%d])
-                    diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
-            J_model-=lr*diff_expect
-            error=J_model - J_data
-            print(t_gd,error)
-        f.write(str(error)+"\n")
-    f.close()
+    #fname="sample"+str(N_sample)+"nomcCD.dat"
+    #f=open(fname,"w")
+    #for nf in range(n_estimation):
+    ##Generate sample-dist
+    J_data=1.0
+    correlation_data=0.0#np.zeros(d)
+    #SAMPLING-Tmat
+    for n in range(N_sample):
+        x=get_sample(J_data)
+        if(n==0):
+            x_new=np.copy(x)
+            X_sample = np.copy(x)
+            correlation_data+=calc_C(x_new)/N_sample
+        elif(n>0):
+            x_new=np.copy(x)
+            X_sample=np.vstack((X_sample,np.copy(x)))
+            correlation_data+=calc_C(x_new)/N_sample
+    J_model=2.0
+    J_newton=newton(myob,0.5,args=(X_sample,))
+    print("J_newton=",J_newton)
+    print("myob(J_newton)=",myob(J_newton,X_sample))
+    for t_gd in range(t_gd_max):
+        diff_expect=0.0#np.zeros(d)
+        for m in range(N_sample):
+            x_m=np.copy(X_sample[m])
+            for l in range(d):
+                diff_E=2*x_m[l]*(x_m[(l+1)%d]+x_m[(l-1+d)%d])
+                diff_expect+=( - diff_E * (d*(1+np.exp(J_model*diff_E)))**(-1))/N_sample
+        J_model-=lr*diff_expect
+        error=J_model - J_data
+       #print(t_gd,error)
+    #f.write(str(error)+"\n")
+    #f.close()
+    print("#GD=",J_model)

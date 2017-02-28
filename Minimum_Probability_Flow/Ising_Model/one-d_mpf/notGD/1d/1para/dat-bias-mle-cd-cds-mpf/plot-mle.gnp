@@ -1,0 +1,13 @@
+set xrange [4:]
+set logscale x
+set title "MLE"
+set xlabel "N=#sample"  font "times,20"
+set ylabel "Bias" font "times,20"
+f(x) = a*x**(-1.0/2) + b*x**(-1.0) + c
+#g(x,y) = a*x**2 + b*y**2 + c*x*y
+FIT_LIMIT = 1e-6
+fit f(x) './mle-MCMC.dat' using 1:2 via a, b, c
+#fit g(x,y) 'surface.dat' using 1:2:3:(1) via a, b, c
+p "./mle-MCMC.dat" u 1:2:3 w errorbar  title "MLE", f(x)  
+#replot  "./bias_N_depend.dat" u 1:(sqrt(-$2)) title "MLE"  w l 
+replot  "./bias_N_depend.dat" u 1:(-$2)  title "theory, O(1/N)" w l 

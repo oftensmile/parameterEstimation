@@ -10,7 +10,7 @@ n_estimation=4
 d, N_sample =16,10#124, 1000
 N_remove = 100
 lr,eps =1, 1.0e-100
-t_gd_max=500 
+t_gd_max=50 
 def gen_mcmc(J,x=[] ):
     for i in range(d):
         #Heat Bath
@@ -57,6 +57,8 @@ def get_sample(j):
 
 if __name__ == '__main__':
     fname="sample"+str(N_sample)+"nomcCD.dat"
+    time_s=time.time()
+    variance=0
     f=open(fname,"w")
     for nf in range(n_estimation):
         ##Generate sample-dist
@@ -86,4 +88,8 @@ if __name__ == '__main__':
             error=J_model - J_data
             print(t_gd,error)
         f.write(str(error)+"\n")
+        variance+=error
+    d_time=time.time()-time_s
+    print("#time=",d_time,"variance=",variance/N_sample)
+    f.write("#variance="+str(variance/N_sample)+"\n")
     f.close()

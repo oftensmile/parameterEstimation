@@ -1,0 +1,20 @@
+set xrange [4:]
+set yrange [-0.2:1.5]
+set logscale x
+set title "MPF,CD,sCD,MPF"
+set xlabel "N=#sample"  font "times,20"
+set ylabel "Bias" font "times,20"
+fmle(x) = a1*x**(-1.0/2) + b1*x**(-1.0) + c1
+fcd(x)  = a2*x**(-1.0/2) + b2*x**(-1.0) + c2
+fscd(x) = a3*x**(-1.0/2) + b3*x**(-1.0) + c3
+fmpf(x) = a4*x**(-1.0/2) + b4*x**(-1.0) + c4
+FIT_LIMIT = 1e-6
+fit fmle(x) './mle-MCMC.dat' using 1:2 via a1, b1, c1
+fit fcd(x)  './CD1-summary.dat' using 1:2 via a2, b2, c2
+fit fscd(x) './sCD1-summary.dat' using 1:2 via a3, b3, c3
+fit fmpf(x) './MPF.dat' using 1:2 via a4, b4, c4
+plot "./mle-MCMC.dat" u 1:2:3 w errorbar title "MLE",    fmle(x) 
+replot "./CD1-summary.dat" u 1:2:3 w errorbar title "CD1", fcd(x)  
+replot "./sCD1-summary.dat" u 1:2:3 w errorbar title "sCD1", fscd(x) 
+replot "./MPF.dat" u 1:2:3 w errorbar title "MPF",         fmpf(x)
+replot  "./bias_N_depend.dat" u 1:(0.01+sqrt(-$2))  w l 

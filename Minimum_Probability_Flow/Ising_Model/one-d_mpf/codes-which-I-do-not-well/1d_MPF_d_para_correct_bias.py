@@ -7,13 +7,15 @@ import time
 from scipy import linalg
 import matplotlib.pyplot as plt
 import csv 
-np.random.seed(0)
+np.random.seed(10)
 #parameter ( MCMC )
 #t_burn_emp, t_burn_model = 1100, 10#10000, 100
 t_interval = 40
 #parameter ( System )
-d, N_sample = 16,300 #124, 1000
-N_remove = 100
+#d, N_sample = 16,300 #124, 1000
+d, N_sample = 8,10 #124, 1000
+#N_remove = 100
+N_remove = 10
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
 t_gd_max=400 
@@ -44,12 +46,11 @@ J_vec=np.random.uniform(J_min,J_max,d)
 x = np.random.uniform(-1,1,d)
 x = np.array(np.sign(x))
 ##SAMPLING
-for n in range(N_sample):
+for n in range(N_sample+N_remove):
     for t in range(t_interval):
         x = np.copy(gen_mcmc(J_vec,x))
     if(n==N_remove):X_sample = np.copy(x)
     elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
-
 ###MPF
 
 ##Find Hamming Distance 1 whith in the data.
@@ -60,7 +61,14 @@ idx=np.where(dist_mat!=1)
 dist_mat2=np.copy(dist_mat)
 dist_mat2[idx]=0    #Dist of none zero elemens are 1 hamming distance.
 ##
-
+print("X_sample=\n",X_sample)
+print("dist_mat2=\n",dist_mat2)
+print("idx=\n",idx)
+print("idx[0]=\n",idx[0])
+len_idx=len(idx[0])
+for i in range(len_idx):
+    diff_sample_pair_i=X_sample[idx[0][i]]-X_sample[idx[1][i]]
+    idx3=np.where(diff_sample_pair_i!=0)
 
 #In this case I applied 
 theta_model=np.random.uniform(0,4,d)    #Initial guess
@@ -80,16 +88,30 @@ for t_gd in range(t_gd_max):
             gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
             gradK[l]+=gradK_nin[l]/n_bach
         #To eliminate transiton of data to data.
-        idx3=np.where(dist_mat2[nin]==1)
-        for l in idx3:
-            #xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
-            #xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
-            #xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
-            # OPPOSITE SIGN
-            #gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
-            #gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
-            gradK[l]-=gradK_nin[l]/n_bach
-    
+        #idx2 includes index of sample.
+        idx2=np.where(dist_mat2[nin]==1)
+        print("idx2=\n",idx2[0])
+        print("len(idx2)=\n",len(idx2[0]))
+        if(len(idx2[0]>1)):
+            for i in idx2[0]:
+                print("idx2[0] of i =",i)
+                #diff_sample_pair_i=X_sample[idx[0][i]]-X_sample[idx[1][i]]
+                diff_sample_pair_i=X_sample[nin]-X_sample[i]
+                print("X_sample[nin]=\n",X_sample[nin])
+                print("X_sample[i]=\n",X_sample[i])
+                #print("diff_sample_pair_i=\n",diff_sample_pair_i)
+                idx3=np.where(diff_sample_pair_i!=0)
+                print("idx3[0][0]=",idx3[0][0])
+                l=idx3[0][0]
+            #for l in idx3:
+                #xl_xl_plu_1=x_nin[l]*x_nin[(l+1)%d]
+                #xl_min_1_xl=x_nin[(l+d-1)%d]*x_nin[l]
+                #xl_plu_1_xl_pul_2=x_nin[(l+1)%d]*x_nin[(l+2)%d]
+                # OPPOSITE SIGN
+                #gradK_nin[l]= - xl_xl_plu_1*np.exp( -xl_xl_plu_1*theta_model[l] ) /d
+                #gradK_nin[l]*= ( np.exp(-xl_min_1_xl*theta_model[(l+d-1)%d])+np.exp(-xl_plu_1_xl_pul_2*theta_model[(l+1)%d]) )
+                gradK[l]-=gradK_nin[l]/n_bach
+    break  
    
     theta_model=theta_model-lr*gradK
     sum_of_gradK=np.sum(gradK)

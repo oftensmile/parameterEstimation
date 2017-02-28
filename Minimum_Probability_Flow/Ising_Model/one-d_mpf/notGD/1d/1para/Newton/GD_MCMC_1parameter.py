@@ -6,6 +6,7 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 import csv
 from scipy.optimize import fsolve
+from scipy.optimize import newton 
 from scipy.optimize import minimize 
 from scipy.optimize import bisect 
 import math
@@ -104,12 +105,8 @@ if __name__ == '__main__':
         corre_model_mean=calc_C(Xi_model)
         grad_likelihood=-corre_sample_mean+corre_model_mean
         theta_model=np.copy(theta_model)-lr*grad_likelihood
-        #theta_model=np.copy(theta_model)-lr*(1.0/np.log(t_gd+1.7))*grad_likelihood
         theta_diff = theta_model-J_data
-        #f.write(str(theta_diff)+"\n")
         print(theta_diff)
-        #print(t_gd,np.abs(grad_likelihood),theta_diff)
-    #f.write(str(theta_diff)+"\n")
     print("#J_data= \n",J_data)
     print("#J_model= \n",theta_model)
     print("#J_newton= \n",J_newton)
