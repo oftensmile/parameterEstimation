@@ -3,13 +3,14 @@
 import numpy as np
 import time 
 from scipy import linalg
+import matplotlib.pyplot as plt
 from scipy.optimize import root 
 import math
 n_estimation=3
 np.random.seed(1)
 t_interval = 30
 #parameter ( System )
-d, N_sample = 5,100 #124, 1000
+d, N_sample = 16,100 #124, 1000
 N_remove=40
 #parameter ( MPF+GD )
 lr,eps =0.1, 1.0e-100
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     #fname="sample"+str(N_sample)+"MCMC.dat"
     #f=open(fname,"w")
     #for nf in range(n_estimation):
-    J_data=np.random.rand(d) # =theta_sample
+    J_data=np.random.uniform(0,1,d) # =theta_sample
     #SAMPLING
     x=np.random.choice([-1,1],d)
     for n in range(N_sample+N_remove):
@@ -59,7 +60,8 @@ if __name__ == '__main__':
         if(n==N_remove):X_sample = np.copy(x)
         elif(n>N_remove):X_sample=np.vstack((X_sample,np.copy(x)))
     corre_sample_mean=calc_C(X_sample)
-    J_lm=root(mcmc_object,0.1*np.ones(d),args=(corre_sample_mean,X_sample),method="lm")
+    J_model_init=np.random.uniform(0,2,d)
+    J_lm=root(mcmc_object,J_model_init,args=(corre_sample_mean,X_sample),method="lm")
     J_groyden1=root(mcmc_object,0.1*np.ones(d),args=(corre_sample_mean,X_sample),method="broyden1")
     """
     J_groyden2=root(mcmc_object,0.1*np.ones(d),args=(corre_sample_mean,X_sample),method="broyden2")
@@ -70,6 +72,17 @@ if __name__ == '__main__':
     """
     diff=(J_lm.x-J_data)
     print("diff_J_lm=\n",diff)
+    bins=np.arange(1,d+1)
+    bar_width=0.2
+    plt.bar(bins,J_data,color="blue",width=bar_width,label="$\it{J_{data}}$",align="center")
+    plt.bar(bins+bar_width,J_lm.x,color="red",width=bar_width,label="$\it{J_{moel}}$",align="center")
+    #plt.bar(bins+2*bar_width,init_theta,color="green",width=bar_width,label="initial",align="center")
+    plt.bar(bins+2*bar_width,J_model_init,color="gray",width=bar_width,label="$\it{J_{moel}};initial$",align="center")
+    plt.legend(fontsize=18)
+    plt.title("Maximum Likelihood Estimation",fontsize=22)
+    plt.xlabel("i=1,2,...,16",fontsize=18)
+    plt.ylabel("J",fontsize=18)
+    plt.show()    
     """
     diff=(J_groyden1.x-J_data)
     print("diff J_groyden1=\n",diff)

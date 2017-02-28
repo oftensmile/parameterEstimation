@@ -69,10 +69,10 @@ def get_sample(j):
     return X
 
 if __name__ == '__main__':
-    n_estimation=1000
-    sample_list=[5,10,20,40,100,200,400,800,1000]
-    time_s=time.time()
-    fname="mle-est"+str(n_estimation)+"naiveCD-subset.dat"
+    #estimation_list=[1,2,3,10,50,100,200,400]
+    estimation_list=[5,10,20]
+    N_sample=100
+    fname="sample"+str(N_sample)+"-estimation-n-subset-naiveCD.dat"
     f=open(fname,"w")
     for N_sample in sample_list:
         error_array=np.zeros(n_estimation)
@@ -108,7 +108,6 @@ if __name__ == '__main__':
                     #Using all samples
                     #/*THIS CHICE IS VERY IMPORRTANT!! MAYBE*/#
                     x_init=np.copy(X_set2[m])
-                    #x_init=np.copy(X_set2[(np.random.randint(N_sample))])
                     x_new_for_mcmc=np.copy(gen_mcmc(J_model,x_init))#This update is possible to generate any state.
                     correlation_model+=calc_C(x_new_for_mcmc)/N_sample
                 J_model-=lr*(correlation_model-correlation_data)
