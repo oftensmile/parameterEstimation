@@ -20,14 +20,13 @@ def mean_x(h,N):
     return mean 
 
 if __name__ == '__main__':
-    h0, M =0.1, 30 # number of statistical average
+    h0, M =0.1, 30000 # number of statistical average
     N_list = [10,20,30,40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    #N_list = [20,30,40,80,120,160,240,320]
     for N in N_list:
         b_list = np.zeros(M)
         for m in range(M):
             mean=mean_x(h0,N)
-            h = 0.5*math.log((1.0+hotta[0])/(1.0-hotta[0]))
+            h = 0.5*math.log((1.0+mean)/(1.0-mean))
             b_list[m] = h - h0
         bias = np.mean(b_list)
         print N, abs(bias), np.std(b_list)/np.sqrt(M)
