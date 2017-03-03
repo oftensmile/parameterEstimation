@@ -41,10 +41,8 @@ def mleq_of_hJ(h,J,xx,xandx):
 
 if __name__ == '__main__':
     h0,J0 =0.2, 0.1
-    N_list = [30,300,3000]
-    #N_list = [30,40]
-    #M_list = [5000]
-    M_list = [10]
+    N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
+    M_list = [10,100,1000,10000,100000]
     for M in M_list:
         fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+".dat"
         f=open(fname,"w")
@@ -52,15 +50,21 @@ if __name__ == '__main__':
         for N in N_list:
             bh_list = np.zeros(M)
             bJ_list = np.zeros(M)
-            for m in range(M): 
+            #for m in range(M): 
+            m = 0
+            while(m<M):
+                m+=1
                 mean=mean_stat(h0,J0,N)
-                h,J = solv_hJ(mean[0],mean[1]) 
-                check = mleq_of_hJ(h,J,mean[0],mean[1])
-                bh_list[m], bJ_list[m] = h-h0, J-J0 
+                if((1+mean[0]+mean[1])!=0 and (1+mean[0]-mean[1])!=0):
+                    h,J = solv_hJ(mean[0],mean[1]) 
+                    check = mleq_of_hJ(h,J,mean[0],mean[1])
+                    bh_list[m], bJ_list[m] = h-h0, J-J0 
+                else:
+                    m -=1
             bias_h, b_std_h = np.mean(bh_list), np.std(bh_list)
             bias_J, b_std_J = np.mean(bJ_list), np.std(bJ_list)
             #print M, N, bias_h, bias_J, b_std_h, b_std_J 
             f.write(str(N) + "  " + str(abs(bias_h)) + "  "  + str(b_std_h/np.sqrt(M)) 
                     + "  " + str(abs(bias_J)) + "  "  + str(b_std_J/np.sqrt(M))
                     +"\n" )
-        
+        f.close()    

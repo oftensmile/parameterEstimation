@@ -40,9 +40,9 @@ def mleq_of_hJ(h,J,xx,xandx):
     return (mleq1,mleq2)
 
 if __name__ == '__main__':
-    h0,J0 =0.2, 0.1
-    N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    M_list = [200000,300000]
+    h0,J0 =0.1, 0.5
+    N_list = [320,480,640,960,1280,1920,2560,3840,5120,7680,11520,17280]
+    M_list = [10000]
     for M in M_list:
         fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+".dat"
         f=open(fname,"w")
@@ -57,14 +57,15 @@ if __name__ == '__main__':
                 if((1+mean[0]+mean[1])!=0 and (1+mean[0]-mean[1])!=0):
                     h,J = solv_hJ(mean[0],mean[1]) 
                     check = mleq_of_hJ(h,J,mean[0],mean[1])
-                    bh_list[m], bJ_list[m] = h-h0, J-J0 
+                    bh_list[m], bJ_list[m] = h, J 
                 else:
                     m -=1
                 m+=1
             bias_h, b_std_h = np.mean(bh_list), np.std(bh_list)
             bias_J, b_std_J = np.mean(bJ_list), np.std(bJ_list)
             #print M, N, bias_h, bias_J, b_std_h, b_std_J 
-            f.write(str(N) + "  " + str(abs(bias_h)) + "  "  + str(b_std_h/np.sqrt(M)) 
-                    + "  " + str(abs(bias_J)) + "  "  + str(b_std_J/np.sqrt(M))
+            #f.write(str(N) + "  " + str(abs(bias_h)) + "  "  + str(b_std_h/np.sqrt(M)) 
+            f.write(str(N) + "  " + str(bias_h) + "  "  + str(b_std_h/np.sqrt(M)) 
+                    + "  " + str(bias_J) + "  "  + str(b_std_J/np.sqrt(M))
                     +"\n" )
         f.close()    
