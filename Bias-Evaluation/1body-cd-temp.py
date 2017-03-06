@@ -51,14 +51,13 @@ def TProb_HB(h):
     return y
 
 
-
 if __name__ == '__main__':
     eps,lr = 0.0000001, 1.0
     h0 =0.1
     N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
     M_list = [100000]
     for M in M_list:
-        fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-MP.dat"
+        fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-HB.dat"
         f=open(fname,"w")
         for N in N_list:
             b_list = np.zeros(M)

@@ -22,7 +22,7 @@ def mean_x(h,N):
 if __name__ == '__main__':
     h0 =0.1
     N_list = [10,20,30,40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    M_list = [1001,10001,100001]
+    M_list = [100,1000,10000]
     for M in M_list:
         fname="stav-"+str(M)+"-h0-"+str(h0)+".dat"
         f=open(fname,"w")
