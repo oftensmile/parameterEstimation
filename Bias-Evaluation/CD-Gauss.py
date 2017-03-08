@@ -32,24 +32,30 @@ def T_MP(mu,sig,x):
 
 if __name__ == '__main__':
     mu, sig = 1.0, 1.0
-    n_list = [1000, 10000]
+    #n_list = [1000, 10000,100000,1000000,10000000]
+    n_list = [2,4,8,16,32,64,12,256,512,1024,2028,4058]
+    M = 100
     lr, eps, epc_max = 1.0, 0.00001, 100000
+    mean_mu, mean_sig2 = 0.0 , 0.0
+    
     for n in n_list:
-        s = np.random.normal(mu,sig,n)
-        s_mean = np.mean(s)
-        s_var = np.var(s) 
-        s_myvar = np.sum((s-s_mean)**2)/(n-1)
-        ml_sol=[s_mean,np.sqrt(s_myvar)]
-        a, b = 2.0, 2.0 # Initial guessing of mu and sigma**2
-        t = 0
-        grad = 1.0
-        while (t<epc_max and abs(a)>eps):
-            da, db = (a-s_mean), (b - s_var)
-            a = a - lr*da #ML
-            #b = b - lr*(b - np.sum((s-a)**2)/(n-1))#ML
-            b = b - lr*db#M
-            grad = abs(da)+ abs(db)
-            t+=1
-        print n,t, a-mu, b-sig**2
+        for m in range(M):
+            s = np.random.normal(mu,sig,n)
+            s_mean = np.mean(s)
+            s_var = np.var(s) 
+            s_myvar = np.sum((s-s_mean)**2)/(n-1)
+            ml_sol=[s_mean,np.sqrt(s_myvar)]
+            a, b = 2.0, 2.0 # Initial guessing of mu and sigma**2
+            t = 0
+            grad = 1.0
+            while (t<epc_max and abs(a)>eps):
+                da, db = (a-s_mean), (b - s_var)
+                a = a - lr*da #ML
+                #b = b - lr*(b - np.sum((s-a)**2)/(n-1))#ML
+                b = b - lr*db#M
+                grad = abs(da)+ abs(db)
+                t+=1
+            mean_mu, mean_sig2= mean_mu+(a-mu)/M, mean_sig2+ (b-sig**2)/M 
+        print n,t, mean_mu,mean_sig2 
 
 
