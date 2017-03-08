@@ -54,7 +54,7 @@ def TProb_HB(x,h):
 
 
 if __name__ == '__main__':
-    eps,lr,max_epc = 0.0000001, 0.001, 2000
+    eps,lr,max_epc = 0.0000001, 0.01, 2000
     h0 =0.1
     #N_list = [80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
     N_list = [200]
@@ -75,8 +75,7 @@ if __name__ == '__main__':
                 m_model,m_data=100, np.mean(set_data[1])
                 h=0.1
                 count=0
-                #while(abs(m_model-m_data)>eps and count<max_epc):
-                while(count<max_epc):
+                while(abs(m_model-m_data)>eps and count<max_epc):
                     set_model=gen_tran_state(h,flag,set_data[1])
                     m_model=np.mean(set_model)
                     h += lr * (m_data - m_model)
