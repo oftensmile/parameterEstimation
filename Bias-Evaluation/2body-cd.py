@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 import random, math
 import numpy as np
-
+import time 
 def partition(h,J):
     return 2 * ( np.exp(J)*np.cosh(2*h)+np.exp(-J) ) 
 
@@ -22,11 +22,35 @@ def mean_stat(h,J,N):
         mean_xandx += x[0] + x[1]
     mean_xx /= float(N)
     mean_xandx /= float(N)
-    #p1_emp = 0.25*(1+mean_xx+mean_xandx)
-    #p2_emp = 0.25*(1+mean_xx-mean_xandx)
-    #print "    p=", p1, p2
-    #print "p_emp=", p1_emp, p2_emp
     return ( mean_xx,mean_xandx )
+
+def gen_tran_state(h,set_receive=[]):
+    set_return = []
+    for x in set_receive:
+        #y = TProb_HB(x,h)
+        y = TProb_MP(x,h)
+        set_return.append(y)
+    return set_return 
+
+def TProb_MP(x,h):
+    y = - x
+    p = np.exp(-(-h)*(y-x))
+    r = random.uniform(0,1)
+    if(r<p):
+        y = -x
+    else:
+        y = x
+    return y
+
+def TProb_HB(h):
+    p = 1.0/(1.0 +np.exp(-2.0*h))
+    r = random.uniform(0,1)
+    if(r<p):
+        y = 1 
+    else:
+        y = -1 
+    return y
+
 
 def solv_hJ(xx,xandx):
     h = 0.25*np.log( (1+xx+xandx) / (1+xx-xandx) )
@@ -40,31 +64,38 @@ def mleq_of_hJ(h,J,xx,xandx):
     return (mleq1,mleq2)
 
 if __name__ == '__main__':
+    eps,lr,max_epc = 0.0000001, 1.0, 300
     h0,J0 =0.2, 0.1
-    N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    M_list = [10,100,1000,10000,100000]
+    #N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
+    N_list = [40,80,160,500]
+    #M_list = [1000,10000]
+    M_list = [1000]
     for M in M_list:
-        fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+".dat"
+        fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+"-cd.dat"
         f=open(fname,"w")
         f.write("#N, bias_h, bias_J, b_std_h/sqrt(M), b_std_J/sqrt(M) \n")
         for N in N_list:
             bh_list = np.zeros(M)
             bJ_list = np.zeros(M)
-            #for m in range(M): 
             m = 0
             while(m<M):
-                m+=1
                 mean=mean_stat(h0,J0,N)
+                dh,dJ = 1, 1
                 if((1+mean[0]+mean[1])!=0 and (1+mean[0]-mean[1])!=0):
-                    h,J = solv_hJ(mean[0],mean[1]) 
-                    check = mleq_of_hJ(h,J,mean[0],mean[1])
+                    count=0
+                    h, J = h0+0.1, J0+0.1
+                    while((abs(dh)+abs(dJ))>eps and count<max_epc):
+                        dh,dJ = mleq_of_hJ(h,J,mean[0],mean[1])
+                        h,J = h+lr*dh, J+lr*dJ
+                        if(abs(h)+abs(J)>100): print count,h,J
+                        count+=1
                     bh_list[m], bJ_list[m] = h-h0, J-J0 
-                else:
-                    m -=1
+                    m+=1
+                #end if 
             bias_h, b_std_h = np.mean(bh_list), np.std(bh_list)
             bias_J, b_std_J = np.mean(bJ_list), np.std(bJ_list)
             #print M, N, bias_h, bias_J, b_std_h, b_std_J 
             f.write(str(N) + "  " + str(abs(bias_h)) + "  "  + str(b_std_h/np.sqrt(M)) 
                     + "  " + str(abs(bias_J)) + "  "  + str(b_std_J/np.sqrt(M))
-                    +"\n" )
+                    +"\n#time="+ str(time.time())  )
         f.close()    
