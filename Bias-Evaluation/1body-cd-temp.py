@@ -42,7 +42,6 @@ def TProb_MP(x,h):
         y = x
     return y
 
-
 def TProb_HB(x,h):
     p = 1.0/(1.0 +np.exp(-2.0*h))
     r = random.uniform(0,1)
@@ -53,13 +52,14 @@ def TProb_HB(x,h):
     return y
 
 
+
 if __name__ == '__main__':
-    eps,lr,max_epc = 0.0000001, 0.01, 2000
-    h0 =0.1
-    #N_list = [80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    N_list = [200]
+    eps,lr,max_epc = 0.000001, 0.1, 2000
+    h0 =0.5
+    N_list = [80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
+    #N_list = [50,100,300,500,800,1000]
     #M_list = [100000,100000,1000000,1000000]
-    M_list = [2]
+    M_list = [1000,1000,10000,10000]
     flag = 0
     for M in M_list:
         if (flag%2==0):
@@ -70,19 +70,31 @@ if __name__ == '__main__':
         f=open(fname,"w")
         for N in N_list:
             b_list = np.zeros(M)
+            b_mean_list = np.zeros(M)
             for m in range(M):
                 set_data=mean_x(h0,N)
-                m_model,m_data=100, np.mean(set_data[1])
-                h=0.1
-                count=0
-                while(abs(m_model-m_data)>eps and count<max_epc):
+                dh,dh_mean,m_data=1.0,1.0, np.mean(set_data[1])
+                dh_vec,h_vec=[],[]
+                h=h0+0.2
+                count,t=0,0
+                #while(abs(dh)>eps and count<max_epc):
+                while(abs(dh_mean)>eps and count<max_epc):
                     set_model=gen_tran_state(h,flag,set_data[1])
-                    m_model=np.mean(set_model)
-                    h += lr * (m_data - m_model)
-                    print count, h
+                    dh = m_data - np.mean(set_model)
+                    h += (lr/np.log(2+t)) * dh 
+                    #print count, h-h0,dh 
+                    dh_vec.append(dh),h_vec.append(h)
+                    if(len(dh_vec)>100):
+                        dh_vec.pop(0),h_vec.pop(0)
+                        dh_mean=np.mean(dh_vec)
+                        h_mean=np.mean(h_vec)
                     count+=1
-                    b_list[m] = h - h0 
-                    bias = np.mean(b_list)
-                f.write( str(N) + "  " + str(bias) + "  "  + str(np.std(b_list)/np.sqrt(M)) +"\n"+str(time.time()) )
+                b_list[m] = h - h0 
+                b_mean_list[m] = h_mean - h0 
+                bias = np.mean(b_list)
+                bias_mean = np.mean(b_mean_list)
+                #print h-h0,h_mean -h0 ,dh_mean, bias, bias_mean
+            f.write( str(N) + "  " + str(bias) + "  "  + str(np.std(b_list)/np.sqrt(M)) + "  " + str(bias_mean) + "  "  + str(np.std(b_mean_list)/np.sqrt(M))+"\n")
+        f.write("#"+str(time.time()) )
         f.close()
 
