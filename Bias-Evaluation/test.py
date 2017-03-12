@@ -2,15 +2,22 @@
 #-*-coding:utf-8-*-
 import random, math
 import numpy as np
-n,i=0,0
-while(i<10):
-    n += 1
-    i += 1
-    if (n%3!=0):
-        print i,n
-    else:
-        print i,n, "b"
-        i -= 1
-        print i,n, "a"
 
+def myfunc(x):
+    return x*x
 
+def myfunc2(x,y):
+    return x*y
+
+#def myfunc2(x,y,a):
+#    return x*y+a
+
+a0 = 1.0
+a = np.arange(10)
+ab = [np.arange(10),2*np.arange(10)]
+
+A = np.linspace(0.05,1.55,100)
+i=0
+for a in A:
+    print i,a
+    i+=1

@@ -63,9 +63,9 @@ if __name__ == '__main__':
     flag = 0
     for M in M_list:
         if (flag%2==0):
-            fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-HB.dat"
+            fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-HB-0309.dat"
         elif(flag%2==1):
-            fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-MP.dat"
+            fname="stav-"+str(M)+"-h0-"+str(h0)+"-cd-MP-0309.dat"
         flag += 1
         f=open(fname,"w")
         for N in N_list:
