@@ -68,11 +68,17 @@ def GD_CD(a,b,eps,lr,s=[]):
 
 if __name__ == '__main__':
     mu, sig = 1.0, 1.0
-    #n_list = [10,20,40,80,160,320,640,1280]
-    n_list = [1000,1000,1000,1000,1000]
-    M =1
+    flag = 0 
+    n_list = [40,80,160,320,640,1280]
+    
+    fname="stav-"+str(M)+"-mu-"+str(mu)+"-sig"+str(sig)+"-cd-ML-0309.dat"
+    #fname="stav-"+str(M)+"-mu-"+str(mu)+"-sig"+str(sig)+"-cd-MP-0309.dat"
+    #fname="stav-"+str(M)+"-mu-"+str(mu)+"-sig"+str(sig)+"-cd-HB-0309.dat"
+    f=open(fname,"w") 
+    #n_list = [80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
+    #n_list = [1000,1000,1000,1000,1000]
+    M =1000
     lr, eps, epc_max = 1,0.00001, 1000
-    flag = 1 
     for n in n_list:
         mu_vec, sig_vec = [], []
         for m in range(M):
@@ -90,3 +96,5 @@ if __name__ == '__main__':
             mu_vec.append(a), sig_vec.append(b)
         mean_mu, mean_sigma = np.mean(mu_vec)/np.sqrt(M), np.mean(sig_vec)/np.sqrt(M)
         print  n, mean_mu-mu, mean_sigma-sig**2
+        f.write(str(n)+"  " + str(mean_mu-mu) + "  " + str((mean_sigma-sig**2)/np.sqrt(M)) + "\n")
+        f.close()
