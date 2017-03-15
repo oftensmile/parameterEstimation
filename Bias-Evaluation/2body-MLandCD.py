@@ -68,13 +68,16 @@ def log_likelihood(t=[],*stat):
     return -(J*xx+h*xax-np.log(np.exp(J)*np.cosh(2.0*h)+np.exp(-J))) 
 
 if __name__ == '__main__':
-    h0,J0 =0.4, 0.8
-    N_list = [40,80,240,480,960,1280,2560,5120,7680]
-    M_list = [10000]
-    #N_list = [10,100,500,1000]
-    #M_list = [10]
+    h0,J0 =0.1, 0.5
+    N_list = [80,120,240,480,960,1280,1920,2560,3840,5120,7680]
+    M_list = [10000,10000,100000,100000]
+    #N_list = [10,100,500]
+    M_list = [10,10]
+    count = 0
     for M in M_list:
-        fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+"-master.dat"
+        if(count%2==0):h0,J0=0.1,0.5
+        elif(count%2==1):h0,J0=0.2,0.1
+        fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+"-master-0314.dat"
         f=open(fname,"w")
         f.write("#N, bias_h, bias_J, b_std_h/sqrt(M), b_std_J/sqrt(M)+ (...CD1...) \n")
         for N in N_list:
@@ -107,4 +110,5 @@ if __name__ == '__main__':
                     + str(abs(bias_h_cd)) + "  "  + str(b_std_h_cd/np.sqrt(M)) 
                     + "  " + str(abs(bias_J_cd)) + "  "  + str(b_std_J_cd/np.sqrt(M))
                     +"\n" )
-        f.close()    
+        f.close()
+        count+=1

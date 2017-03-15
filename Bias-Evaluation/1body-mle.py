@@ -20,10 +20,15 @@ def mean_x(h,N):
     return mean 
 
 if __name__ == '__main__':
-    h0 =0.8
-    N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    M_list = [100000]
+    h0 =0.5
+    N_list = [10,20,30,40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
+    M_list = [10000,10000]
+    count = 0
     for M in M_list:
+        if(count==0):
+            h0=0.1
+        elif(count==1):
+            h0=0.5
         fname="stav-"+str(M)+"-h0-"+str(h0)+".dat"
         f=open(fname,"w")
         for N in N_list:
@@ -35,5 +40,6 @@ if __name__ == '__main__':
                 b_list[m] = h  
             bias = np.mean(b_list)
             f.write( str(N) + "  " + str(bias) + "  "  + str(np.std(b_list)/np.sqrt(M)) +"\n" )
-
+        f.close()
+        count+=1
 
