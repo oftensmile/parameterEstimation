@@ -68,11 +68,11 @@ def log_likelihood(t=[],*stat):
     return -(J*xx+h*xax-np.log(np.exp(J)*np.cosh(2.0*h)+np.exp(-J))) 
 
 if __name__ == '__main__':
-    h0,J0 =0.2, 0.8
-    #N_list = [40,80,120,160,240,320,480,640,960,1280,1920,2560,3840,5120,7680]
-    #M_list = [10000]
-    N_list = [10,100,500,1000]
-    M_list = [10]
+    h0,J0 =0.4, 0.8
+    N_list = [40,80,240,480,960,1280,2560,5120,7680]
+    M_list = [10000]
+    #N_list = [10,100,500,1000]
+    #M_list = [10]
     for M in M_list:
         fname="stav-"+str(M)+"-J0-"+str(J0)+"-h0-"+str(h0)+"-master.dat"
         f=open(fname,"w")
