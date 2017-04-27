@@ -156,6 +156,7 @@ def calc_model_cd1_HB_LSE(parameter=[],*args):
             eq_of_cd1_h[i]+=-2*s[i]*A_si_s
             eq_of_cd1_J[i]+=-2*s[i]*s[(i+1)%d]*(A_si_s + A_si_s1)
             #eq_of_cd1_J[(i+d-1)%d]+=-2*s[i]*s[(i+1)%d]*A_si_s
+    # Does this still writing?
     eq_of_cd1_h=eq_of_cd1_h
     eq_of_cd1_J=eq_of_cd1_J
     para_out=np.append(eq_of_cd1_h,eq_of_cd1_J)
