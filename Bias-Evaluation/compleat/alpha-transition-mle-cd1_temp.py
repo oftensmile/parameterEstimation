@@ -152,51 +152,44 @@ def eq_of_cd(parameter=[],*args):
     return para_out 
 
 if __name__ == '__main__':
-    N,M=100, 30 
+    N,M=100, 20 
     #h,J = np.ones(d) * 0.2,np.ones(d) * 0.2 
     h0,J0 =[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],[0.1,0.0,0.1,0.0,0.1,0.0,0.1,0.0,0.1] 
     #h0,J0 =[0.1,0.2,0.3],[0.1,0.0,0.1] 
     d = len(h0)
-    #h_init,J_init= [0.1,0.1,0.1],[0.01,0.1,0.01] 
+   # h_init,J_init= [0.1,0.1,0.1],[0.01,0.1,0.01] 
     h_init,J_init= [0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1],[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1] 
     d = len(h0) 
     initial = (h_init,J_init)
     ans =np.append(h0,J0)
     #alpha_list = [1.0,0.8,0.6,0.4,0.25]
     alpha_list = [1.0,0.999,0.995,0.9925,0.99,0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1,0.5,0.01,0.0]
-    f = open("average-alpha-dependence-M30-N100.dat", "w") 
+    f = open("average-alpha-dependence-M20-N100.dat", "w") 
         
-    n_a = len(alpha_list) 
     sdata0,ssdata0= calc_model_mle(h0,J0)
-    solve_ml_mean=np.zeros((n_a,len(h0)*2))
-    solve_cd_mean=np.zeros((n_a,len(h0)*2))
-    solve_ml_var=np.zeros((n_a,len(h0)*2))
-    solve_cd_var=np.zeros((n_a,len(h0)*2))
-    
-    for m in range(M):
-        sample = gen_sample(N,h0,J0)
-        global P0 
-        P0 = empirical_dist(d,sample)
-        # this is sample from true parameter, and used for only cd method.
-        sdata,ssdata = calc_data_hJ(sample)
-        i = 0
-        for alpha in alpha_list:
+    for alpha in alpha_list:
+        solve_ml_mean=np.zeros(len(h0)*2)
+        solve_cd_mean=np.zeros(len(h0)*2)
+        solve_ml_var=np.zeros(len(h0)*2)
+        solve_cd_var=np.zeros(len(h0)*2)
+        for m in range(M):
+            sample = gen_sample(N,h0,J0)
+            global P0 
+            P0 = empirical_dist(d,sample)
+            # this is sample from true parameter, and used for only cd method.
+            sdata,ssdata = calc_data_hJ(sample)
             #MLE
             solve_ml=fsolve(eq_of_ml,initial,args=(alpha,sdata0,ssdata0,sdata,ssdata))
-            solve_ml_mean[i]=solve_ml_mean[i] + (solve_ml-ans)/(M) 
-            solve_ml_var[i]=solve_ml_var[i] + ((solve_ml-ans)/(M))**2
+            solve_ml_mean=solve_ml_mean + (solve_ml-ans)/(M) 
+            solve_ml_var=solve_ml_var + ((solve_ml-ans)/(M))**2
             #CD1
             solve_cd=fsolve(calc_model_cd1_HB_LSE,initial,args=(alpha,h0,J0))
-            solve_cd_mean[i]=solve_cd_mean[i] + (solve_cd-ans)/(M)
-            solve_cd_var[i]=solve_cd_var[i] + ((solve_cd-ans)/(M))**2
+            solve_cd_mean=solve_cd_mean + (solve_cd-ans)/(M)
+            solve_cd_var=solve_cd_var + ((solve_cd-ans)/(M))**2
 
             diff_ml=solve_ml-ans
             diff_cd=solve_cd-ans
-            #solve_ml_var[i] = solve_ml_var[i] - solve_ml_mean**2
-            #solve_cd_var[i] = solve_cd_var[i] - solve_cd_mean**2
-            i += 1
-    i =0 
-    for alpha in alpha_list:
-        f.write(str(alpha)+"  "+str(sum(np.abs(solve_ml_mean[i])/d))+"  "+str(sum(np.abs(solve_ml_var[i])/d))+"  "+str(sum(np.abs(solve_cd_mean[i])/d))+"  "+str(sum(np.abs(solve_cd_var[i])/d))+"\n")
-        i += 1
+        solve_ml_var = solve_ml_var - solve_ml_mean**2
+        solve_cd_var = solve_cd_var - solve_cd_mean**2
+        f.write(str(alpha)+"  "+str(sum(np.abs(solve_ml_mean)/d))+"  "+str(sum(np.abs(solve_ml_var)/d))+"  "+str(sum(np.abs(solve_cd_mean)/d))+"  "+str(sum(np.abs(solve_cd_var)/d))+"\n")
     f.close()
